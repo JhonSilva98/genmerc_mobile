@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "337822743059",
+    "project_id": "genmerc-mobile",
+    "storage_bucket": "genmerc-mobile.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:337822743059:android:801ef07738d84232d31de6",
+        "android_client_info": {
+          "package_name": "com.example.genmerc_mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "337822743059-fpgsd38mk8qglgk5cn3vv0d411hlf388.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB7boRiYxBmGNBD6D7h_926o7hvlSFjevs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "337822743059-fpgsd38mk8qglgk5cn3vv0d411hlf388.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

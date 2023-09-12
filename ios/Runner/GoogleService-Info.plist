@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>337822743059-qe3f6f4kk0ev29o8992r2onujn482q88.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.337822743059-qe3f6f4kk0ev29o8992r2onujn482q88</string>
+	<key>API_KEY</key>
+	<string>AIzaSyAT2KyOX0aKibl6vHK1N-0Yns0pD6WH6c8</string>
+	<key>GCM_SENDER_ID</key>
+	<string>337822743059</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.genmercMobile</string>
+	<key>PROJECT_ID</key>
+	<string>genmerc-mobile</string>
+	<key>STORAGE_BUCKET</key>
+	<string>genmerc-mobile.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:337822743059:ios:aa91bd288255e231d31de6</string>
+</dict>
+</plist>
