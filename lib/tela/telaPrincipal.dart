@@ -11,8 +11,9 @@ class TelaPrincipal extends StatefulWidget {
 }
 
 class _TelaPrincipalState extends State<TelaPrincipal> {
-  Widget cardPersonalite() {
+  Widget cardPersonalite(Key key, int index) {
     return Flex(
+      key: key,
       direction: Axis.horizontal,
       children: [
         Flexible(
@@ -38,7 +39,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                               fit: BoxFit.contain,
                             ),
                           ),
-                          const Flexible(
+                          Flexible(
                             child: Flex(
                               direction: Axis.vertical,
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -46,15 +47,15 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                                 Flexible(
                                   flex: 4,
                                   child: Text(
-                                    'Coca-Colallll',
+                                    '$index, Coca-Cola',
                                     softWrap: false,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 20,
                                     ),
                                   ),
                                 ),
-                                Flexible(
+                                const Flexible(
                                   flex: 1,
                                   child: Text(
                                     '1x RS: 5,50',
@@ -87,7 +88,11 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
         Flexible(
           flex: 1,
           child: IconButton(
-            onPressed: () {},
+            onPressed: () {
+              setState(() {
+                listCard.removeWhere((item) => item.key == key);
+              });
+            },
             icon: const Icon(
               Icons.clear,
               color: Colors.red,
@@ -217,19 +222,20 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                     ),
                     Flexible(
                       child: ElevatedButton(
-                          onPressed: () {},
-                          style: ButtonStyle(
-                            foregroundColor:
-                                MaterialStateProperty.all<Color>(Colors.white),
-                            backgroundColor:
-                                MaterialStateProperty.all<Color>(Colors.green),
+                        onPressed: () {},
+                        style: ButtonStyle(
+                          foregroundColor:
+                              MaterialStateProperty.all<Color>(Colors.white),
+                          backgroundColor:
+                              MaterialStateProperty.all<Color>(Colors.green),
+                        ),
+                        child: const Text(
+                          'Finalizar',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
                           ),
-                          child: const Text(
-                            'Finalizar',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          )),
+                        ),
+                      ),
                     )
                   ],
                 ),
@@ -244,7 +250,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
         child: FloatingActionButton(
           onPressed: () {
             setState(() {
-              listCard.add(cardPersonalite());
+              listCard.add(cardPersonalite(GlobalKey(), listCard.length));
             });
           },
           shape: RoundedRectangleBorder(

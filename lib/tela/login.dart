@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:genmerc_mobile/auth_services/loginProvider.dart';
+import 'package:genmerc_mobile/firebase/bancoDados.dart';
+import 'package:genmerc_mobile/tela/cadastro.dart';
 import 'package:genmerc_mobile/tela/telaPrincipal.dart';
 import 'package:provider/provider.dart';
 
@@ -182,11 +184,22 @@ class _LoginState extends State<Login> {
                             _controllerSenha.text.toString(),
                             context);
                         if (authProvider.user != null) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const TelaPrincipal()),
-                          );
+                          BancoDadosFirebase bdfirebase = BancoDadosFirebase();
+                          if (await bdfirebase.isDocumentExist(
+                            authProvider.user!.email.toString(),
+                          )) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const TelaPrincipal()),
+                            );
+                          } else {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const Cadastro()),
+                            );
+                          }
                         }
                       },
                       child: const Text('ENTRAR')),
