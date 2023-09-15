@@ -17,10 +17,11 @@ class TelaPrincipal extends StatefulWidget {
 
 class _TelaPrincipalState extends State<TelaPrincipal> {
   BancoDadosFirebase bdFirebase = BancoDadosFirebase();
-  final String _scanBarcode = '0';
+  double subtotal = 0.0;
 
   Widget cardPersonalite(
       Key key, int index, String nome, double valorUnit, String image) {
+    subtotal += valorUnit;
     return Flex(
       key: key,
       direction: Axis.horizontal,
@@ -82,9 +83,9 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                         ],
                       ),
                     ),
-                    const Text(
-                      'RS: 5,50',
-                      style: TextStyle(
+                    Text(
+                      'R\$: $valorUnit',
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 20,
                       ),
@@ -99,6 +100,125 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
           onPressed: () {
             setState(() {
               listCard.removeWhere((item) => item.key == key);
+              subtotal -= valorUnit;
+            });
+          },
+          icon: const Icon(
+            Icons.clear,
+            color: Colors.red,
+            size: 20,
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget cardPersonalite2(
+      Key key, int index, String nome, double valorUnit, String image) {
+    subtotal += valorUnit;
+    return Flex(
+      key: key,
+      direction: Axis.horizontal,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          child: SizedBox(
+            height: 80,
+            width: double.infinity,
+            child: Card(
+              elevation: 8,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    Flexible(
+                      flex: 1,
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width / 5,
+                        height: MediaQuery.of(context).size.width / 5,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(10.0),
+                          child: Image.network(
+                            image,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return const Icon(Icons.photo_library_outlined);
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 4,
+                      child: Flex(
+                        direction: Axis.vertical,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            flex: 2,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 8.0),
+                              child: ListView(
+                                scrollDirection: Axis.horizontal,
+                                children: [
+                                  Text(
+                                    '$index - $nome',
+                                    softWrap: false,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Flexible(
+                            flex: 1,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 8.0),
+                              child: Flex(
+                                direction: Axis.horizontal,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      '1x $valorUnit',
+                                      style: const TextStyle(
+                                          color: Colors.grey, fontSize: 10),
+                                    ),
+                                  ),
+                                  Flexible(
+                                    child: FittedBox(
+                                      fit: BoxFit.contain,
+                                      child: Text(
+                                        'R\$: $valorUnit',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 20,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        IconButton(
+          onPressed: () {
+            setState(() {
+              listCard.removeWhere((item) => item.key == key);
+              subtotal -= valorUnit;
             });
           },
           icon: const Icon(
@@ -126,18 +246,20 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
         await player.play(AssetSource('beep-07a.mp3'));
         final resul = await ButtonScan(email: email, context: context)
             .executarFuncaoBarcode(barcodeScanRes);
-        setState(() {
-          listCard.add(
-            cardPersonalite(
-              GlobalKey(),
-              listCard.length,
-              resul['nome'],
-              resul['valorUnit'],
-              resul['image'],
-            ),
-          );
-        });
-        await scanBarcodeNormal(email, context);
+        if (resul.isNotEmpty) {
+          setState(() {
+            listCard.add(
+              cardPersonalite2(
+                GlobalKey(),
+                listCard.length,
+                resul['nome'],
+                resul['valorUnit'],
+                resul['image'],
+              ),
+            );
+          });
+          await scanBarcodeNormal(email, context);
+        }
       }
     } on PlatformException {
       barcodeScanRes = 'Failed to get platform version.';
@@ -148,10 +270,6 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
     // message was in flight, we want to discard the reply rather than calling
     // setState to update our non-existent appearance.
     if (!mounted) return;
-
-    setState(() {
-      //_scanBarcode = barcodeScanRes;
-    });
   }
 
   @override
@@ -250,8 +368,9 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       body: Flex(
         direction: Axis.vertical,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Flexible(
+          Expanded(
             child: SizedBox(
               height: double.infinity,
               width: double.infinity,
@@ -280,15 +399,15 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                       child: SizedBox(
                         height: 50,
                         width: MediaQuery.of(context).size.width / 3,
-                        child: const Card(
+                        child: Card(
                           child: Center(
                               child: FittedBox(
                             fit: BoxFit.cover,
                             child: Padding(
-                              padding: EdgeInsets.all(8.0),
+                              padding: const EdgeInsets.all(8.0),
                               child: Text(
-                                'RS: 5,50',
-                                style: TextStyle(
+                                'R\$: $subtotal',
+                                style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 30,
                                     color: Colors.green),

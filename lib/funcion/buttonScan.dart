@@ -2,12 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:genmerc_mobile/api/consumerProductor.dart';
+import 'package:genmerc_mobile/api/seachImages.dart';
 import 'package:genmerc_mobile/widgetPadrao/padrao.dart';
 import 'package:openfoodfacts/openfoodfacts.dart';
 
 class ButtonScan {
   FirebaseFirestore documentSnapshot = FirebaseFirestore.instance;
   MyGetProductor product = MyGetProductor();
+  ImageUploaderService seachImage = ImageUploaderService();
 
   String recentCod = '';
   String email;
@@ -142,12 +144,22 @@ class ButtonScan {
                       if (controllervalor.text.isNotEmpty) {
                         controllervalor.text =
                             controllervalor.text.replaceAll(',', '.');
-
+                        final imagePesquisada =
+                            await seachImage.searchAndUploadImage(
+                                "imagens: ${produtos.productName.toString()}");
                         await collectionAdd.set({
                           'nome':
                               (produtos.productName ?? 'sem nome').toString(),
-                          'image': (produtos.imageFrontUrl ?? '').toString(),
+                          'image': (produtos.imageFrontUrl ?? imagePesquisada)
+                              .toString(),
                           'valorUnit': double.parse(controllervalor.text),
+                        });
+                        mapii.addAll({
+                          'nome':
+                              (produtos.productName ?? 'sem nome').toString(),
+                          'valorUnit': double.parse(controllervalor.text),
+                          'image': (produtos.imageFrontUrl ?? imagePesquisada)
+                              .toString(),
                         });
 
                         Navigator.of(context).pop();
@@ -168,11 +180,6 @@ class ButtonScan {
               );
             },
           );
-          mapii.addAll({
-            'nome': (produtos.productName ?? 'sem nome').toString(),
-            'valorUnit': double.parse(controllervalor.text),
-            'image': (produtos.imageFrontUrl ?? '').toString(),
-          });
         } else {
           TextEditingController controllerNome = TextEditingController();
           TextEditingController controllervalor = TextEditingController();
@@ -283,11 +290,18 @@ class ButtonScan {
                           controllervalor.text.isNotEmpty) {
                         controllervalor.text =
                             controllervalor.text.replaceAll(',', '.');
-
+                        final imagePesquisada =
+                            await seachImage.searchAndUploadImage(
+                                "imagens: ${controllerNome.text}");
                         await collectionAdd.set({
                           'nome': controllerNome.text,
-                          'image': '',
+                          'image': imagePesquisada,
                           'valorUnit': double.parse(controllervalor.text),
+                        });
+                        mapii.addAll({
+                          'nome': controllerNome.text,
+                          'valorUnit': double.parse(controllervalor.text),
+                          'image': imagePesquisada,
                         });
 
                         Navigator.of(context).pop();
@@ -308,11 +322,6 @@ class ButtonScan {
               );
             },
           );
-          mapii.addAll({
-            'nome': controllerNome.text,
-            'valorUnit': double.parse(controllervalor.text),
-            'image': '',
-          });
         }
       }
     }).catchError((error) {
