@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:genmerc_mobile/firebase/bancoDados.dart';
 import 'package:genmerc_mobile/tela/login.dart';
+import 'package:genmerc_mobile/tela/telaPrincipal.dart';
 import 'package:provider/provider.dart';
 import 'package:genmerc_mobile/auth_services/loginProvider.dart';
 
@@ -25,7 +26,6 @@ class _CadastroState extends State<Cadastro> {
         leading: IconButton(
             onPressed: () async {
               await authProvider.signOut();
-
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => const Login()),
@@ -47,9 +47,11 @@ class _CadastroState extends State<Cadastro> {
             child: InkWell(
               onTap: () async {
                 await bdFirebase.getImageFromGallery();
-                setState(() {
-                  photoSelect = bdFirebase.imageUrl;
-                });
+                if (bdFirebase.pathImage != null) {
+                  setState(() {
+                    photoSelect = bdFirebase.imageUrl;
+                  });
+                }
               },
               child: SizedBox(
                 height: MediaQuery.of(context).size.width / 2,
@@ -84,10 +86,18 @@ class _CadastroState extends State<Cadastro> {
           Flexible(
             child: ElevatedButton(
               onPressed: () async {
-                await bdFirebase.setDocumentInCollection(
-                  authProvider.user!.email.toString(),
-                  _controller.text.toString(),
-                );
+                if (_controller.text != '') {
+                  await bdFirebase.setDocumentInCollection(
+                    authProvider.user!.email.toString(),
+                    _controller.text.toString(),
+                  );
+
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const TelaPrincipal()),
+                  );
+                }
               },
               child: const Text('Cadastrar'),
             ),

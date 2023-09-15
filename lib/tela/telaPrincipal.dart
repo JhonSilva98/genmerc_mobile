@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:genmerc_mobile/auth_services/loginProvider.dart';
+import 'package:genmerc_mobile/firebase/bancoDados.dart';
+import 'package:genmerc_mobile/funcion/buttonScan.dart';
 import 'package:genmerc_mobile/tela/login.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 class TelaPrincipal extends StatefulWidget {
   const TelaPrincipal({super.key});
@@ -11,15 +16,20 @@ class TelaPrincipal extends StatefulWidget {
 }
 
 class _TelaPrincipalState extends State<TelaPrincipal> {
-  Widget cardPersonalite(Key key, int index) {
+  BancoDadosFirebase bdFirebase = BancoDadosFirebase();
+  final String _scanBarcode = '0';
+
+  Widget cardPersonalite(
+      Key key, int index, String nome, double valorUnit, String image) {
     return Flex(
       key: key,
       direction: Axis.horizontal,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Flexible(
-          flex: 6,
+        Expanded(
           child: SizedBox(
             height: 80,
+            width: double.infinity,
             child: Card(
               elevation: 8,
               child: Padding(
@@ -28,18 +38,21 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                   direction: Axis.horizontal,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Flexible(
-                      flex: 2,
+                    Expanded(
                       child: Flex(
                         direction: Axis.horizontal,
                         children: [
-                          Flexible(
-                            child: Image.network(
-                              'https://www.imagensempng.com.br/wp-content/uploads/2022/01/2442.png',
-                              fit: BoxFit.contain,
-                            ),
+                          Image.network(
+                            image,
+                            fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) {
+                              return const Icon(Icons.photo_library_outlined);
+                            },
                           ),
-                          Flexible(
+                          const Divider(
+                            height: 10,
+                          ),
+                          Expanded(
                             child: Flex(
                               direction: Axis.vertical,
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -47,7 +60,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                                 Flexible(
                                   flex: 4,
                                   child: Text(
-                                    '$index, Coca-Cola',
+                                    '$index $nome',
                                     softWrap: false,
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
@@ -55,11 +68,11 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                                     ),
                                   ),
                                 ),
-                                const Flexible(
+                                Flexible(
                                   flex: 1,
                                   child: Text(
-                                    '1x RS: 5,50',
-                                    style: TextStyle(
+                                    '1x $valorUnit',
+                                    style: const TextStyle(
                                         color: Colors.grey, fontSize: 10),
                                   ),
                                 )
@@ -69,14 +82,11 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                         ],
                       ),
                     ),
-                    const Flexible(
-                      flex: 1,
-                      child: Text(
-                        'RS: 5,50',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                        ),
+                    const Text(
+                      'RS: 5,50',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
                       ),
                     )
                   ],
@@ -85,25 +95,64 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
             ),
           ),
         ),
-        Flexible(
-          flex: 1,
-          child: IconButton(
-            onPressed: () {
-              setState(() {
-                listCard.removeWhere((item) => item.key == key);
-              });
-            },
-            icon: const Icon(
-              Icons.clear,
-              color: Colors.red,
-            ),
+        IconButton(
+          onPressed: () {
+            setState(() {
+              listCard.removeWhere((item) => item.key == key);
+            });
+          },
+          icon: const Icon(
+            Icons.clear,
+            color: Colors.red,
+            size: 20,
           ),
         )
       ],
     );
   }
 
+  bool verAttFotoNome = true;
   List<Widget> listCard = [];
+  final player = AudioPlayer();
+
+  Future<void> scanBarcodeNormal(String email, context) async {
+    String barcodeScanRes;
+    //ButtonScan funcion = ButtonScan(email: email, context: context);
+    // Platform messages may fail, so we use a try/catch PlatformException.
+    try {
+      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+          '#ff6666', 'Cancel', true, ScanMode.BARCODE);
+      if (barcodeScanRes != '-1') {
+        await player.play(AssetSource('beep-07a.mp3'));
+        final resul = await ButtonScan(email: email, context: context)
+            .executarFuncaoBarcode(barcodeScanRes);
+        setState(() {
+          listCard.add(
+            cardPersonalite(
+              GlobalKey(),
+              listCard.length,
+              resul['nome'],
+              resul['valorUnit'],
+              resul['image'],
+            ),
+          );
+        });
+        await scanBarcodeNormal(email, context);
+      }
+    } on PlatformException {
+      barcodeScanRes = 'Failed to get platform version.';
+      print('Failed to get platform version.');
+    }
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      //_scanBarcode = barcodeScanRes;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -128,33 +177,62 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 160, 194, 224),
         automaticallyImplyLeading: false,
-        title: const Center(
-          child: Column(
-            children: [
-              Text(
-                'GENMERC',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                'Armazem 62',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
-                ),
-              ),
-            ],
+        title: Center(
+          child: FutureBuilder(
+            future: verAttFotoNome == true
+                ? bdFirebase.getNomeFoto(authProvider.user!.email.toString())
+                : null,
+            builder: (context, snapshot) {
+              Map<String, dynamic>? dados = snapshot.data;
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const CircularProgressIndicator(); // Mostrar um indicador de carregamento enquanto os dados estão sendo buscados.
+              } else if (snapshot.hasError) {
+                return const Text("Erro");
+              } else {
+                verAttFotoNome = false;
+                return Column(
+                  children: [
+                    const Text(
+                      'GENMERC',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      dados!['nome'],
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ],
+                );
+              }
+            },
           ),
         ),
-        leading: const Padding(
-          padding: EdgeInsets.only(left: 8, bottom: 8),
-          child: CircleAvatar(
-            backgroundImage: NetworkImage(
-                'https://img.freepik.com/vetores-gratis/desenho-de-carrinho-e-construcao-de-loja_138676-2085.jpg?w=2000'),
-          ),
+        leading: FutureBuilder(
+          future: verAttFotoNome == true
+              ? bdFirebase.getNomeFoto(authProvider.user!.email.toString())
+              : null,
+          builder: (context, snapshot) {
+            Map<String, dynamic>? dados = snapshot.data;
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const CircularProgressIndicator(); // Mostrar um indicador de carregamento enquanto os dados estão sendo buscados.
+            } else if (snapshot.hasError) {
+              return const Text("Erro");
+            } else {
+              verAttFotoNome = false;
+              return Padding(
+                padding: const EdgeInsets.only(left: 8, bottom: 8),
+                child: CircleAvatar(
+                  backgroundImage: NetworkImage(dados!['foto']),
+                ),
+              );
+            }
+          },
         ),
         actions: [
           IconButton(
@@ -248,10 +326,10 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
         width: 100.0, // Defina a largura desejada
         height: 100.0,
         child: FloatingActionButton(
-          onPressed: () {
-            setState(() {
-              listCard.add(cardPersonalite(GlobalKey(), listCard.length));
-            });
+          onPressed: () async {
+            await scanBarcodeNormal(
+                authProvider.user!.email.toString(), context);
+            print(authProvider.user!.email.toString());
           },
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(
