@@ -93,7 +93,7 @@ class AuthProvider with ChangeNotifier {
       _user = null;
       notifyListeners();
     } catch (error) {
-      print(error);
+      print('erro no sighout $error');
       rethrow;
     }
   }

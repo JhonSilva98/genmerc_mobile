@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:genmerc_mobile/auth_services/loginProvider.dart';
 import 'package:genmerc_mobile/firebase/bancoDados.dart';
@@ -281,10 +282,13 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
         if (authProvider.user == null) {
           // O usuário não está autenticado, então você pode redirecioná-lo para a tela de login ou outro lugar.
           // Por exemplo:
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const Login()),
-          );
+          SchedulerBinding.instance.addPostFrameCallback((_) {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const Login()),
+              (Route<dynamic> route) => false,
+            );
+          });
         }
       } catch (e) {
         print("Exceção ao redirecionar para a tela de login: $e");
