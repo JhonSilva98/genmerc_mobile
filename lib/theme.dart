@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:genmerc_mobile/auth_services/loginProvider.dart';
 import 'package:genmerc_mobile/tela/login.dart';
-import 'package:provider/provider.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
