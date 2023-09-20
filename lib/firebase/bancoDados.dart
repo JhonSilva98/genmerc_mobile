@@ -30,7 +30,7 @@ class BancoDadosFirebase {
       return {
         'nome': 'genmarc',
         'foto':
-            'https://img.freepik.com/vetores-gratis/desenho-de-carrinho-e-construcao-de-loja_138676-2085.jpg?w=2000',
+            'https://firebasestorage.googleapis.com/v0/b/genmerc-mobile.appspot.com/o/ideogram.jpeg?alt=media&token=b2f40124-eb43-4860-a600-6e3eb43dd6d1',
       };
     }
   }
@@ -58,14 +58,14 @@ class BancoDadosFirebase {
       Map<String, dynamic> data = {
         'nome': nome,
         'foto': pathImage == null
-            ? 'https://img.freepik.com/vetores-gratis/desenho-de-carrinho-e-construcao-de-loja_138676-2085.jpg?w=2000'
+            ? 'https://firebasestorage.googleapis.com/v0/b/genmerc-mobile.appspot.com/o/ideogram.jpeg?alt=media&token=b2f40124-eb43-4860-a600-6e3eb43dd6d1'
             : imageUrl,
         // Adicione outros campos e valores conforme necessário
       };
 
       // Use o método `set()` para criar um novo documento na coleção ou substituir um documento existente com os dados especificados
       await documentReference.set(data);
-
+/*
       // Subcoleção 1
       CollectionReference subCollection1 =
           documentReference.collection('fiado');
@@ -94,7 +94,7 @@ class BancoDadosFirebase {
         'campo6': 'valor6',
         // Adicione outros campos e valores conforme necessário para a terceira subcoleção
       };
-      await subCollection3.add(dataSubCollection3);
+      await subCollection3.add(dataSubCollection3);*/
 
       print('Documento criado ou atualizado com sucesso.');
     } catch (e) {

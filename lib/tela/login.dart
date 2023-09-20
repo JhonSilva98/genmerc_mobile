@@ -4,6 +4,7 @@ import 'package:genmerc_mobile/firebase/bancoDados.dart';
 import 'package:genmerc_mobile/tela/cadastro.dart';
 import 'package:genmerc_mobile/tela/telaPrincipal.dart';
 import 'package:provider/provider.dart';
+import 'package:progress_dialog_null_safe/progress_dialog_null_safe.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -27,13 +28,19 @@ class _LoginState extends State<Login> {
         width: MediaQuery.of(context).size.width,
         child: Stack(
           children: [
-            Opacity(
-              opacity: 0.1,
-              child: Image.asset(
-                'assets/GENMERC.png',
-                fit: BoxFit.cover,
-                height: double.infinity,
-                width: double.infinity,
+            Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: const AssetImage(
+                    "assets/ideogram.jpeg",
+                  ), // Substitua pelo caminho da sua imagem
+                  colorFilter: ColorFilter.mode(
+                    Colors.white.withOpacity(0.15), // Ajuste a opacidade aqui
+                    BlendMode
+                        .dstATop, // Define o modo de mesclagem para mesclar com a cor de fundo
+                  ),
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
             Flex(
@@ -179,19 +186,41 @@ class _LoginState extends State<Login> {
                   flex: 2,
                   child: ElevatedButton(
                       onPressed: () async {
+                        ProgressDialog progressDialog = ProgressDialog(context);
+                        progressDialog.style(
+                            message: 'Carregando...',
+                            borderRadius: 10.0,
+                            backgroundColor: Colors.white,
+                            progressWidget: const CircularProgressIndicator(),
+                            elevation: 10.0,
+                            insetAnimCurve: Curves.easeInOut,
+                            progress: 0.0,
+                            maxProgress: 100.0,
+                            progressTextStyle: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 13.0,
+                                fontWeight: FontWeight.w400),
+                            messageTextStyle: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 19.0,
+                                fontWeight: FontWeight.w600));
+                        await progressDialog.show();
                         await authProvider.signInWithEmailAndPassword(
                             _controllerEmail.text.toString(),
                             _controllerSenha.text.toString(),
                             context);
+                        // Feche o ProgressDialog quando a operação estiver concluída
+                        progressDialog.hide();
                         if (authProvider.user != null) {
                           BancoDadosFirebase bdfirebase = BancoDadosFirebase();
                           if (await bdfirebase.isDocumentExist(
                             authProvider.user!.email.toString(),
                           )) {
-                            Navigator.push(
+                            Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => const TelaPrincipal()),
+                              (Route<dynamic> route) => false,
                             );
                           } else {
                             Navigator.push(

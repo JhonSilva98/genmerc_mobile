@@ -16,13 +16,28 @@ class _CadastroState extends State<Cadastro> {
   BancoDadosFirebase bdFirebase = BancoDadosFirebase();
   final TextEditingController _controller = TextEditingController();
   String photoSelect =
-      'https://img.freepik.com/vetores-gratis/desenho-de-carrinho-e-construcao-de-loja_138676-2085.jpg?w=2000';
+      'https://firebasestorage.googleapis.com/v0/b/genmerc-mobile.appspot.com/o/ideogram.jpeg?alt=media&token=b2f40124-eb43-4860-a600-6e3eb43dd6d1';
 
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     return Scaffold(
       appBar: AppBar(
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: const AssetImage(
+                "assets/ideogram.jpeg",
+              ), // Substitua pelo caminho da sua imagem
+              colorFilter: ColorFilter.mode(
+                Colors.white.withOpacity(0.5), // Ajuste a opacidade aqui
+                BlendMode
+                    .dstATop, // Define o modo de mesclagem para mesclar com a cor de fundo
+              ),
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
         leading: IconButton(
             onPressed: () async {
               await authProvider.signOut();
@@ -32,10 +47,34 @@ class _CadastroState extends State<Cadastro> {
               );
               await bdFirebase.deletePhoto();
             },
+            iconSize: 30,
+            hoverColor: Colors.white,
             icon: const Icon(Icons.arrow_back)),
-        title: const Center(
-          child: Text(
-            'GENMERC',
+        title: Center(
+          child: Stack(
+            children: [
+              // Texto com bordas brancas simuladas
+              Text(
+                "GENMERC",
+                style: TextStyle(
+                  fontSize: 32.0,
+                  fontWeight: FontWeight.bold,
+                  foreground: Paint()
+                    ..style = PaintingStyle.stroke
+                    ..strokeWidth = 2.0
+                    ..color = Colors.white,
+                ),
+              ),
+              // Texto com a cor do texto
+              const Text(
+                "GENMERC",
+                style: TextStyle(
+                    fontSize: 32.0,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold // Cor do texto
+                    ),
+              ),
+            ],
           ),
         ),
       ),
@@ -92,10 +131,11 @@ class _CadastroState extends State<Cadastro> {
                     _controller.text.toString(),
                   );
 
-                  Navigator.pushReplacement(
+                  Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(
                         builder: (context) => const TelaPrincipal()),
+                    (Route<dynamic> route) => false,
                   );
                 }
               },

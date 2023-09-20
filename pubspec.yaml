@@ -45,6 +45,8 @@ dependencies:
   audioplayers: ^5.1.0
   flutter_barcode_scanner: ^2.0.0
   http: ^1.1.0
+  intl: ^0.18.1
+  progress_dialog_null_safe: ^1.0.7
 
 dev_dependencies:
   flutter_test:
@@ -72,6 +74,7 @@ flutter:
   assets:
     - assets/GENMERC.png
     - assets/beep-07a.mp3
+    - assets/ideogram.jpeg
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
@@ -85,10 +88,10 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
+  fonts:
+    - family: Demi
+      fonts:
+        - asset: assets/news_gothic_demi_bt.ttf
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
   #   - family: Trajan Pro

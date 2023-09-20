@@ -29,4 +29,44 @@ class MyWidgetPadrao {
       ),
     ], // Sombreamento do texto
   );
+  static showErrorDialog(BuildContext context) async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Erro"),
+          content: const Text(
+              "Ocorreu um erro ao processar sua solicitação, verifique a sua conexão ou entre em contato com o ADM."),
+          actions: [
+            TextButton(
+              child: const Text("Fechar"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  static showErrorDialogBancoDados(BuildContext context) async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Erro"),
+          content: const Text("Não possui dados desse mês e ano"),
+          actions: [
+            TextButton(
+              child: const Text("Fechar"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
