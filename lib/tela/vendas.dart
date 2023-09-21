@@ -1,9 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:genmerc_mobile/widgetPadrao/padrao.dart';
-import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:flutter_ticket/flutter_ticket.dart';
 
 class Vendas extends StatefulWidget {
   final String email;
@@ -20,201 +18,7 @@ class _VendasState extends State<Vendas> {
   bool whatch = false;
   double subtotal = 0.0;
   String dateNameMes = "";
-  String obterNomeDoMes(int numeroDoMes) {
-    final DateTime data = DateTime(1, numeroDoMes);
-    return DateFormat('MMMM', 'pt_BR').format(data);
-  }
-
-  String obterNomeDoDiaDaSemana(int ano, int mes, int dia) {
-    final DateTime data = DateTime(ano, mes, dia);
-    String nomeDoDia = DateFormat('EEEE', 'pt_BR').format(data);
-    return nomeDoDia;
-  }
-
-  Widget cardPersonalite(String nomeDoDocumento, double dados) {
-    return Card(
-      elevation: 10,
-      shadowColor: Colors.blue,
-      color: const Color(0XFF0f172b),
-      child: Flex(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //crossAxisAlignment: CrossAxisAlignment.center,
-        direction: Axis.vertical,
-        children: [
-          Expanded(
-            flex: 2,
-            child: FittedBox(
-              child: Text(
-                obterNomeDoDiaDaSemana(_ano, _mes, int.parse(nomeDoDocumento)),
-                style: const TextStyle(
-                    color: Color(0XFFce5355), fontSize: 30, fontFamily: 'Demi'),
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 3,
-            child: FittedBox(
-              child: Text(
-                nomeDoDocumento,
-                style: const TextStyle(
-                    color: Colors.black, fontSize: 50, fontFamily: 'Demi'),
-              ),
-            ),
-          ),
-          const Divider(
-            color: Colors.black,
-          ),
-          Expanded(
-            flex: 2,
-            child: FittedBox(
-              child: Text(
-                "R\$ ${dados.toString().replaceAll('.', ',')}",
-                style: const TextStyle(
-                  color: Colors.green,
-                  fontSize: 25,
-                  fontFamily: 'Demi',
-                ),
-              ),
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
-  Widget ticket(String nomeDoDocumento, double dados, String dateNameMes) {
-    return Padding(
-      padding: const EdgeInsets.only(
-        bottom: 2,
-        right: 2,
-      ),
-      child: Flex(
-        direction: Axis.vertical,
-        children: [
-          Expanded(
-            flex: 1,
-            child: Ticket(
-              innerRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(10.0),
-                  bottomRight: Radius.circular(10.0)),
-              outerRadius: const BorderRadius.all(Radius.circular(10.0)),
-              boxShadow: const [
-                BoxShadow(
-                  offset: Offset(0, 4.0),
-                  blurRadius: 2.0,
-                  spreadRadius: 2.0,
-                  color: Color.fromRGBO(196, 196, 196, .76),
-                )
-              ],
-              child: Container(
-                color: Colors.white,
-                width: 300,
-                height: 70,
-                child: Flex(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  direction: Axis.vertical,
-                  children: [
-                    Expanded(
-                      flex: 1,
-                      child: Align(
-                        alignment: Alignment.topLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.only(
-                            left: 5,
-                            top: 5,
-                          ),
-                          child: FittedBox(
-                            child: Text(
-                              dateNameMes,
-                              style: const TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: Center(
-                        child: FittedBox(
-                          child: Text(
-                            nomeDoDocumento,
-                            style: const TextStyle(
-                                color: Colors.black,
-                                fontSize: 50,
-                                fontFamily: 'Demi'),
-                          ),
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 1,
-            child: Ticket(
-              innerRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(10.0),
-                  topRight: Radius.circular(10.0)),
-              outerRadius: const BorderRadius.all(Radius.circular(10.0)),
-              boxShadow: const [
-                BoxShadow(
-                  offset: Offset(0, 4),
-                  blurRadius: 2.0,
-                  spreadRadius: 2.0,
-                  color: Color.fromRGBO(196, 196, 196, .76),
-                )
-              ],
-              child: Container(
-                color: Colors.white,
-                width: 300,
-                height: 100,
-                child: Flex(
-                  direction: Axis.vertical,
-                  //mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    //const Divider(),
-                    Expanded(
-                      flex: 1,
-                      child: FittedBox(
-                        child: Text(
-                          obterNomeDoDiaDaSemana(
-                              _ano, _mes, int.parse(nomeDoDocumento)),
-                          style: const TextStyle(
-                              color: Color(0XFF5e4a9c),
-                              fontSize: 30,
-                              fontFamily: 'Demi'),
-                        ),
-                      ),
-                    ),
-                    const Divider(),
-                    Expanded(
-                      flex: 2,
-                      child: FittedBox(
-                        child: Text(
-                          "R\$ ${dados.toString().replaceAll('.', ',')}",
-                          style: const TextStyle(
-                            color: Colors.green,
-                            fontSize: 25,
-                            fontFamily: 'Demi',
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  MyWidgetPadrao funcionWidget = MyWidgetPadrao();
 
   @override
   Widget build(BuildContext context) {
@@ -465,7 +269,8 @@ class _VendasState extends State<Vendas> {
                                           subtotal = 0.0;
                                           setState(() {
                                             subtotal += valorFinal;
-                                            dateNameMes = obterNomeDoMes(_mes);
+                                            dateNameMes = funcionWidget
+                                                .obterNomeDoMes(_mes);
                                             print(dateNameMes);
                                             whatch = true;
                                           });
@@ -576,7 +381,8 @@ class _VendasState extends State<Vendas> {
                         final dados = double.parse(
                           catchDados["valor"].toString(),
                         );
-                        return ticket(nomeDoDocumento, dados, dateNameMes);
+                        return funcionWidget.ticket(
+                            nomeDoDocumento, dados, dateNameMes, _ano, _mes);
                       },
                     );
                   },

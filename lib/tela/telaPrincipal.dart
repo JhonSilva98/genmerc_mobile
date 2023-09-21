@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:genmerc_mobile/auth_services/loginProvider.dart';
 import 'package:genmerc_mobile/firebase/bancoDados.dart';
 import 'package:genmerc_mobile/funcion/buttonScan.dart';
+import 'package:genmerc_mobile/tela/fiado.dart';
 import 'package:genmerc_mobile/tela/login.dart';
 import 'package:genmerc_mobile/tela/vendas.dart';
 import 'package:genmerc_mobile/widgetPadrao/padrao.dart';
@@ -22,194 +23,6 @@ class TelaPrincipal extends StatefulWidget {
 class _TelaPrincipalState extends State<TelaPrincipal> {
   BancoDadosFirebase bdFirebase = BancoDadosFirebase();
   double subtotal = 0.0;
-
-  Widget cardPersonalite(Key key, int index, String nome, double valorUnit,
-      String image, double quantidade) {
-    double valorFinal = quantidade * valorUnit;
-    subtotal += valorFinal;
-    return Dismissible(
-      key: key,
-      background: Container(
-        alignment: AlignmentDirectional.centerEnd,
-        color: Colors.red,
-        child: const Icon(
-          Icons.delete,
-          color: Colors.white,
-        ),
-      ),
-      direction: DismissDirection.endToStart,
-      onDismissed: (direction) {
-        setState(() {
-          listCard.removeWhere((item) => item.key == key);
-          subtotal -= valorUnit;
-        });
-      },
-      child: InkWell(
-        onLongPress: () async {
-          TextEditingController numberController = TextEditingController();
-
-          await showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('Altere a quantidade'),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    TextFormField(
-                      controller: numberController,
-                      textAlign: TextAlign.center,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(
-                          RegExp(r'^[\d,]+(\.\d{0,2})?$'),
-                        ),
-                      ],
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 50,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      decoration: InputDecoration(
-                          labelText: 'Altere a quantidade do produto:',
-                          border: const OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Colors.white, // Cor da borda branca
-                            ),
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(50.0),
-                            ),
-                          ),
-                          focusedBorder: const OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Colors
-                                  .white, // Cor da borda branca quando focado
-                            ),
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(8.0),
-                            ),
-                          ),
-                          hintStyle: MyWidgetPadrao.myBeautifulTextStyle),
-                      validator: (value) {
-                        if (value == null || value.toString() == '') {
-                          return 'Por favor, insira uma quantidade';
-                        }
-                        // Você também pode adicionar validações personalizadas aqui, se necessário.
-                        return null;
-                      },
-                    ),
-                  ],
-                ),
-                actions: <Widget>[
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop(); // Fechar o AlertDialog
-                    },
-                    child: const Text('Cancelar'),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      // Aqui você pode acessar o valor do TextFormField:
-                      numberController.text =
-                          numberController.text.replaceAll(',', '.');
-                      final double? parsedNumber =
-                          double.tryParse(numberController.text);
-                      if (numberController.text.isNotEmpty) {
-                        subtotal -= valorFinal;
-                        final widgetIndex =
-                            listCard.indexWhere((widget) => widget.key == key);
-
-                        if (widgetIndex != -1) {
-                          // Substitua o widget com outro widget
-                          setState(() {
-                            listCard[widgetIndex] = cardPersonalite2(key, index,
-                                nome, valorUnit, image, parsedNumber!);
-                          });
-                        }
-                      }
-                      // Faça algo com o número (por exemplo, armazená-lo em algum lugar)
-                      print('Número inserido: $parsedNumber');
-
-                      Navigator.of(context).pop(); // Fechar o AlertDialog
-                    },
-                    child: const Text('Adicionar'),
-                  ),
-                ],
-              );
-            },
-          );
-        },
-        child: Card(
-          elevation: 5,
-          child: SizedBox(
-            height: 100.0,
-            child: Row(
-              children: <Widget>[
-                Container(
-                  height: 100.0,
-                  width: 70.0,
-                  decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.only(
-                        bottomLeft: Radius.circular(5),
-                        topLeft: Radius.circular(5)),
-                    image: DecorationImage(
-                      fit: BoxFit.cover,
-                      image: NetworkImage(
-                        image == ""
-                            ? "https://ciclovivo.com.br/wp-content/uploads/2018/10/iStock-536613027-1024x683.jpg"
-                            : image,
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 100,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(10, 2, 0, 0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          '$index - $nome',
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 3, 0, 3),
-                          child: Container(
-                            width: 30,
-                            decoration: BoxDecoration(
-                                border: Border.all(color: Colors.teal),
-                                borderRadius: const BorderRadius.all(
-                                    Radius.circular(10))),
-                            child: const Text(
-                              "3D",
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 5, 0, 2),
-                          child: SizedBox(
-                            width: 260,
-                            child: Text(
-                              '${quantidade}x $valorUnit',
-                              style: const TextStyle(
-                                  fontSize: 15,
-                                  color: Color.fromARGB(255, 48, 48, 54)),
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                )
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 
   Widget cardPersonalite2(Key key, int index, String nome, double valorUnit,
       String image, double quantidade) {
@@ -369,10 +182,11 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                           padding: const EdgeInsets.only(
                             left: 8.0,
                           ),
-                          child: ListView(
-                            scrollDirection: Axis.horizontal,
-                            children: [
-                              Text(
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Text(
                                 nome,
                                 softWrap: false,
                                 style: const TextStyle(
@@ -380,7 +194,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                                     fontSize: 30,
                                     color: Color.fromARGB(255, 107, 107, 107)),
                               ),
-                            ],
+                            ),
                           ),
                         ),
                       ),
@@ -704,53 +518,151 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                       Flexible(
                         child: ElevatedButton(
                           onPressed: () async {
-                            DateTime now = DateTime.now();
-                            try {
-                              if (subtotal > 0) {
-                                final ano = now.year;
-                                final mes = now.month;
-                                final dia = now.day;
-                                /*final hora =
-                                    '${now.hour}-${now.minute}-${now.second}';
-                                final data = now.toLocal();*/
-                                DocumentReference<Map<String, dynamic>>
-                                    documentReference =
-                                    FirebaseFirestore.instance
-                                        .collection('users')
-                                        .doc(
-                                          authProvider.user!.email.toString(),
-                                        )
-                                        .collection("vendas")
-                                        .doc("$ano")
-                                        .collection("mes")
-                                        .doc("$mes")
-                                        .collection("dia")
-                                        .doc("$dia");
-                                final DocumentSnapshot<Map<String, dynamic>>
-                                    snapshot = await documentReference.get();
-                                if (snapshot.exists) {
-                                  final valorSoma = snapshot.data();
-                                  double valorSomaindex = double.parse(
-                                      valorSoma!["valor"].toString());
-                                  double valorSomaFinal =
-                                      valorSomaindex + subtotal;
-                                  print("o valor é $valorSomaFinal");
-                                  await documentReference.set({
-                                    "valor": valorSomaFinal,
-                                  });
-                                } else {
-                                  await documentReference.set({
-                                    "valor": subtotal,
-                                  });
-                                }
-                                setState(() {
-                                  listCard.clear();
-                                  subtotal = 0.0;
-                                });
-                              }
-                            } catch (e) {
-                              MyWidgetPadrao.showErrorDialog(context);
-                            }
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text('Selecione uma opção:'),
+                                  content: Flex(
+                                    direction: Axis.horizontal,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: <Widget>[
+                                      Flexible(
+                                        child: ElevatedButton(
+                                          style: const ButtonStyle(
+                                            foregroundColor:
+                                                MaterialStatePropertyAll(
+                                                    Colors.white),
+                                            backgroundColor:
+                                                MaterialStatePropertyAll(
+                                                    Colors.orangeAccent),
+                                          ),
+                                          onPressed: () {
+                                            // Ação ao pressionar "Fiado"
+                                            Navigator.of(context)
+                                                .pop(); // Fechar o diálogo
+                                          },
+                                          child: const Row(
+                                            children: [
+                                              Icon(Icons
+                                                  .account_balance_wallet_outlined),
+                                              SizedBox(
+                                                width: 2,
+                                              ),
+                                              FittedBox(child: Text('Fiado')),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        width: 8,
+                                      ),
+                                      Flexible(
+                                        child: ElevatedButton(
+                                          style: const ButtonStyle(
+                                            foregroundColor:
+                                                MaterialStatePropertyAll(
+                                                    Colors.white),
+                                            backgroundColor:
+                                                MaterialStatePropertyAll(
+                                              Colors.green,
+                                            ),
+                                          ),
+                                          onPressed: () async {
+                                            // Ação ao pressionar "Finalizar"
+
+                                            Navigator.of(context)
+                                                .pop(); // Fechar o diálogo
+                                            DateTime now = DateTime.now();
+                                            try {
+                                              if (subtotal > 0) {
+                                                final ano = now.year;
+                                                final mes = now.month;
+                                                final dia = now.day;
+                                                /*final hora =
+                                                                          '${now.hour}-${now.minute}-${now.second}';
+                                                                      final data = now.toLocal();*/
+                                                DocumentReference<
+                                                        Map<String, dynamic>>
+                                                    documentReference =
+                                                    FirebaseFirestore.instance
+                                                        .collection('users')
+                                                        .doc(
+                                                          authProvider
+                                                              .user!.email
+                                                              .toString(),
+                                                        )
+                                                        .collection("vendas")
+                                                        .doc("$ano")
+                                                        .collection("mes")
+                                                        .doc("$mes")
+                                                        .collection("dia")
+                                                        .doc("$dia");
+                                                final DocumentSnapshot<
+                                                        Map<String, dynamic>>
+                                                    snapshot =
+                                                    await documentReference
+                                                        .get();
+                                                if (snapshot.exists) {
+                                                  final valorSoma =
+                                                      snapshot.data();
+                                                  double valorSomaindex =
+                                                      double.parse(
+                                                          valorSoma!["valor"]
+                                                              .toString());
+                                                  double valorSomaFinal =
+                                                      valorSomaindex + subtotal;
+                                                  print(
+                                                      "o valor é $valorSomaFinal");
+                                                  await documentReference.set({
+                                                    "valor": valorSomaFinal,
+                                                  });
+                                                } else {
+                                                  await documentReference.set({
+                                                    "valor": subtotal,
+                                                  });
+                                                }
+                                                setState(() {
+                                                  listCard.clear();
+                                                  subtotal = 0.0;
+                                                });
+                                              }
+                                            } catch (e) {
+                                              MyWidgetPadrao.showErrorDialog(
+                                                  context);
+                                            }
+                                          },
+                                          child: const Flex(
+                                            direction: Axis.horizontal,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Flexible(
+                                                flex: 1,
+                                                child: Icon(Icons
+                                                    .store_mall_directory_rounded),
+                                              ),
+                                              Flexible(
+                                                flex: 1,
+                                                child: SizedBox(
+                                                  width: 5,
+                                                ),
+                                              ),
+                                              Expanded(
+                                                flex: 3,
+                                                child: FittedBox(
+                                                    child: Text('Finalizar')),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
                           },
                           style: ButtonStyle(
                             foregroundColor:
@@ -759,7 +671,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                                 MaterialStateProperty.all<Color>(Colors.green),
                           ),
                           child: const Text(
-                            'Finalizar',
+                            'Continuar',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                             ),
@@ -844,7 +756,16 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Fiado(
+                            email: authProvider.user!.email.toString(),
+                          ),
+                        ),
+                      );
+                    },
                     icon: const Icon(Icons.account_balance_wallet_outlined),
                     color: Colors.white,
                     iconSize: 30,

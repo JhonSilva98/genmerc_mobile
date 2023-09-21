@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:genmerc_mobile/widgetPadrao/padrao.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
@@ -140,6 +141,81 @@ class BancoDadosFirebase {
   Future<void> deletePhoto() async {
     if (imageUrl != '') {
       await photeRemov!.ref.delete();
+    }
+  }
+
+  Future<void> setVendasDeleteFiadoDoc(
+      String email, String docFiado, double valorDivida, context) async {
+    try {
+      DateTime data = DateTime.now();
+      var documentReference = FirebaseFirestore.instance
+          .collection('users')
+          .doc(email)
+          .collection('vendas')
+          .doc(data.year.toString())
+          .collection('mes')
+          .doc(data.month.toString())
+          .collection('dia')
+          .doc(data.day.toString())
+          .get();
+      documentReference.then((documentSnapshot) {
+        var documentReferenceSet = FirebaseFirestore.instance
+            .collection('users')
+            .doc(email)
+            .collection('vendas')
+            .doc(data.year.toString())
+            .collection('mes')
+            .doc(data.month.toString())
+            .collection('dia')
+            .doc(data.day.toString());
+        if (documentSnapshot.exists) {
+          // O documento existe, você pode acessar seus dados assim:
+          var dados = documentSnapshot.data();
+
+          // Agora você pode acessar os campos do documento como se fossem um mapa.
+          // Por exemplo, se houver um campo chamado "campo1", você pode acessá-lo assim:
+          double valor = double.parse(dados!['valor'].toString());
+
+          double newValor = valorDivida + valor;
+
+          // Suponha que 'novoValor' seja o novo valor que você deseja definir no documento.
+          var novoValor = {
+            'valor': newValor, // Exemplo de outro campo com um novo valor.
+          };
+
+          documentReferenceSet.set(novoValor).then((_) {
+            // Documento atualizado com sucesso.
+          }).catchError((error) {
+            // Lidar com erros, se houver algum.
+          });
+        } else {
+          // O documento não existe.
+          var novoValor = {
+            'valor': 0.0, // Exemplo de outro campo com um novo valor.
+          };
+
+          documentReferenceSet.set(novoValor).then((_) {
+            // Documento atualizado com sucesso.
+          }).catchError((error) {
+            // Lidar com erros, se houver algum.
+          });
+        }
+      }).catchError((error) {
+        // Lidar com erros, se houver algum.
+      });
+
+      var documentReferenceFiado = FirebaseFirestore.instance
+          .collection('users')
+          .doc(email)
+          .collection('fiado')
+          .doc(docFiado);
+
+      // Use o método `delete` para apagar o documento
+      await documentReferenceFiado.delete();
+
+      print('Documento apagado com sucesso!');
+    } catch (e) {
+      MyWidgetPadrao.showErrorDialog(context);
     }
   }
 }

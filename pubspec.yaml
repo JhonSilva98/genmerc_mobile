@@ -48,6 +48,7 @@ dependencies:
   intl: ^0.18.1
   progress_dialog_null_safe: ^1.0.7
   flutter_ticket: ^1.0.1
+  url_launcher: ^6.1.14
 
 dev_dependencies:
   flutter_test:
