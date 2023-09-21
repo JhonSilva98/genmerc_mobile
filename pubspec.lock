@@ -294,6 +294,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
+  flutter_clip_shadow:
+    dependency: transitive
+    description:
+      name: flutter_clip_shadow
+      sha256: "3f30224a0e132a427b434859e6e0420d7e51972b2215507e3f2c61f0f68e0560"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -315,6 +323,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_ticket:
+    dependency: "direct main"
+    description:
+      name: flutter_ticket
+      sha256: ed3b3e59e3622226963d9f5206142feb2b64608dd488e0befc36fde3a0c1a6f6
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.1"
   flutter_web_plugins:
     dependency: transitive
     description: flutter
