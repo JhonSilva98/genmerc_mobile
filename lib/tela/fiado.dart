@@ -13,9 +13,26 @@ class Fiado extends StatefulWidget {
 
 class _FiadoState extends State<Fiado> {
   MyWidgetPadrao cardPersonalite = MyWidgetPadrao();
+  BuildContext? contextPrincipal;
+
+  Future<Widget> cardWidget(String nome, String data, double valor,
+      String telefone, context, String email, String nomeDoDocumento) async {
+    await initializeDateFormatting('pt_BR');
+    return await cardPersonalite.cardPersonalite(
+      nome,
+      data,
+      valor,
+      telefone,
+      context,
+      email,
+      nomeDoDocumento,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    contextPrincipal = context;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue[300],
@@ -87,26 +104,42 @@ class _FiadoState extends State<Fiado> {
           return GridView.builder(
             padding: const EdgeInsets.all(8),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 1, // Número de colunas desejado
+              crossAxisCount: 2, // Número de colunas desejado
             ),
             itemCount: docs.length,
             itemBuilder: (context, index) {
-              final documento = docs[index];
-              final nomeDoDocumento = documento.id;
-              final catchDados = documento.data();
-              final valor = double.parse(
-                catchDados["valor"].toString(),
-              );
-              initializeDateFormatting('pt_BR');
-              return cardPersonalite.cardPersonalite(
-                catchDados["nome"].toString(),
-                catchDados["data"].toString(),
-                valor,
-                catchDados["telefone"].toString(),
-                context,
-                widget.email,
-                nomeDoDocumento,
-              );
+              try {
+                final documento = docs[index];
+                final nomeDoDocumento = documento.id;
+                final catchDados = documento.data();
+                final valor = double.parse(
+                  catchDados["valor"].toString(),
+                );
+
+                return FutureBuilder(
+                    future: cardWidget(
+                      catchDados["nome"].toString(),
+                      catchDados["data"].toString(),
+                      valor,
+                      catchDados["telefone"].toString(),
+                      context,
+                      widget.email,
+                      nomeDoDocumento,
+                    ),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const CircularProgressIndicator();
+                      } else if (snapshot.hasError) {
+                        return Text('Erro: ${snapshot.error}');
+                      } else {
+                        // Retorna o widget resultante da função cardWidget
+                        return snapshot.data ?? const SizedBox();
+                      }
+                    });
+              } catch (e) {
+                MyWidgetPadrao.showErrorDialog(context);
+              }
+              return null;
             },
           );
         },

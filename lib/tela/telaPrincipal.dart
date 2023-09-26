@@ -538,10 +538,23 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                                                 MaterialStatePropertyAll(
                                                     Colors.orangeAccent),
                                           ),
-                                          onPressed: () {
+                                          onPressed: () async {
                                             // Ação ao pressionar "Fiado"
-                                            Navigator.of(context)
-                                                .pop(); // Fechar o diálogo
+                                            if (listCard.isNotEmpty) {
+                                              await MyWidgetPadrao()
+                                                  .showAlertDialogCadastrarFiado(
+                                                context,
+                                                authProvider.user!.email
+                                                    .toString(),
+                                                subtotal,
+                                              );
+                                              setState(() {
+                                                listCard.clear();
+                                                subtotal = 0.0;
+                                              });
+                                              Navigator.of(context).pop();
+                                            }
+                                            // Fechar o diálogo
                                           },
                                           child: const Row(
                                             children: [
@@ -571,66 +584,70 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                                           ),
                                           onPressed: () async {
                                             // Ação ao pressionar "Finalizar"
-
-                                            Navigator.of(context)
-                                                .pop(); // Fechar o diálogo
-                                            DateTime now = DateTime.now();
-                                            try {
-                                              if (subtotal > 0) {
-                                                final ano = now.year;
-                                                final mes = now.month;
-                                                final dia = now.day;
-                                                /*final hora =
+                                            if (listCard.isNotEmpty) {
+                                              DateTime now = DateTime.now();
+                                              try {
+                                                if (subtotal > 0) {
+                                                  final ano = now.year;
+                                                  final mes = now.month;
+                                                  final dia = now.day;
+                                                  /*final hora =
                                                                           '${now.hour}-${now.minute}-${now.second}';
                                                                       final data = now.toLocal();*/
-                                                DocumentReference<
-                                                        Map<String, dynamic>>
-                                                    documentReference =
-                                                    FirebaseFirestore.instance
-                                                        .collection('users')
-                                                        .doc(
-                                                          authProvider
-                                                              .user!.email
-                                                              .toString(),
-                                                        )
-                                                        .collection("vendas")
-                                                        .doc("$ano")
-                                                        .collection("mes")
-                                                        .doc("$mes")
-                                                        .collection("dia")
-                                                        .doc("$dia");
-                                                final DocumentSnapshot<
-                                                        Map<String, dynamic>>
-                                                    snapshot =
+                                                  DocumentReference<
+                                                          Map<String, dynamic>>
+                                                      documentReference =
+                                                      FirebaseFirestore.instance
+                                                          .collection('users')
+                                                          .doc(
+                                                            authProvider
+                                                                .user!.email
+                                                                .toString(),
+                                                          )
+                                                          .collection("vendas")
+                                                          .doc("$ano")
+                                                          .collection("mes")
+                                                          .doc("$mes")
+                                                          .collection("dia")
+                                                          .doc("$dia");
+                                                  final DocumentSnapshot<
+                                                          Map<String, dynamic>>
+                                                      snapshot =
+                                                      await documentReference
+                                                          .get();
+                                                  if (snapshot.exists) {
+                                                    final valorSoma =
+                                                        snapshot.data();
+                                                    double valorSomaindex =
+                                                        double.parse(
+                                                            valorSoma!["valor"]
+                                                                .toString());
+                                                    double valorSomaFinal =
+                                                        valorSomaindex +
+                                                            subtotal;
+                                                    print(
+                                                        "o valor é $valorSomaFinal");
                                                     await documentReference
-                                                        .get();
-                                                if (snapshot.exists) {
-                                                  final valorSoma =
-                                                      snapshot.data();
-                                                  double valorSomaindex =
-                                                      double.parse(
-                                                          valorSoma!["valor"]
-                                                              .toString());
-                                                  double valorSomaFinal =
-                                                      valorSomaindex + subtotal;
-                                                  print(
-                                                      "o valor é $valorSomaFinal");
-                                                  await documentReference.set({
-                                                    "valor": valorSomaFinal,
-                                                  });
-                                                } else {
-                                                  await documentReference.set({
-                                                    "valor": subtotal,
+                                                        .set({
+                                                      "valor": valorSomaFinal,
+                                                    });
+                                                  } else {
+                                                    await documentReference
+                                                        .set({
+                                                      "valor": subtotal,
+                                                    });
+                                                  }
+                                                  setState(() {
+                                                    listCard.clear();
+                                                    subtotal = 0.0;
                                                   });
                                                 }
-                                                setState(() {
-                                                  listCard.clear();
-                                                  subtotal = 0.0;
-                                                });
+                                              } catch (e) {
+                                                MyWidgetPadrao.showErrorDialog(
+                                                    context);
                                               }
-                                            } catch (e) {
-                                              MyWidgetPadrao.showErrorDialog(
-                                                  context);
+                                              Navigator.of(context)
+                                                  .pop(); // Fechar o diálogo
                                             }
                                           },
                                           child: const Flex(

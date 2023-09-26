@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_ticket/flutter_ticket.dart';
 import 'package:genmerc_mobile/firebase/bancoDados.dart';
 import 'package:intl/intl.dart';
@@ -113,12 +114,43 @@ class MyWidgetPadrao {
     return mapColorText;
   }
 
-  Widget cardPersonalite(String nome, String data, double valor, numero,
-      context, String email, String docFiado) {
+  Future<Widget> cardPersonalite(String nome, String data, double valor, numero,
+      context, String email, String docFiado) async {
     return InkWell(
       onLongPress: () async {
-        await BancoDadosFirebase()
-            .setVendasDeleteFiadoDoc(email, docFiado, valor, context);
+        await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Confirmação de Pagamento'),
+              content: const Text('Já realizou o pagamento?'),
+              actions: <Widget>[
+                ElevatedButton(
+                  style: const ButtonStyle(
+                      backgroundColor: MaterialStatePropertyAll(Colors.red),
+                      foregroundColor: MaterialStatePropertyAll(Colors.white)),
+                  onPressed: () {
+                    // Adicione a lógica a ser executada quando o usuário selecionar "Cancelar" aqui
+                    Navigator.of(context).pop(); // Fecha o AlertDialog
+                  },
+                  child: const Text('Cancelar'),
+                ),
+                ElevatedButton(
+                  style: const ButtonStyle(
+                      backgroundColor: MaterialStatePropertyAll(Colors.green),
+                      foregroundColor: MaterialStatePropertyAll(Colors.white)),
+                  onPressed: () async {
+                    // Adicione a lógica a ser executada quando o usuário selecionar "Pago" aqui
+                    await BancoDadosFirebase().setVendasDeleteFiadoDoc(
+                        email, docFiado, valor, context);
+                    Navigator.of(context).pop(); // Fecha o AlertDialog
+                  },
+                  child: const Text('Pago'),
+                ),
+              ],
+            );
+          },
+        );
       },
       borderRadius: BorderRadius.circular(10),
       child: Card(
@@ -129,21 +161,26 @@ class MyWidgetPadrao {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           direction: Axis.vertical,
           children: [
-            Align(
-              alignment: Alignment.topRight,
-              child: Container(
-                // Cor da etiqueta
-                decoration: BoxDecoration(
-                  color: colorEtiqueta(data)['cor'],
-                  borderRadius: const BorderRadius.only(
-                      topRight: Radius.circular(10),
-                      bottomLeft: Radius.circular(10)),
-                ),
-                padding: const EdgeInsets.symmetric(
-                    vertical: 8, horizontal: 16), // Espaçamento da etiqueta
-                child: Text(
-                  colorEtiqueta(data)['nome'],
-                  style: const TextStyle(color: Colors.white),
+            Expanded(
+              flex: 2,
+              child: Align(
+                alignment: Alignment.topRight,
+                child: Container(
+                  // Cor da etiqueta
+                  decoration: BoxDecoration(
+                    color: colorEtiqueta(data)['cor'],
+                    borderRadius: const BorderRadius.only(
+                        topRight: Radius.circular(10),
+                        bottomLeft: Radius.circular(10)),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 8, horizontal: 16), // Espaçamento da etiqueta
+                  child: FittedBox(
+                    child: Text(
+                      colorEtiqueta(data)['nome'],
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -155,12 +192,14 @@ class MyWidgetPadrao {
                   padding: const EdgeInsets.only(
                     left: 2.0,
                   ),
-                  child: Text(
-                    nome,
-                    style: const TextStyle(
-                      color: Color(0XFFce5355),
-                      fontSize: 25,
-                      fontFamily: 'Demi',
+                  child: FittedBox(
+                    child: Text(
+                      nome,
+                      style: const TextStyle(
+                        color: Color(0XFFce5355),
+                        fontSize: 25,
+                        fontFamily: 'Demi',
+                      ),
                     ),
                   ),
                 ),
@@ -183,8 +222,10 @@ class MyWidgetPadrao {
                 ),
               ),
             ),
-            const Divider(
-              color: Colors.black,
+            const Flexible(
+              child: Divider(
+                color: Colors.black,
+              ),
             ),
             Expanded(
               flex: 2,
@@ -199,11 +240,13 @@ class MyWidgetPadrao {
                 ),
               ),
             ),
-            const Divider(
-              color: Colors.black,
+            const Flexible(
+              child: Divider(
+                color: Colors.black,
+              ),
             ),
             Expanded(
-                flex: 2,
+                flex: 3,
                 child: Flex(
                   direction: Axis.horizontal,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -441,5 +484,141 @@ class MyWidgetPadrao {
 
     // Se a conversão falhar, retorne a data original
     return dataAmericana;
+  }
+
+  String converterDataBrasileira(String dataBrasileira) {
+    // Divida a data brasileira em partes
+    List<String> partes = dataBrasileira.split('/');
+
+    // Verifique se há três partes (ano, mês, dia)
+    if (partes.length == 3) {
+      String dia = partes[0];
+      String mes = partes[1];
+      String ano = partes[2];
+
+      // Formate a data no formato brasileiro (DIA/MÊS/ANO)
+      return '$ano-$mes-$dia';
+    }
+
+    // Se a conversão falhar, retorne a data original
+    return dataBrasileira;
+  }
+
+  Future<void> showAlertDialogCadastrarFiado(
+      BuildContext context, String email, double valor) async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        final DateFormat dateFormat = DateFormat('dd/MM/yyyy');
+        TextEditingController nomeController = TextEditingController();
+        TextEditingController telefoneController = TextEditingController();
+        TextEditingController dataController = TextEditingController();
+
+        final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+        return AlertDialog(
+          title: const Text('Cadastrar Fiado'),
+          content: Form(
+            key: formKey,
+            child: ListView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              padding: const EdgeInsets.all(16),
+              children: [
+                TextFormField(
+                  controller: nomeController,
+                  decoration: const InputDecoration(labelText: 'Nome'),
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Por favor, insira o nome.';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                TextFormField(
+                  controller: telefoneController,
+                  maxLength: 11,
+                  decoration: const InputDecoration(
+                    labelText: 'Telefone',
+                    prefixText: '+55 ',
+                  ),
+                  validator: (value) {
+                    if (value!.isEmpty || value.length != 11) {
+                      return 'Por favor, insira um número de telefone válido.';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                TextFormField(
+                  readOnly: true,
+                  onTap: () async {
+                    final DateTime currentDate = DateTime.now();
+                    final DateTime lastDate =
+                        currentDate.add(const Duration(days: 5 * 365));
+                    final date = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime.now(),
+                        lastDate: lastDate);
+                    final getDateController =
+                        '${date!.day.toString().length < 2 ? '0${date.day.toString()}' : date.day.toString()}/${date.month.toString().length < 2 ? '0${date.month.toString()}' : date.month.toString()}/${date.year}';
+
+                    dataController.text = getDateController;
+                  },
+                  controller: dataController,
+                  decoration: const InputDecoration(
+                      labelText: 'Data a pagar (dd/MM/yyyy)'),
+                  keyboardType: TextInputType.datetime,
+                  validator: (value) {
+                    try {
+                      if (value == null || value.isEmpty) {
+                        return 'Campo obrigatório';
+                      }
+
+                      dateFormat
+                          .parseStrict(value); // Tenta fazer o parse da data
+                      return null; // A data é válida
+                    } catch (e) {
+                      return 'Data inválida';
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancelar'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Fecha o AlertDialog
+              },
+            ),
+            TextButton(
+              child: const Text('Cadastrar'),
+              onPressed: () async {
+                if (formKey.currentState!.validate()) {
+                  // Validação passou, faça algo com os dados
+                  String nome = nomeController.text;
+                  String telefone = '+55${telefoneController.text}';
+                  String data = converterDataBrasileira(dataController.text);
+
+                  // Faça algo com os dados, por exemplo, adicione-os ao Firestore
+                  // Lembre-se de adicionar a lógica de validação e armazenamento dos dados aqui
+                  await BancoDadosFirebase().cadastrarFiado(
+                      context, email.toString(), nome, valor, telefone, data);
+
+                  Navigator.of(context).pop(); // Fecha o AlertDialog
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }

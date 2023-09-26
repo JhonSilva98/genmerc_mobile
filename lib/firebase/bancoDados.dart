@@ -144,6 +144,26 @@ class BancoDadosFirebase {
     }
   }
 
+  Future<void> cadastrarFiado(context, String email, String nome, double valor,
+      String telefone, String data) async {
+    var documentReferenceFiado = FirebaseFirestore.instance
+        .collection('users')
+        .doc(email)
+        .collection('fiado');
+
+    // Use o método `delete` para apagar o documento
+    try {
+      await documentReferenceFiado.add({
+        'nome': nome,
+        'data': data,
+        'valor': valor,
+        'telefone': telefone,
+      });
+    } catch (e) {
+      MyWidgetPadrao.showErrorDialog(context);
+    }
+  }
+
   Future<void> setVendasDeleteFiadoDoc(
       String email, String docFiado, double valorDivida, context) async {
     try {
