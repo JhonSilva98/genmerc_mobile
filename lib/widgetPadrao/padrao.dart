@@ -115,7 +115,7 @@ class MyWidgetPadrao {
   }
 
   Future<Widget> cardPersonalite(String nome, String data, double valor, numero,
-      context, String email, String docFiado) async {
+      context, String email, String docFiado, var listaProdutos) async {
     return InkWell(
       onLongPress: () async {
         await showDialog(
@@ -255,7 +255,56 @@ class MyWidgetPadrao {
                       child: FittedBox(
                         fit: BoxFit.cover,
                         child: IconButton(
-                          onPressed: () {},
+                          onPressed: () async {
+                            await showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text("Lista de compras"),
+                                  content: SizedBox(
+                                    width:
+                                        MediaQuery.of(context).size.width / 2,
+                                    height: MediaQuery.of(context)
+                                        .size
+                                        .width, // Defina uma altura apropriada
+                                    child: ListView.builder(
+                                      padding: const EdgeInsets.all(8),
+                                      shrinkWrap: true,
+                                      itemCount: listaProdutos.length,
+                                      itemBuilder: (context, index) {
+                                        return Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            ListTile(
+                                              title: Text(
+                                                listaProdutos[index]['nome'],
+                                              ),
+                                              trailing: Text(
+                                                'R\$ ${listaProdutos[index]['valor'].toString().replaceAll('.', ',')}',
+                                                style: const TextStyle(
+                                                  color: Colors.green,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                            const Divider()
+                                          ],
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                  actions: [
+                                    ElevatedButton(
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(),
+                                      child: const Text("OK"),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
                           icon: const Icon(Icons.description_sharp),
                         ),
                       ),
@@ -505,7 +554,7 @@ class MyWidgetPadrao {
   }
 
   Future<void> showAlertDialogCadastrarFiado(
-      BuildContext context, String email, double valor) async {
+      BuildContext context, String email, double valor, List produto) async {
     await showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -609,8 +658,8 @@ class MyWidgetPadrao {
 
                   // Faça algo com os dados, por exemplo, adicione-os ao Firestore
                   // Lembre-se de adicionar a lógica de validação e armazenamento dos dados aqui
-                  await BancoDadosFirebase().cadastrarFiado(
-                      context, email.toString(), nome, valor, telefone, data);
+                  await BancoDadosFirebase().cadastrarFiado(context,
+                      email.toString(), nome, valor, telefone, data, produto);
 
                   Navigator.of(context).pop(); // Fecha o AlertDialog
                 }
@@ -621,4 +670,6 @@ class MyWidgetPadrao {
       },
     );
   }
+
+  Future<void> cardGestaoProdutos() async {}
 }

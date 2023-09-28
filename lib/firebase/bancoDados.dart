@@ -145,7 +145,7 @@ class BancoDadosFirebase {
   }
 
   Future<void> cadastrarFiado(context, String email, String nome, double valor,
-      String telefone, String data) async {
+      String telefone, String data, List produto) async {
     var documentReferenceFiado = FirebaseFirestore.instance
         .collection('users')
         .doc(email)
@@ -158,6 +158,7 @@ class BancoDadosFirebase {
         'data': data,
         'valor': valor,
         'telefone': telefone,
+        'produtos': produto,
       });
     } catch (e) {
       MyWidgetPadrao.showErrorDialog(context);

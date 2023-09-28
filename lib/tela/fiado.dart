@@ -15,8 +15,16 @@ class _FiadoState extends State<Fiado> {
   MyWidgetPadrao cardPersonalite = MyWidgetPadrao();
   BuildContext? contextPrincipal;
 
-  Future<Widget> cardWidget(String nome, String data, double valor,
-      String telefone, context, String email, String nomeDoDocumento) async {
+  Future<Widget> cardWidget(
+    String nome,
+    String data,
+    double valor,
+    String telefone,
+    context,
+    String email,
+    String nomeDoDocumento,
+    var listProdutos,
+  ) async {
     await initializeDateFormatting('pt_BR');
     return await cardPersonalite.cardPersonalite(
       nome,
@@ -26,6 +34,7 @@ class _FiadoState extends State<Fiado> {
       context,
       email,
       nomeDoDocumento,
+      listProdutos,
     );
   }
 
@@ -125,6 +134,7 @@ class _FiadoState extends State<Fiado> {
                       context,
                       widget.email,
                       nomeDoDocumento,
+                      catchDados['produtos'],
                     ),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {

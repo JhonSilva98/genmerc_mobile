@@ -6,6 +6,7 @@ import 'package:genmerc_mobile/auth_services/loginProvider.dart';
 import 'package:genmerc_mobile/firebase/bancoDados.dart';
 import 'package:genmerc_mobile/funcion/buttonScan.dart';
 import 'package:genmerc_mobile/tela/fiado.dart';
+import 'package:genmerc_mobile/tela/gestaoProdutos.dart';
 import 'package:genmerc_mobile/tela/login.dart';
 import 'package:genmerc_mobile/tela/vendas.dart';
 import 'package:genmerc_mobile/widgetPadrao/padrao.dart';
@@ -23,11 +24,18 @@ class TelaPrincipal extends StatefulWidget {
 class _TelaPrincipalState extends State<TelaPrincipal> {
   BancoDadosFirebase bdFirebase = BancoDadosFirebase();
   double subtotal = 0.0;
+  List listaProdutos = [];
 
   Widget cardPersonalite2(Key key, int index, String nome, double valorUnit,
       String image, double quantidade) {
     double valorFinal = quantidade * valorUnit;
     subtotal += valorFinal;
+    //if (listaProdutos[index] == null) {
+
+    //} else {
+    // listaProdutos.insert(index, {'nome': nome, 'valor': valorFinal});
+    //}
+
     return Dismissible(
       key: key,
       background: Container(
@@ -42,6 +50,8 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
       onDismissed: (direction) {
         setState(() {
           listCard.removeWhere((item) => item.key == key);
+          listaProdutos.removeWhere((item) => item['key'] == key);
+          print(listaProdutos);
           subtotal -= valorFinal;
         });
       },
@@ -130,7 +140,14 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                             setState(() {
                               listCard[widgetIndex] = cardPersonalite2(key,
                                   index, nome, valorUnit, image, parsedNumber!);
+                              listaProdutos[widgetIndex] = {
+                                'nome': nome,
+                                'valor': parsedNumber * valorUnit,
+                                'key': key
+                              };
+                              print(listaProdutos);
                             });
+                            print(listaProdutos);
                           }
                         }
                         // Faça algo com o número (por exemplo, armazená-lo em algum lugar)
@@ -269,9 +286,15 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
         final resul = await ButtonScan(email: email, context: context)
             .executarFuncaoBarcode(barcodeScanRes);
         if (resul.isNotEmpty || resul['nome'] != 'error') {
+          final keyGlobal = GlobalKey();
+          listaProdutos.add({
+            'nome': resul['nome'],
+            'valor': double.parse(resul['valorUnit'].toString()),
+            'key': keyGlobal
+          });
           setState(() {
             listCard.add(
-              cardPersonalite2(GlobalKey(), listCard.length, resul['nome'],
+              cardPersonalite2(keyGlobal, listCard.length, resul['nome'],
                   resul['valorUnit'], resul['image'], 1),
             );
           });
@@ -541,16 +564,29 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                                           onPressed: () async {
                                             // Ação ao pressionar "Fiado"
                                             if (listCard.isNotEmpty) {
+                                              for (var element
+                                                  in listaProdutos) {
+                                                Map removeMap = element;
+                                                removeMap.remove('key');
+
+                                                int index = listaProdutos
+                                                    .indexOf(element);
+                                                listaProdutos[index] =
+                                                    removeMap;
+                                                //listaProdutos[index];
+                                              }
                                               await MyWidgetPadrao()
                                                   .showAlertDialogCadastrarFiado(
                                                 context,
                                                 authProvider.user!.email
                                                     .toString(),
                                                 subtotal,
+                                                listaProdutos,
                                               );
                                               setState(() {
                                                 listCard.clear();
                                                 subtotal = 0.0;
+                                                listaProdutos.clear();
                                               });
                                               Navigator.of(context).pop();
                                             }
@@ -669,7 +705,8 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                                               Expanded(
                                                 flex: 3,
                                                 child: FittedBox(
-                                                    child: Text('Finalizar')),
+                                                  child: Text('Finalizar'),
+                                                ),
                                               ),
                                             ],
                                           ),
@@ -761,7 +798,16 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                     iconSize: 30,
                   ),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => GestaoProdutos(
+                            email: authProvider.user!.email.toString(),
+                          ),
+                        ),
+                      );
+                    },
                     icon: const Icon(Icons.storage),
                     color: Colors.white,
                     iconSize: 30,
