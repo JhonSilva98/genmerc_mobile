@@ -104,7 +104,7 @@ class BancoDadosFirebase {
   }
 
   // pegar foto e usando a funcao uploadImageToStorageAndFirestore();
-  Future<void> getImageFromGallery() async {
+  Future<void> getImageFromGallery(String email) async {
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image != null) {
@@ -117,16 +117,32 @@ class BancoDadosFirebase {
       // O usuário cancelou a seleção da imagem
       pathImage = null;
     }
-    await uploadImageToStorageAndFirestore();
+    await uploadImageToStorageAndFirestore(email);
+  }
+
+  Future<void> getImageFromCamera(String email) async {
+    final XFile? image = await picker.pickImage(source: ImageSource.camera);
+
+    if (image != null) {
+      // Aqui você pode usar a variável 'image' para acessar a imagem selecionada
+      // Ela contém informações sobre o arquivo e pode ser usada para exibição ou upload.
+      // Por exemplo: File(image.path)
+      pathImage = image;
+      print('pegou');
+    } else {
+      // O usuário cancelou a seleção da imagem
+      pathImage = null;
+    }
+    await uploadImageToStorageAndFirestore(email);
   }
 
   //enviar a foto firebase e pegar o link
-  Future<void> uploadImageToStorageAndFirestore() async {
+  Future<void> uploadImageToStorageAndFirestore(String email) async {
     if (pathImage != null) {
       File file = File(pathImage!.path);
       try {
         final foto = await storageReference
-            .ref('${DateTime.now().millisecondsSinceEpoch}.jpg')
+            .ref('$email/${DateTime.now().millisecondsSinceEpoch}.jpg')
             .putFile(file);
 
         // Obter o URL da imagem após o upload
@@ -212,7 +228,7 @@ class BancoDadosFirebase {
         } else {
           // O documento não existe.
           var novoValor = {
-            'valor': 0.0, // Exemplo de outro campo com um novo valor.
+            'valor': valorDivida, // Exemplo de outro campo com um novo valor.
           };
 
           documentReferenceSet.set(novoValor).then((_) {

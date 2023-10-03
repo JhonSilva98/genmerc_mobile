@@ -30,11 +30,6 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
       String image, double quantidade) {
     double valorFinal = quantidade * valorUnit;
     subtotal += valorFinal;
-    //if (listaProdutos[index] == null) {
-
-    //} else {
-    // listaProdutos.insert(index, {'nome': nome, 'valor': valorFinal});
-    //}
 
     return Dismissible(
       key: key,

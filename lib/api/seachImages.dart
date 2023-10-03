@@ -10,7 +10,7 @@ class ImageUploaderService {
   /*final String apiKey =
       'AIzaSyCOBgJqSi69QIjkxSQyV9lbK5Zir_c5z-0';*/ // Substitua pela sua chave de API do Google
 
-  Future<String> searchAndUploadImage(String query) async {
+  Future<String> searchAndUploadImage(String query, String email) async {
     String linkFinala = '';
     String imageUrlFinal = '';
     String textoSemEspacos = query.replaceAll(' ', '');
@@ -76,7 +76,7 @@ class ImageUploaderService {
       final storage = FirebaseStorage.instance;
       //final storageRef = storage.ref().child('$query.jpg');
       //final foto = await storage.ref().putData(imageBytes);
-      final storageRef = storage.ref().child('$query.jpg');
+      final storageRef = storage.ref().child('$email/$query.jpg');
 
       // Faça o upload da imagem para o Firebase Storage
       await storageRef.putData(imageBytes);
@@ -88,4 +88,6 @@ class ImageUploaderService {
       return '';
     }
   }
+
+  //Your API key Pexels API: 9NsA29l5o9bTaKRLF69VCv1x1TjI1wEOuzhGzBJv10bZ5IQUAV5kVoGc
 }

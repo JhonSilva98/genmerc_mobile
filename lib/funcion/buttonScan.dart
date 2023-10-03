@@ -146,7 +146,8 @@ class ButtonScan {
                             controllervalor.text.replaceAll(',', '.');
                         final imagePesquisada =
                             await seachImage.searchAndUploadImage(
-                                "imagens: ${produtos.productName.toString()}");
+                                "imagens: ${produtos.productName.toString()}",
+                                email);
 
                         mapii.addAll({
                           'nome':
@@ -294,7 +295,7 @@ class ButtonScan {
                             controllervalor.text.replaceAll(',', '.');
                         final imagePesquisada =
                             await seachImage.searchAndUploadImage(
-                                "imagens: ${controllerNome.text}");
+                                "imagens: ${controllerNome.text}", email);
 
                         mapii.addAll({
                           'nome': controllerNome.text,

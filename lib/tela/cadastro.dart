@@ -85,7 +85,8 @@ class _CadastroState extends State<Cadastro> {
           Flexible(
             child: InkWell(
               onTap: () async {
-                await bdFirebase.getImageFromGallery();
+                await bdFirebase
+                    .getImageFromGallery(authProvider.user!.email.toString());
                 if (bdFirebase.pathImage != null) {
                   setState(() {
                     photoSelect = bdFirebase.imageUrl;

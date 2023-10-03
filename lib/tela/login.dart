@@ -90,13 +90,16 @@ class _LoginState extends State<Login> {
                 ),
                 Flexible(
                   flex: 2,
-                  child: Column(
+                  child: Flex(
+                    direction: Axis.vertical,
                     children: [
                       Flexible(
-                        child: Padding(
-                            padding: const EdgeInsets.all(8.0),
+                          child: ListView(
+                        children: [
+                          Flexible(
                             child: TextFormField(
                               controller: _controllerEmail,
+                              autocorrect: false,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 30,
@@ -132,53 +135,56 @@ class _LoginState extends State<Login> {
                                   ),
                                 ),
                               ),
-                            )),
-                      ),
-                      Flexible(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: TextFormField(
-                            controller: _controllerSenha,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 30,
                             ),
-                            keyboardType: TextInputType.visiblePassword,
-                            obscureText: true,
-                            obscuringCharacter: '•',
-                            autocorrect: false,
-                            decoration: InputDecoration(
-                              icon: const Icon(
-                                Icons.key,
-                                color: Colors.white, // Cor do ícone
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Flexible(
+                            child: TextFormField(
+                              controller: _controllerSenha,
+                              autocorrect: false,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 30,
                               ),
-                              labelText: 'Senha',
-                              hintText: 'Digite sua senha',
-                              labelStyle: const TextStyle(
-                                color: Colors.white, // Cor do texto da label
-                              ),
-                              hintStyle: const TextStyle(
-                                color: Colors.white, // Cor do texto do hint
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                                borderSide: const BorderSide(
-                                  color: Colors.white, // Cor da borda
-                                  width: 2.0, // Largura da borda
+                              keyboardType: TextInputType.visiblePassword,
+                              obscureText: true,
+                              obscuringCharacter: '•',
+                              decoration: InputDecoration(
+                                icon: const Icon(
+                                  Icons.key,
+                                  color: Colors.white, // Cor do ícone
                                 ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                                borderSide: const BorderSide(
-                                  color: Colors
-                                      .white, // Cor da borda quando em foco
-                                  width: 2.0, // Largura da borda quando em foco
+                                labelText: 'Senha',
+                                hintText: 'Digite sua senha',
+                                labelStyle: const TextStyle(
+                                  color: Colors.white, // Cor do texto da label
+                                ),
+                                hintStyle: const TextStyle(
+                                  color: Colors.white, // Cor do texto do hint
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  borderSide: const BorderSide(
+                                    color: Colors.white, // Cor da borda
+                                    width: 2.0, // Largura da borda
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  borderSide: const BorderSide(
+                                    color: Colors
+                                        .white, // Cor da borda quando em foco
+                                    width:
+                                        2.0, // Largura da borda quando em foco
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      ),
+                        ],
+                      )),
                     ],
                   ),
                 ),
@@ -210,7 +216,7 @@ class _LoginState extends State<Login> {
                             _controllerSenha.text.toString(),
                             context);
                         // Feche o ProgressDialog quando a operação estiver concluída
-                        progressDialog.hide();
+                        //progressDialog.hide();
                         if (authProvider.user != null) {
                           BancoDadosFirebase bdfirebase = BancoDadosFirebase();
                           if (await bdfirebase.isDocumentExist(
@@ -230,6 +236,7 @@ class _LoginState extends State<Login> {
                             );
                           }
                         }
+                        //progressDialog.hide();
                       },
                       child: const Text('ENTRAR')),
                 )

@@ -142,7 +142,11 @@ class MyWidgetPadrao {
                   onPressed: () async {
                     // Adicione a lógica a ser executada quando o usuário selecionar "Pago" aqui
                     await BancoDadosFirebase().setVendasDeleteFiadoDoc(
-                        email, docFiado, valor, context);
+                      email,
+                      docFiado,
+                      valor,
+                      context,
+                    );
                     Navigator.of(context).pop(); // Fecha o AlertDialog
                   },
                   child: const Text('Pago'),

@@ -19,6 +19,62 @@ class _VendasState extends State<Vendas> {
   double subtotal = 0.0;
   String dateNameMes = "";
   MyWidgetPadrao funcionWidget = MyWidgetPadrao();
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    final dat = DateTime.now();
+    _mes = dat.month;
+    _ano = dat.year;
+    try {
+      initializeDateFormatting('pt_BR');
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.email)
+          .collection('vendas')
+          .doc("$_ano")
+          .collection('mes')
+          .doc('$_mes')
+          .collection('dia')
+          .get()
+          .then((QuerySnapshot querySnapshot) {
+        if (querySnapshot.docs.isNotEmpty) {
+          // A coleção existe e possui pelo menos um documento.
+          double valorFinal = 0.0;
+
+          // Iterar pelos documentos e somar os valores ao subtotal
+          for (var document in querySnapshot.docs) {
+            // Suponha que os valores que você deseja somar estão em um campo chamado "valor"
+            double valor = double.parse(document['valor']
+                .toString()); // Use o valor padrão 0.0 se o campo não existir
+
+            valorFinal += valor;
+          }
+
+          subtotal = 0.0;
+          setState(() {
+            subtotal += valorFinal;
+            dateNameMes = funcionWidget.obterNomeDoMes(_mes);
+            print(dateNameMes);
+            whatch = true;
+          });
+          FocusScope.of(context).unfocus();
+          print('A coleção existe.');
+        } else {
+          // A coleção não existe ou está vazia.
+          setState(() {
+            setState(() {
+              whatch = false;
+              subtotal = 0.0;
+            });
+          });
+          MyWidgetPadrao.showErrorDialogBancoDados(context);
+        }
+      });
+    } catch (e) {
+      MyWidgetPadrao.showErrorDialog(context);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -228,7 +284,8 @@ class _VendasState extends State<Vendas> {
                                   backgroundColor:
                                       Colors.white, // Define a forma circular
                                   padding: const EdgeInsets.all(
-                                      16.0), // Cor de fundo do botão
+                                    16.0,
+                                  ), // Cor de fundo do botão
                                 ),
                                 child: Icon(
                                   Icons.navigate_next_rounded,
@@ -312,7 +369,7 @@ class _VendasState extends State<Vendas> {
                       flex: 2,
                       child: FittedBox(
                         child: Text(
-                          "R\$ ${subtotal.toString().replaceAll('.', ',')}",
+                          "R\$ ${subtotal.toStringAsFixed(2).replaceAll('.', ',')}",
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 50,
