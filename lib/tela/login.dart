@@ -15,7 +15,6 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   final TextEditingController _controllerEmail = TextEditingController();
-
   final TextEditingController _controllerSenha = TextEditingController();
 
   @override
@@ -94,10 +93,11 @@ class _LoginState extends State<Login> {
                     direction: Axis.vertical,
                     children: [
                       Flexible(
-                          child: ListView(
-                        children: [
-                          Flexible(
-                            child: TextFormField(
+                          child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: ListView(
+                          children: [
+                            TextFormField(
                               controller: _controllerEmail,
                               autocorrect: false,
                               style: const TextStyle(
@@ -136,12 +136,10 @@ class _LoginState extends State<Login> {
                                 ),
                               ),
                             ),
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Flexible(
-                            child: TextFormField(
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            TextFormField(
                               controller: _controllerSenha,
                               autocorrect: false,
                               style: const TextStyle(
@@ -182,8 +180,8 @@ class _LoginState extends State<Login> {
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       )),
                     ],
                   ),
@@ -211,12 +209,75 @@ class _LoginState extends State<Login> {
                                 fontSize: 19.0,
                                 fontWeight: FontWeight.w600));
                         await progressDialog.show();
-                        await authProvider.signInWithEmailAndPassword(
+                        try {
+                          await authProvider.signInWithEmailAndPassword(
                             _controllerEmail.text.toString(),
                             _controllerSenha.text.toString(),
-                            context);
-                        // Feche o ProgressDialog quando a operação estiver concluída
-                        //progressDialog.hide();
+                          );
+                        } catch (error) {
+                          progressDialog.hide();
+                          if (error.toString() ==
+                              '[firebase_auth/user-disabled] The user account has been disabled by an administrator.') {
+                            await authProvider.signOut();
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text('Conta Desativada'),
+                                  content: const Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Sua conta foi desativada. Por favor, entre em contato com o suporte para obter assistência.',
+                                      ),
+                                    ],
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        // Fechar o diálogo
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: const Text('OK'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          } else {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title:
+                                      const Text('Erro nos dados ou conexão'),
+                                  content: const Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Sua senha ou email são inválidos ou está sem conexão com a internet. Por favor, tente novamente.',
+                                      ),
+                                    ],
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        // Fechar o diálogo
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: const Text('OK'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          }
+                          rethrow;
+                        }
                         if (authProvider.user != null) {
                           BancoDadosFirebase bdfirebase = BancoDadosFirebase();
                           if (await bdfirebase.isDocumentExist(
@@ -236,7 +297,6 @@ class _LoginState extends State<Login> {
                             );
                           }
                         }
-                        //progressDialog.hide();
                       },
                       child: const Text('ENTRAR')),
                 )

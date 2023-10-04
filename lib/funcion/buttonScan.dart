@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:genmerc_mobile/api/consumerProductor.dart';
 import 'package:genmerc_mobile/api/seachImages.dart';
 import 'package:genmerc_mobile/widgetPadrao/padrao.dart';
+import 'package:progress_dialog_null_safe/progress_dialog_null_safe.dart';
 
 class ButtonScan {
   FirebaseFirestore documentSnapshot = FirebaseFirestore.instance;
@@ -22,13 +23,6 @@ class ButtonScan {
     required this.email,
     required this.context, // A função onPressed é obrigatória
   });
-
-  /*Future<void> executarFuncaoBarcode(
-    String cod,
-  ) async {
-    BdFiredart dados = BdFiredart();
-    await dados.addBancoFiredart(cod, context);
-  }*/
 
   Future<Map<String, dynamic>> executarFuncaoBarcode(
       String barcodeScanRes) async {
@@ -55,7 +49,7 @@ class ButtonScan {
         final nome = data['nome'].toString();
         var numberConvert = data['valorUnit'];
         double numm = numberConvert.toDouble();
-        final valorUnit = numm;
+        double valorUnit = numm;
         final image = (data['image'] ?? '').toString();
         //print(' dados recuperador $nome $valorUnit $image');
 
@@ -141,6 +135,25 @@ class ButtonScan {
                   ),
                   ElevatedButton(
                     onPressed: () async {
+                      ProgressDialog progressDialog = ProgressDialog(context);
+                      progressDialog.style(
+                          message: 'Carregando...',
+                          borderRadius: 10.0,
+                          backgroundColor: Colors.white,
+                          progressWidget: const CircularProgressIndicator(),
+                          elevation: 10.0,
+                          insetAnimCurve: Curves.easeInOut,
+                          progress: 0.0,
+                          maxProgress: 100.0,
+                          progressTextStyle: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 13.0,
+                              fontWeight: FontWeight.w400),
+                          messageTextStyle: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 19.0,
+                              fontWeight: FontWeight.w600));
+                      await progressDialog.show();
                       if (controllervalor.text.isNotEmpty) {
                         controllervalor.text =
                             controllervalor.text.replaceAll(',', '.');
@@ -157,6 +170,7 @@ class ButtonScan {
                               .toString(),
                         });
 
+                        progressDialog.hide();
                         Navigator.of(context).pop();
                         await collectionAdd.set({
                           'nome':
@@ -289,6 +303,25 @@ class ButtonScan {
                   ),
                   ElevatedButton(
                     onPressed: () async {
+                      ProgressDialog progressDialog = ProgressDialog(context);
+                      progressDialog.style(
+                          message: 'Carregando...',
+                          borderRadius: 10.0,
+                          backgroundColor: Colors.white,
+                          progressWidget: const CircularProgressIndicator(),
+                          elevation: 10.0,
+                          insetAnimCurve: Curves.easeInOut,
+                          progress: 0.0,
+                          maxProgress: 100.0,
+                          progressTextStyle: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 13.0,
+                              fontWeight: FontWeight.w400),
+                          messageTextStyle: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 19.0,
+                              fontWeight: FontWeight.w600));
+                      await progressDialog.show();
                       if (controllerNome.text.isNotEmpty &&
                           controllervalor.text.isNotEmpty) {
                         controllervalor.text =
@@ -303,6 +336,7 @@ class ButtonScan {
                           'image': imagePesquisada,
                         });
 
+                        progressDialog.hide();
                         Navigator.of(context).pop();
                         await collectionAdd.set({
                           'nome': controllerNome.text,

@@ -26,8 +26,14 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
   double subtotal = 0.0;
   List listaProdutos = [];
 
-  Widget cardPersonalite2(Key key, int index, String nome, double valorUnit,
-      String image, double quantidade) {
+  Widget cardPersonalite2(
+    Key key,
+    int index,
+    String nome,
+    double valorUnit,
+    String image,
+    double quantidade,
+  ) {
     double valorFinal = quantidade * valorUnit;
     subtotal += valorFinal;
 
@@ -138,6 +144,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                               listaProdutos[widgetIndex] = {
                                 'nome': nome,
                                 'valor': parsedNumber * valorUnit,
+                                'valorUnit': valorUnit,
                                 'key': key
                               };
                               print(listaProdutos);
@@ -226,7 +233,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                                 child: FittedBox(
                                   fit: BoxFit.contain,
                                   child: Text(
-                                    '$quantidade x R\$ ${valorUnit.toString().replaceAll('.', ',')} Un.',
+                                    '$quantidade x R\$ ${valorUnit.toStringAsFixed(2).replaceAll('.', ',')} Un.',
                                     style: const TextStyle(
                                       color: Colors.grey,
                                       fontSize: 30,
@@ -244,7 +251,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                                         borderRadius: const BorderRadius.all(
                                             Radius.circular(10))),
                                     child: Text(
-                                      'R\$: ${valorFinal.toString().replaceAll('.', ',')}',
+                                      'R\$: ${valorFinal.toStringAsFixed(2).replaceAll('.', ',')}',
                                       textAlign: TextAlign.center,
                                     ),
                                   ),
@@ -285,6 +292,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
           listaProdutos.add({
             'nome': resul['nome'],
             'valor': double.parse(resul['valorUnit'].toString()),
+            'valorUnit': double.parse(resul['valorUnit'].toString()),
             'key': keyGlobal
           });
           setState(() {
@@ -522,7 +530,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                               child: Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Text(
-                                  'R\$: ${subtotal.toString().replaceAll('.', ',')}',
+                                  'R\$: ${subtotal.toStringAsFixed(2).replaceAll('.', ',')}',
                                   style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 30,
@@ -536,7 +544,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                       Flexible(
                         child: ElevatedButton(
                           onPressed: () async {
-                            showDialog(
+                            await showDialog(
                               context: context,
                               builder: (BuildContext context) {
                                 return AlertDialog(
@@ -622,9 +630,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                                                   final ano = now.year;
                                                   final mes = now.month;
                                                   final dia = now.day;
-                                                  /*final hora =
-                                                                          '${now.hour}-${now.minute}-${now.second}';
-                                                                      final data = now.toLocal();*/
+
                                                   DocumentReference<
                                                           Map<String, dynamic>>
                                                       documentReference =
@@ -742,7 +748,9 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
           onPressed: () async {
             try {
               await scanBarcodeNormal(
-                  authProvider.user!.email.toString(), context);
+                authProvider.user!.email.toString(),
+                context,
+              );
             } catch (e) {
               // ignore: use_build_context_synchronously
               await MyWidgetPadrao.showErrorDialog(context);
@@ -750,7 +758,8 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
           },
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(
-                100.0), // Valor alto para tornar o botão redondo
+              100.0,
+            ), // Valor alto para tornar o botão redondo
           ), // Ícone do botão
           backgroundColor:
               const Color.fromARGB(255, 98, 156, 206), // Cor de fundo do botão
@@ -830,7 +839,6 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                   ),
                   IconButton(
                     onPressed: () async {
-                      //await subCollection2.add(dataSubCollectionEmpresa);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -840,7 +848,9 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                         ),
                       );
                     },
-                    icon: const Icon(Icons.store_mall_directory_rounded),
+                    icon: const Icon(
+                      Icons.store_mall_directory_rounded,
+                    ),
                     color: Colors.white,
                     iconSize: 30,
                   )

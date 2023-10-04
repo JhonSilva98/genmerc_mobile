@@ -121,9 +121,7 @@ class _FiadoState extends State<Fiado> {
                 final documento = docs[index];
                 final nomeDoDocumento = documento.id;
                 final catchDados = documento.data();
-                final valor = double.parse(
-                  catchDados["valor"].toString(),
-                );
+                final valor = double.parse(catchDados["valor"].toString());
 
                 return FutureBuilder(
                     future: cardWidget(

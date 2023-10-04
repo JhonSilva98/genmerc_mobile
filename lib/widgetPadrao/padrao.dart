@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_ticket/flutter_ticket.dart';
 import 'package:genmerc_mobile/firebase/bancoDados.dart';
 import 'package:intl/intl.dart';
@@ -235,7 +234,7 @@ class MyWidgetPadrao {
               flex: 2,
               child: FittedBox(
                 child: Text(
-                  "R\$ ${valor.toString().replaceAll('.', ',')}",
+                  "R\$ ${valor.toStringAsFixed(2).replaceAll('.', ',')}",
                   style: const TextStyle(
                     color: Colors.green,
                     fontSize: 25,
@@ -284,8 +283,11 @@ class MyWidgetPadrao {
                                               title: Text(
                                                 listaProdutos[index]['nome'],
                                               ),
+                                              subtitle: Text(
+                                                "Quantidade: ${(double.parse(listaProdutos[index]['valor'].toString()) / double.parse(listaProdutos[index]['valorUnit'].toString())).toStringAsFixed(2).replaceAll('.', ',')} ",
+                                              ),
                                               trailing: Text(
-                                                'R\$ ${listaProdutos[index]['valor'].toString().replaceAll('.', ',')}',
+                                                'R\$ ${listaProdutos[index]['valor'].toStringAsFixed(2).replaceAll('.', ',')}',
                                                 style: const TextStyle(
                                                   color: Colors.green,
                                                   fontWeight: FontWeight.bold,
@@ -331,7 +333,11 @@ class MyWidgetPadrao {
                         fit: BoxFit.cover,
                         child: IconButton(
                           onPressed: () async {
-                            await abrirWhatsApp(numero, nome, valor);
+                            await abrirWhatsApp(
+                              numero,
+                              nome,
+                              valor,
+                            );
                           },
                           icon: const Icon(Icons.message),
                         ),
@@ -461,7 +467,7 @@ class MyWidgetPadrao {
                       flex: 2,
                       child: FittedBox(
                         child: Text(
-                          "R\$ ${dados.toString().replaceAll('.', ',')}",
+                          "R\$ ${dados.toStringAsFixed(2).replaceAll('.', ',')}",
                           style: const TextStyle(
                             color: Colors.green,
                             fontSize: 25,
@@ -674,6 +680,4 @@ class MyWidgetPadrao {
       },
     );
   }
-
-  Future<void> cardGestaoProdutos() async {}
 }

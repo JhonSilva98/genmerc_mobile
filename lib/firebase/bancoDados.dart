@@ -66,36 +66,6 @@ class BancoDadosFirebase {
 
       // Use o método `set()` para criar um novo documento na coleção ou substituir um documento existente com os dados especificados
       await documentReference.set(data);
-/*
-      // Subcoleção 1
-      CollectionReference subCollection1 =
-          documentReference.collection('fiado');
-      Map<String, dynamic> dataSubCollection1 = {
-        'campo1': 'valor1',
-        'campo2': 'valor2',
-        // Adicione outros campos e valores conforme necessário para a primeira subcoleção
-      };
-      await subCollection1.add(dataSubCollection1);
-
-// Subcoleção 2
-      CollectionReference subCollection2 =
-          documentReference.collection('empresa');
-      Map<String, dynamic> dataSubCollection2 = {
-        'campo3': 'valor3',
-        'campo4': 'valor4',
-        // Adicione outros campos e valores conforme necessário para a segunda subcoleção
-      };
-      await subCollection2.add(dataSubCollection2);
-
-// Subcoleção 3
-      CollectionReference subCollection3 =
-          documentReference.collection('bancodados');
-      Map<String, dynamic> dataSubCollection3 = {
-        'campo5': 'valor5',
-        'campo6': 'valor6',
-        // Adicione outros campos e valores conforme necessário para a terceira subcoleção
-      };
-      await subCollection3.add(dataSubCollection3);*/
 
       print('Documento criado ou atualizado com sucesso.');
     } catch (e) {

@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:genmerc_mobile/firebase/bancoDados.dart';
 import 'package:genmerc_mobile/funcion/buttonScan.dart';
+import 'package:genmerc_mobile/widgetPadrao/padrao.dart';
 
 class GestaoProdutos extends StatefulWidget {
   final String email;
@@ -54,7 +55,7 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
       barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
-          '#ff6666', 'Cancel', true, ScanMode.BARCODE);
+          '#ff6666', 'Cancelar', true, ScanMode.BARCODE);
       if (barcodeScanRes != '-1') {
         await player.play(AssetSource('beep-07a.mp3'));
         final resul = await ButtonScan(email: email, context: context)
@@ -73,6 +74,7 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
       }
     } on PlatformException {
       barcodeScanRes = 'Failed to get platform version.';
+
       print('Failed to get platform version.');
     }
 
@@ -458,7 +460,7 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
                               width: 5,
                             ),
                             Text(
-                              'R\$ ${document['valorUnit'].toString().replaceAll('.', ',')}',
+                              'R\$ ${document['valorUnit'].toStringAsFixed(2).replaceAll('.', ',')}',
                               style: const TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
@@ -517,10 +519,10 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
                                           ElevatedButton(
                                             onPressed: () async {
                                               // Implemente a lógica de alterar o nome aqui
-                                              String newValor = numberController
-                                                  .text
-                                                  .toString()
-                                                  .replaceAll(',', '.');
+                                              double newValor = double.parse(
+                                                  numberController.text
+                                                      .toString()
+                                                      .replaceAll(',', '.'));
                                               try {
                                                 await _firestore
                                                     .collection('users')
@@ -591,7 +593,11 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
           Icons.qr_code,
         ),
         onPressed: () async {
-          await scanBarcodeNormal(widget.email, context);
+          try {
+            await scanBarcodeNormal(widget.email, context);
+          } catch (e) {
+            MyWidgetPadrao.showErrorDialog(context);
+          }
         },
       ),
     );
