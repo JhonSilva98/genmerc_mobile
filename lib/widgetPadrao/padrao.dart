@@ -125,9 +125,6 @@ class MyWidgetPadrao {
               content: const Text('Já realizou o pagamento?'),
               actions: <Widget>[
                 ElevatedButton(
-                  style: const ButtonStyle(
-                      backgroundColor: MaterialStatePropertyAll(Colors.red),
-                      foregroundColor: MaterialStatePropertyAll(Colors.white)),
                   onPressed: () {
                     // Adicione a lógica a ser executada quando o usuário selecionar "Cancelar" aqui
                     Navigator.of(context).pop(); // Fecha o AlertDialog
@@ -167,23 +164,39 @@ class MyWidgetPadrao {
             Expanded(
               flex: 2,
               child: Align(
-                alignment: Alignment.topRight,
-                child: Container(
-                  // Cor da etiqueta
-                  decoration: BoxDecoration(
-                    color: colorEtiqueta(data)['cor'],
-                    borderRadius: const BorderRadius.only(
-                        topRight: Radius.circular(10),
-                        bottomLeft: Radius.circular(10)),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 8, horizontal: 16), // Espaçamento da etiqueta
-                  child: FittedBox(
-                    child: Text(
-                      colorEtiqueta(data)['nome'],
-                      style: const TextStyle(color: Colors.white),
+                alignment: Alignment.topCenter,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(
+                        left: 5,
+                        top: 5,
+                      ),
+                      child: Icon(
+                        Icons.account_balance_wallet_outlined,
+                        color: Color.fromARGB(230, 158, 158, 158),
+                      ),
                     ),
-                  ),
+                    Container(
+                      // Cor da etiqueta
+                      decoration: BoxDecoration(
+                        color: colorEtiqueta(data)['cor'],
+                        borderRadius: const BorderRadius.only(
+                            topRight: Radius.circular(10),
+                            bottomLeft: Radius.circular(10)),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8,
+                          horizontal: 16), // Espaçamento da etiqueta
+                      child: FittedBox(
+                        child: Text(
+                          colorEtiqueta(data)['nome'],
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -237,19 +250,28 @@ class MyWidgetPadrao {
                   "R\$ ${valor.toStringAsFixed(2).replaceAll('.', ',')}",
                   style: const TextStyle(
                     color: Colors.green,
+                    fontWeight: FontWeight.bold,
                     fontSize: 25,
                     fontFamily: 'Demi',
                   ),
                 ),
               ),
             ),
-            const Flexible(
-              child: Divider(
-                color: Colors.black,
-              ),
+            const SizedBox(
+              height: 5,
             ),
             Expanded(
-                flex: 3,
+              flex: 3,
+              child: Container(
+                width: double.infinity,
+                height: double.infinity,
+                decoration: const BoxDecoration(
+                  color: Color(0XFF2962ff),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(10),
+                    bottomRight: Radius.circular(10),
+                  ),
+                ),
                 child: Flex(
                   direction: Axis.horizontal,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -311,7 +333,10 @@ class MyWidgetPadrao {
                               },
                             );
                           },
-                          icon: const Icon(Icons.description_sharp),
+                          icon: const Icon(
+                            Icons.description_sharp,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
@@ -324,6 +349,7 @@ class MyWidgetPadrao {
                           },
                           icon: const Icon(
                             Icons.phone,
+                            color: Colors.white,
                           ),
                         ),
                       ),
@@ -337,14 +363,20 @@ class MyWidgetPadrao {
                               numero,
                               nome,
                               valor,
+                              listaProdutos,
                             );
                           },
-                          icon: const Icon(Icons.message),
+                          icon: const Icon(
+                            Icons.message,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
                   ],
-                )),
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -514,9 +546,16 @@ class MyWidgetPadrao {
     }
   }
 
-  Future<void> abrirWhatsApp(String numero, String nome, double valor) async {
+  Future<void> abrirWhatsApp(
+      String numero, String nome, double valor, produtos) async {
+    String listProdutos = '';
+    for (var contact in produtos) {
+      listProdutos +=
+          '- ${contact['nome']}, ${(double.parse(contact['valor'].toString()) / double.parse(contact['valorUnit'].toString())).toStringAsFixed(1)}x, R\$ ${contact['valor']}\n';
+    }
     final mensagem =
-        'Olá $nome, tudo bom? Apenas relembrando sobre a compra aqui no mercadinho no valor de R\$ ${valor.toString().replaceAll(".", ",")}. Aguardo o pagamento conforme combinado. Obrigado.';
+        'Olá $nome, tudo bom? Apenas relembrando sobre a compra aqui no mercadinho no valor de R\$ ${valor.toStringAsFixed(2).replaceAll(".", ",")}.\n\n - *Lista de compras* -\n$listProdutos\n Aguardo o pagamento conforme combinado. Obrigado.';
+
     final urlWhatsApp =
         'https://api.whatsapp.com/send?phone=$numero&text=$mensagem';
 

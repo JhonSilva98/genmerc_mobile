@@ -795,26 +795,30 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.search),
-                    color: Colors.white,
-                    iconSize: 30,
+                  FittedBox(
+                    child: IconButton(
+                      onPressed: () {},
+                      icon: const Icon(Icons.search),
+                      color: Colors.white,
+                      iconSize: 30,
+                    ),
                   ),
-                  IconButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => GestaoProdutos(
-                            email: authProvider.user!.email.toString(),
+                  FittedBox(
+                    child: IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => GestaoProdutos(
+                              email: authProvider.user!.email.toString(),
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.storage),
-                    color: Colors.white,
-                    iconSize: 30,
+                        );
+                      },
+                      icon: const Icon(Icons.storage),
+                      color: Colors.white,
+                      iconSize: 30,
+                    ),
                   )
                 ],
               ),
@@ -822,37 +826,43 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  IconButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Fiado(
-                            email: authProvider.user!.email.toString(),
+                  FittedBox(
+                    child: IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Fiado(
+                              email: authProvider.user!.email.toString(),
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.account_balance_wallet_outlined),
-                    color: Colors.white,
-                    iconSize: 30,
-                  ),
-                  IconButton(
-                    onPressed: () async {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Vendas(
-                            email: authProvider.user!.email.toString(),
-                          ),
-                        ),
-                      );
-                    },
-                    icon: const Icon(
-                      Icons.store_mall_directory_rounded,
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.account_balance_wallet_outlined,
+                      ),
+                      color: Colors.white,
+                      iconSize: 30,
                     ),
-                    color: Colors.white,
-                    iconSize: 30,
+                  ),
+                  FittedBox(
+                    child: IconButton(
+                      onPressed: () async {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Vendas(
+                              email: authProvider.user!.email.toString(),
+                            ),
+                          ),
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.store_mall_directory_rounded,
+                      ),
+                      color: Colors.white,
+                      iconSize: 30,
+                    ),
                   )
                 ],
               ),
