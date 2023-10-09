@@ -23,8 +23,12 @@ class TelaPrincipal extends StatefulWidget {
 
 class _TelaPrincipalState extends State<TelaPrincipal> {
   BancoDadosFirebase bdFirebase = BancoDadosFirebase();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  List<QueryDocumentSnapshot> allDocuments = [];
+  List<QueryDocumentSnapshot> filteredDocuments = [];
   double subtotal = 0.0;
   List listaProdutos = [];
+  BuildContext? contextDialog;
 
   Widget cardPersonalite2(
     Key key,
@@ -206,11 +210,11 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                             child: SingleChildScrollView(
                               scrollDirection: Axis.horizontal,
                               child: Text(
-                                nome,
+                                nome.toUpperCase(),
                                 softWrap: false,
                                 style: const TextStyle(
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 30,
+                                    fontSize: 20,
                                     color: Color.fromARGB(255, 107, 107, 107)),
                               ),
                             ),
@@ -276,6 +280,28 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
   List<Widget> listCard = [];
   final player = AudioPlayer();
 
+  void addForSeach(String nome, valorUnit, String image) {
+    final keyGlobal = GlobalKey();
+    listaProdutos.add({
+      'nome': nome,
+      'valor': valorUnit,
+      'valorUnit': valorUnit,
+      'key': keyGlobal
+    });
+    setState(() {
+      listCard.add(
+        cardPersonalite2(
+          keyGlobal,
+          listCard.length,
+          nome,
+          valorUnit,
+          image,
+          1,
+        ),
+      );
+    });
+  }
+
   Future<void> scanBarcodeNormal(String email, context) async {
     String barcodeScanRes;
     //ButtonScan funcion = ButtonScan(email: email, context: context);
@@ -288,19 +314,12 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
         final resul = await ButtonScan(email: email, context: context)
             .executarFuncaoBarcode(barcodeScanRes);
         if (resul.isNotEmpty || resul['nome'] != 'error') {
-          final keyGlobal = GlobalKey();
-          listaProdutos.add({
-            'nome': resul['nome'],
-            'valor': double.parse(resul['valorUnit'].toString()),
-            'valorUnit': double.parse(resul['valorUnit'].toString()),
-            'key': keyGlobal
-          });
-          setState(() {
-            listCard.add(
-              cardPersonalite2(keyGlobal, listCard.length, resul['nome'],
-                  resul['valorUnit'], resul['image'], 1),
-            );
-          });
+          addForSeach(
+            resul['nome'],
+            resul['valorUnit'],
+            resul['image'],
+          );
+
           //_showSnackBar(context);
           await scanBarcodeNormal(email, context);
         }
@@ -316,8 +335,28 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
     if (!mounted) return;
   }
 
+  Future<void> _loadDocuments(String email) async {
+    final querySnapshot = await _firestore
+        .collection('users')
+        .doc(email)
+        .collection('bancodados')
+        .get();
+    setState(() {
+      allDocuments = querySnapshot.docs;
+      filteredDocuments = allDocuments;
+    });
+  }
+
+  void _filterDocuments(String query) {
+    filteredDocuments = allDocuments.where((document) {
+      final title = document['nome'] as String;
+      return title.toLowerCase().contains(query.toLowerCase());
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
+    contextDialog = context;
     final authProvider = Provider.of<AuthProvider>(context);
 
     if (authProvider.user == null) {
@@ -348,7 +387,9 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                 "assets/ideogram.jpeg",
               ), // Substitua pelo caminho da sua imagem
               colorFilter: ColorFilter.mode(
-                Colors.white.withOpacity(0.15), // Ajuste a opacidade aqui
+                Colors.white.withOpacity(
+                  0.15,
+                ), // Ajuste a opacidade aqui
                 BlendMode
                     .dstATop, // Define o modo de mesclagem para mesclar com a cor de fundo
               ),
@@ -367,7 +408,9 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const CircularProgressIndicator(); // Mostrar um indicador de carregamento enquanto os dados estão sendo buscados.
               } else if (snapshot.hasError) {
-                return const Text("Erro");
+                return const Text(
+                  "Erro",
+                );
               } else {
                 verAttFotoNome = false;
                 return Center(
@@ -578,19 +621,23 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                                                     removeMap;
                                                 //listaProdutos[index];
                                               }
-                                              await MyWidgetPadrao()
-                                                  .showAlertDialogCadastrarFiado(
+                                              bool verificacao =
+                                                  await MyWidgetPadrao()
+                                                      .showAlertDialogCadastrarFiado(
                                                 context,
                                                 authProvider.user!.email
                                                     .toString(),
                                                 subtotal,
                                                 listaProdutos,
                                               );
-                                              setState(() {
-                                                listCard.clear();
-                                                subtotal = 0.0;
-                                                listaProdutos.clear();
-                                              });
+                                              if (verificacao) {
+                                                setState(() {
+                                                  listCard.clear();
+                                                  subtotal = 0.0;
+                                                  listaProdutos.clear();
+                                                });
+                                              }
+
                                               Navigator.of(context).pop();
                                             }
                                             // Fechar o diálogo
@@ -677,6 +724,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                                                   setState(() {
                                                     listCard.clear();
                                                     subtotal = 0.0;
+                                                    listaProdutos.clear();
                                                   });
                                                 }
                                               } catch (e) {
@@ -797,7 +845,186 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                 children: [
                   FittedBox(
                     child: IconButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        try {
+                          await _loadDocuments(
+                            authProvider.user!.email.toString(),
+                          );
+
+                          TextEditingController controllerSeach =
+                              TextEditingController();
+                          await showDialog(
+                            context: contextDialog!,
+                            builder: (BuildContext context) {
+                              return StatefulBuilder(
+                                builder: (BuildContext context,
+                                    StateSetter setState) {
+                                  return AlertDialog(
+                                    elevation: 10,
+                                    title: TextField(
+                                      controller: controllerSeach,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _filterDocuments(value);
+                                        });
+                                      },
+                                      decoration: const InputDecoration(
+                                        hintText: 'Pesquisar...',
+                                        border: OutlineInputBorder(),
+                                      ),
+                                    ),
+                                    content: GridView.builder(
+                                      gridDelegate:
+                                          const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 1,
+                                      ),
+                                      itemCount: filteredDocuments.length,
+                                      itemBuilder: (context, index) {
+                                        final document =
+                                            filteredDocuments[index];
+                                        //final documentID =
+                                        //filteredDocuments[index].id;
+                                        return Column(
+                                          children: [
+                                            Expanded(
+                                              flex: 3,
+                                              child: Card(
+                                                //surfaceTintColor: Colors.yellow,
+                                                elevation: 10,
+                                                child: Stack(
+                                                  children: [
+                                                    ClipRRect(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
+                                                      child: Image.network(
+                                                        document['image'],
+                                                        width: double.infinity,
+                                                        height: double.infinity,
+                                                        fit: BoxFit.cover,
+                                                        errorBuilder: (context,
+                                                            error, stackTrace) {
+                                                          return const Center(
+                                                            child: Icon(
+                                                              Icons.store,
+                                                            ),
+                                                          );
+                                                        },
+                                                      ),
+                                                    ),
+                                                    Align(
+                                                      alignment:
+                                                          Alignment.bottomRight,
+                                                      child: InkWell(
+                                                        onTap: () {
+                                                          addForSeach(
+                                                            document['nome'],
+                                                            document[
+                                                                'valorUnit'],
+                                                            document['image'],
+                                                          );
+                                                        },
+                                                        child: Container(
+                                                          height: 50,
+                                                          width: 50,
+                                                          decoration:
+                                                              const BoxDecoration(
+                                                            color: Color(
+                                                                0xff33b17c),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .only(
+                                                              topLeft: Radius
+                                                                  .circular(
+                                                                100,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          child: const Padding(
+                                                            padding:
+                                                                EdgeInsets.only(
+                                                              top: 8,
+                                                              left: 5,
+                                                            ),
+                                                            child: Icon(
+                                                              Icons.add,
+                                                              color:
+                                                                  Colors.white,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            Expanded(
+                                              flex: 2,
+                                              child: SingleChildScrollView(
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Expanded(
+                                                      flex: 2,
+                                                      child: Text(
+                                                        document['nome']
+                                                            .toString()
+                                                            .toUpperCase(),
+                                                        style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontFamily: 'Demi',
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    Expanded(
+                                                      flex: 1,
+                                                      child: Text(
+                                                        'R\$ ${double.parse(
+                                                          document['valorUnit']
+                                                              .toString(),
+                                                        ).toStringAsFixed(
+                                                              2,
+                                                            ).replaceAll('.', ',')}',
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontFamily: 'Demi',
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    ),
+                                    actions: [
+                                      ElevatedButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: const Text("OK"))
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                          );
+                        } catch (erro) {
+                          MyWidgetPadrao.showErrorDialog(contextDialog!);
+                        }
+                      },
                       icon: const Icon(Icons.search),
                       color: Colors.white,
                       iconSize: 30,

@@ -106,6 +106,39 @@ class BancoDadosFirebase {
     await uploadImageToStorageAndFirestore(email);
   }
 
+  Future<void> addDadosManualmente(
+    String email,
+    String documentoID,
+    String nome,
+    double valorUnit,
+    String image,
+  ) async {
+    final FirebaseFirestore firestore = FirebaseFirestore.instance;
+    if (documentoID.length > 3 || documentoID != '') {
+      await firestore
+          .collection('users')
+          .doc(email)
+          .collection('bancodados')
+          .doc(documentoID)
+          .set({
+        'nome': nome,
+        'valorUnit': valorUnit,
+        'image': image,
+      });
+    } else {
+      await firestore
+          .collection('users')
+          .doc(email)
+          .collection('bancodados')
+          .doc()
+          .set({
+        'nome': nome,
+        'valorUnit': valorUnit,
+        'image': image,
+      });
+    }
+  }
+
   //enviar a foto firebase e pegar o link
   Future<void> uploadImageToStorageAndFirestore(String email) async {
     if (pathImage != null) {
@@ -152,7 +185,11 @@ class BancoDadosFirebase {
   }
 
   Future<void> setVendasDeleteFiadoDoc(
-      String email, String docFiado, double valorDivida, context) async {
+    String email,
+    String docFiado,
+    double valorDivida,
+    context,
+  ) async {
     try {
       DateTime data = DateTime.now();
       var documentReference = FirebaseFirestore.instance
@@ -224,5 +261,17 @@ class BancoDadosFirebase {
     } catch (e) {
       MyWidgetPadrao.showErrorDialog(context);
     }
+  }
+
+  Future<List<QueryDocumentSnapshot>> catchProducto(String email) async {
+    final FirebaseFirestore firestore = FirebaseFirestore.instance;
+    List<QueryDocumentSnapshot> allDocuments = [];
+    final querySnapshot = await firestore
+        .collection('users')
+        .doc(email)
+        .collection('bancodados')
+        .get();
+    allDocuments = querySnapshot.docs;
+    return allDocuments;
   }
 }

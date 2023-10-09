@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:genmerc_mobile/api/seachImages.dart';
 import 'package:genmerc_mobile/firebase/bancoDados.dart';
 import 'package:genmerc_mobile/funcion/buttonScan.dart';
 import 'package:genmerc_mobile/widgetPadrao/padrao.dart';
@@ -16,6 +17,7 @@ class GestaoProdutos extends StatefulWidget {
 }
 
 class _GestaoProdutosState extends State<GestaoProdutos> {
+  BuildContext? contextPrincipal;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   List<QueryDocumentSnapshot> allDocuments = [];
   List<QueryDocumentSnapshot> filteredDocuments = [];
@@ -86,6 +88,7 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
 
   @override
   Widget build(BuildContext context) {
+    contextPrincipal = context;
     return Scaffold(
       appBar: AppBar(
         title: TextField(
@@ -664,14 +667,263 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
       ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(
-          Icons.qr_code,
+          Icons.menu,
         ),
         onPressed: () async {
-          try {
-            await scanBarcodeNormal(widget.email, context);
-          } catch (e) {
-            MyWidgetPadrao.showErrorDialog(context);
-          }
+          await showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Selecione uma opção:'),
+                content: SizedBox(
+                  height: 100,
+                  child: Flex(
+                    direction: Axis.horizontal,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Flexible(
+                        child: Column(
+                          children: [
+                            Expanded(
+                              flex: 3,
+                              child: ElevatedButton(
+                                style: ButtonStyle(
+                                  shape: MaterialStateProperty.all<
+                                      RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(
+                                        20.0,
+                                      ), // Definindo as bordas redondas
+                                    ),
+                                  ),
+                                  foregroundColor:
+                                      const MaterialStatePropertyAll(
+                                          Colors.white),
+                                  backgroundColor:
+                                      const MaterialStatePropertyAll(
+                                    Colors.blueGrey,
+                                  ),
+                                ),
+                                onPressed: () async {
+                                  // Ação ao pressionar "Manual"
+                                  final GlobalKey<FormState> formKey =
+                                      GlobalKey<FormState>();
+                                  String documentoID = '';
+                                  String nome = '';
+                                  double valorUnit = 0.0;
+                                  String image = '';
+
+                                  await showDialog<void>(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: const Text('Cadastrar Produto'),
+                                        content: SingleChildScrollView(
+                                          child: Form(
+                                            key: formKey,
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: <Widget>[
+                                                TextFormField(
+                                                  decoration:
+                                                      const InputDecoration(
+                                                          labelText:
+                                                              'Codigo de barras'),
+                                                  onSaved: (value) {
+                                                    documentoID = value!;
+                                                  },
+                                                ),
+                                                TextFormField(
+                                                  decoration:
+                                                      const InputDecoration(
+                                                          labelText:
+                                                              'Produto *'),
+                                                  validator: (value) {
+                                                    if (value == null ||
+                                                        value.isEmpty) {
+                                                      return 'Por favor, insira o nome do Produto';
+                                                    }
+                                                    return null;
+                                                  },
+                                                  onSaved: (value) {
+                                                    nome = value!;
+                                                  },
+                                                ),
+                                                TextFormField(
+                                                  decoration:
+                                                      const InputDecoration(
+                                                          labelText:
+                                                              'Valor Unitário *'),
+                                                  keyboardType:
+                                                      TextInputType.number,
+                                                  validator: (value) {
+                                                    if (value == null ||
+                                                        value.isEmpty) {
+                                                      return 'Por favor, insira o Valor Unitário';
+                                                    }
+                                                    return null;
+                                                  },
+                                                  onSaved: (value) {
+                                                    valorUnit =
+                                                        double.parse(value!);
+                                                  },
+                                                ),
+                                                const SizedBox(height: 20),
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: <Widget>[
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        Navigator.of(context)
+                                                            .pop();
+                                                      },
+                                                      child: const Text(
+                                                          'Cancelar'),
+                                                    ),
+                                                    ElevatedButton(
+                                                      onPressed: () async {
+                                                        if (formKey
+                                                            .currentState!
+                                                            .validate()) {
+                                                          formKey.currentState!
+                                                              .save();
+                                                          image = await ImageUploaderService()
+                                                              .searchAndUploadImage(
+                                                            'imagens: ${nome.toString()}',
+                                                            widget.email,
+                                                          );
+
+                                                          // Lógica para cadastrar o produto com os dados fornecidos
+                                                          await BancoDadosFirebase()
+                                                              .addDadosManualmente(
+                                                            widget.email,
+                                                            documentoID,
+                                                            nome,
+                                                            valorUnit,
+                                                            image,
+                                                          );
+                                                          _loadDocuments();
+                                                          Navigator.of(context)
+                                                              .pop();
+                                                        }
+                                                      },
+                                                      child: const Text(
+                                                          'Cadastrar'),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                  /*await BancoDadosFirebase().addDadosManualmente(
+                                      widget.email,
+                                      documentoID,
+                                      nome,
+                                      valorUnit,
+                                      image);*/
+                                  // Fechar o diálogo
+                                },
+                                child: const Icon(
+                                  Icons.abc_rounded,
+                                  size: 50,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            const Expanded(
+                              flex: 1,
+                              child: Text(
+                                'Manualmente',
+                                style: TextStyle(
+                                  fontFamily: 'Demi',
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Flexible(
+                        child: Column(
+                          children: [
+                            Expanded(
+                              flex: 3,
+                              child: ElevatedButton(
+                                style: ButtonStyle(
+                                  shape: MaterialStateProperty.all<
+                                      RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(
+                                        20.0,
+                                      ), // Definindo as bordas redondas
+                                    ),
+                                  ),
+                                  foregroundColor:
+                                      const MaterialStatePropertyAll(
+                                          Colors.white),
+                                  backgroundColor:
+                                      const MaterialStatePropertyAll(
+                                    Colors.green,
+                                  ),
+                                ),
+                                onPressed: () async {
+                                  // Ação ao pressionar "Finalizar"
+                                  Navigator.of(context).pop();
+                                  try {
+                                    await scanBarcodeNormal(
+                                        widget.email, contextPrincipal!);
+                                  } catch (e) {
+                                    MyWidgetPadrao.showErrorDialog(
+                                        contextPrincipal!);
+                                  }
+                                },
+                                child: const Icon(
+                                  Icons.qr_code,
+                                  size: 50,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            const Expanded(
+                              flex: 1,
+                              child: Text(
+                                'Cod. de barras',
+                                style: TextStyle(
+                                  fontFamily: 'Demi',
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                actions: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text("OK"),
+                  ),
+                ],
+              );
+            },
+          );
         },
       ),
     );

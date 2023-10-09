@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_ticket/flutter_ticket.dart';
 import 'package:genmerc_mobile/firebase/bancoDados.dart';
 import 'package:intl/intl.dart';
-import 'package:progress_dialog_null_safe/progress_dialog_null_safe.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class MyWidgetPadrao {
@@ -22,10 +21,7 @@ class MyWidgetPadrao {
   );
   static TextStyle myBeautifulTextStyleBlack = const TextStyle(
     color: Colors.blue, // Cor do texto
-    //fontSize: 50.0, // Tamanho da fonte
     fontWeight: FontWeight.bold, // Peso da fonte (negrito)
-    //letterSpacing: 1.2, // Espaçamento entre caracteres
-    //wordSpacing: 2.0, // Espaçamento entre palavras
     shadows: [
       Shadow(
         color: Colors.white,
@@ -518,24 +514,6 @@ class MyWidgetPadrao {
     );
   }
 
-  Future<ProgressDialog> progress(context) async {
-    ProgressDialog progressDialog = ProgressDialog(context);
-    progressDialog.style(
-        message: 'Carregando...',
-        borderRadius: 10.0,
-        backgroundColor: Colors.white,
-        progressWidget: const CircularProgressIndicator(),
-        elevation: 10.0,
-        insetAnimCurve: Curves.easeInOut,
-        progress: 0.0,
-        maxProgress: 100.0,
-        progressTextStyle: const TextStyle(
-            color: Colors.black, fontSize: 13.0, fontWeight: FontWeight.w400),
-        messageTextStyle: const TextStyle(
-            color: Colors.black, fontSize: 19.0, fontWeight: FontWeight.w600));
-    return progressDialog;
-  }
-
   Future<void> fazerChamada(String numero) async {
     final urlChamada = 'tel:$numero';
 
@@ -551,7 +529,7 @@ class MyWidgetPadrao {
     String listProdutos = '';
     for (var contact in produtos) {
       listProdutos +=
-          '- ${contact['nome']}, ${(double.parse(contact['valor'].toString()) / double.parse(contact['valorUnit'].toString())).toStringAsFixed(1)}x, R\$ ${contact['valor']}\n';
+          '- ${contact['nome']}, ${(double.parse(contact['valor'].toString()) / double.parse(contact['valorUnit'].toString())).toStringAsFixed(1)}x, R\$ ${double.parse(contact['valor'].toString()).toStringAsFixed(2).replaceAll('.', ',')}\n';
     }
     final mensagem =
         'Olá $nome, tudo bom? Apenas relembrando sobre a compra aqui no mercadinho no valor de R\$ ${valor.toStringAsFixed(2).replaceAll(".", ",")}.\n\n - *Lista de compras* -\n$listProdutos\n Aguardo o pagamento conforme combinado. Obrigado.';
@@ -602,8 +580,9 @@ class MyWidgetPadrao {
     return dataBrasileira;
   }
 
-  Future<void> showAlertDialogCadastrarFiado(
+  Future<bool> showAlertDialogCadastrarFiado(
       BuildContext context, String email, double valor, List produto) async {
+    bool verificacao = false;
     await showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -624,6 +603,7 @@ class MyWidgetPadrao {
               children: [
                 TextFormField(
                   controller: nomeController,
+                  keyboardType: TextInputType.name,
                   decoration: const InputDecoration(labelText: 'Nome'),
                   validator: (value) {
                     if (value!.isEmpty) {
@@ -638,6 +618,7 @@ class MyWidgetPadrao {
                 TextFormField(
                   controller: telefoneController,
                   maxLength: 11,
+                  keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
                     labelText: 'Telefone',
                     prefixText: '+55 ',
@@ -693,6 +674,7 @@ class MyWidgetPadrao {
             TextButton(
               child: const Text('Cancelar'),
               onPressed: () {
+                verificacao = false;
                 Navigator.of(context).pop(); // Fecha o AlertDialog
               },
             ),
@@ -709,7 +691,7 @@ class MyWidgetPadrao {
                   // Lembre-se de adicionar a lógica de validação e armazenamento dos dados aqui
                   await BancoDadosFirebase().cadastrarFiado(context,
                       email.toString(), nome, valor, telefone, data, produto);
-
+                  verificacao = true;
                   Navigator.of(context).pop(); // Fecha o AlertDialog
                 }
               },
@@ -718,5 +700,6 @@ class MyWidgetPadrao {
         );
       },
     );
+    return verificacao;
   }
 }

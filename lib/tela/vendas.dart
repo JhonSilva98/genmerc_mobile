@@ -21,7 +21,6 @@ class _VendasState extends State<Vendas> {
   MyWidgetPadrao funcionWidget = MyWidgetPadrao();
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     final dat = DateTime.now();
     _mes = dat.month;
@@ -55,11 +54,9 @@ class _VendasState extends State<Vendas> {
           setState(() {
             subtotal += valorFinal;
             dateNameMes = funcionWidget.obterNomeDoMes(_mes);
-            print(dateNameMes);
             whatch = true;
           });
           FocusScope.of(context).unfocus();
-          print('A coleção existe.');
         } else {
           // A coleção não existe ou está vazia.
           setState(() {
@@ -116,10 +113,11 @@ class _VendasState extends State<Vendas> {
               const Text(
                 "Vendas no Mês",
                 style: TextStyle(
-                    fontSize: 32.0,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold, // Cor do texto
-                    fontFamily: 'Demi'),
+                  fontSize: 32.0,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold, // Cor do texto
+                  fontFamily: 'Demi',
+                ),
               ),
             ],
           ),
@@ -454,8 +452,13 @@ class _VendasState extends State<Vendas> {
                                 final dados = double.parse(
                                   catchDados["valor"].toString(),
                                 );
-                                return funcionWidget.ticket(nomeDoDocumento,
-                                    dados, dateNameMes, _ano, _mes);
+                                return funcionWidget.ticket(
+                                  nomeDoDocumento,
+                                  dados,
+                                  dateNameMes,
+                                  _ano,
+                                  _mes,
+                                );
                               },
                             );
                           },

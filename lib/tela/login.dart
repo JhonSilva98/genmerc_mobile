@@ -219,7 +219,7 @@ class _LoginState extends State<Login> {
                           if (error.toString() ==
                               '[firebase_auth/user-disabled] The user account has been disabled by an administrator.') {
                             await authProvider.signOut();
-                            showDialog(
+                            await showDialog(
                               context: context,
                               builder: (BuildContext context) {
                                 return AlertDialog(
