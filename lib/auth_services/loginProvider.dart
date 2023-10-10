@@ -1,8 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:genmerc_mobile/auth_services/keystore.dart';
 
 class AuthProvider with ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  SecureStorage secureStorage = SecureStorage();
 
   User? _user;
 
@@ -21,6 +23,7 @@ class AuthProvider with ChangeNotifier {
       password: password,
     );
     _user = result.user;
+    await secureStorage.saveCredentials(email, password);
     notifyListeners();
   }
 
@@ -28,6 +31,7 @@ class AuthProvider with ChangeNotifier {
     try {
       await _auth.signOut();
       _user = null;
+      await secureStorage.deleteCredentials();
       notifyListeners();
     } catch (error) {
       print('erro no sighout $error');

@@ -10,7 +10,10 @@ import 'package:genmerc_mobile/widgetPadrao/padrao.dart';
 
 class GestaoProdutos extends StatefulWidget {
   final String email;
-  const GestaoProdutos({super.key, required this.email});
+  const GestaoProdutos({
+    super.key,
+    required this.email,
+  });
 
   @override
   State<GestaoProdutos> createState() => _GestaoProdutosState();
@@ -104,7 +107,10 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
         ),
-        itemBuilder: (BuildContext context, int index) {
+        itemBuilder: (
+          BuildContext context,
+          int index,
+        ) {
           final document = filteredDocuments[index];
           final documentID = filteredDocuments[index].id;
           return InkWell(
@@ -130,6 +136,9 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
                                   MaterialStatePropertyAll(Colors.red)),
                           onPressed: () async {
                             // Implemente a lógica de alterar o nome aqui
+                            await BancoDadosFirebase().deleteImageBD(
+                              document['image'],
+                            );
                             await _firestore
                                 .collection('users')
                                 .doc(widget.email)
@@ -195,6 +204,7 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
                                             child: ElevatedButton(
                                               onPressed: () async {
                                                 // Lógica para selecionar uma imagem da galeria
+
                                                 await imagePicker
                                                     .getImageFromGallery(
                                                         widget.email);
@@ -202,6 +212,10 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
                                                     imagePicker.imageUrl;
                                                 if (newImage != '') {
                                                   try {
+                                                    await imagePicker
+                                                        .deleteImageBD(
+                                                      document['image'],
+                                                    );
                                                     await _firestore
                                                         .collection('users')
                                                         .doc(widget.email)
@@ -727,6 +741,10 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
                                                 TextFormField(
                                                   decoration:
                                                       const InputDecoration(
+                                                          icon: Icon(
+                                                            Icons
+                                                                .barcode_reader,
+                                                          ),
                                                           labelText:
                                                               'Codigo de barras'),
                                                   onSaved: (value) {
@@ -736,6 +754,9 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
                                                 TextFormField(
                                                   decoration:
                                                       const InputDecoration(
+                                                          icon: Icon(
+                                                            Icons.abc_rounded,
+                                                          ),
                                                           labelText:
                                                               'Produto *'),
                                                   validator: (value) {
@@ -752,10 +773,21 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
                                                 TextFormField(
                                                   decoration:
                                                       const InputDecoration(
+                                                          icon: Icon(
+                                                            Icons.attach_money,
+                                                          ),
                                                           labelText:
                                                               'Valor Unitário *'),
                                                   keyboardType:
-                                                      TextInputType.number,
+                                                      const TextInputType
+                                                          .numberWithOptions(
+                                                    decimal: true,
+                                                  ),
+                                                  inputFormatters: <TextInputFormatter>[
+                                                    FilteringTextInputFormatter
+                                                        .allow(RegExp(
+                                                            r'^\d+([,.]\d{0,2})?$')),
+                                                  ],
                                                   validator: (value) {
                                                     if (value == null ||
                                                         value.isEmpty) {
@@ -768,66 +800,51 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
                                                         double.parse(value!);
                                                   },
                                                 ),
-                                                const SizedBox(height: 20),
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  children: <Widget>[
-                                                    TextButton(
-                                                      onPressed: () {
-                                                        Navigator.of(context)
-                                                            .pop();
-                                                      },
-                                                      child: const Text(
-                                                          'Cancelar'),
-                                                    ),
-                                                    ElevatedButton(
-                                                      onPressed: () async {
-                                                        if (formKey
-                                                            .currentState!
-                                                            .validate()) {
-                                                          formKey.currentState!
-                                                              .save();
-                                                          image = await ImageUploaderService()
-                                                              .searchAndUploadImage(
-                                                            'imagens: ${nome.toString()}',
-                                                            widget.email,
-                                                          );
-
-                                                          // Lógica para cadastrar o produto com os dados fornecidos
-                                                          await BancoDadosFirebase()
-                                                              .addDadosManualmente(
-                                                            widget.email,
-                                                            documentoID,
-                                                            nome,
-                                                            valorUnit,
-                                                            image,
-                                                          );
-                                                          _loadDocuments();
-                                                          Navigator.of(context)
-                                                              .pop();
-                                                        }
-                                                      },
-                                                      child: const Text(
-                                                          'Cadastrar'),
-                                                    ),
-                                                  ],
+                                                const SizedBox(
+                                                  height: 20,
                                                 ),
                                               ],
                                             ),
                                           ),
                                         ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: const Text('Cancelar'),
+                                          ),
+                                          ElevatedButton(
+                                            onPressed: () async {
+                                              if (formKey.currentState!
+                                                  .validate()) {
+                                                formKey.currentState!.save();
+                                                image =
+                                                    await ImageUploaderService()
+                                                        .searchAndUploadImage(
+                                                  'imagens: ${nome.toString()}',
+                                                  widget.email,
+                                                );
+
+                                                // Lógica para cadastrar o produto com os dados fornecidos
+                                                await BancoDadosFirebase()
+                                                    .addDadosManualmente(
+                                                  widget.email,
+                                                  documentoID,
+                                                  nome,
+                                                  valorUnit,
+                                                  image,
+                                                );
+                                                _loadDocuments();
+                                                Navigator.of(context).pop();
+                                              }
+                                            },
+                                            child: const Text('Cadastrar'),
+                                          ),
+                                        ],
                                       );
                                     },
                                   );
-                                  /*await BancoDadosFirebase().addDadosManualmente(
-                                      widget.email,
-                                      documentoID,
-                                      nome,
-                                      valorUnit,
-                                      image);*/
-                                  // Fechar o diálogo
                                 },
                                 child: const Icon(
                                   Icons.abc_rounded,

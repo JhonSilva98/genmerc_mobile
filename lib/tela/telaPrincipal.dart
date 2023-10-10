@@ -56,7 +56,6 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
         setState(() {
           listCard.removeWhere((item) => item.key == key);
           listaProdutos.removeWhere((item) => item['key'] == key);
-          print(listaProdutos);
           subtotal -= valorFinal;
         });
       },

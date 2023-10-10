@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:genmerc_mobile/api/consumerProductor.dart';
 import 'package:genmerc_mobile/api/seachImages.dart';
 import 'package:genmerc_mobile/widgetPadrao/padrao.dart';
-import 'package:progress_dialog_null_safe/progress_dialog_null_safe.dart';
 
 class ButtonScan {
   FirebaseFirestore documentSnapshot = FirebaseFirestore.instance;
@@ -44,7 +43,6 @@ class ButtonScan {
     await documentExist.then((value) async {
       if (value.exists) {
         // O documento existe
-        print('documento existe');
         Map<String, dynamic> data = value.data() as Map<String, dynamic>;
         final nome = data['nome'].toString();
         var numberConvert = data['valorUnit'];
@@ -58,7 +56,6 @@ class ButtonScan {
           'valorUnit': valorUnit,
           'image': image,
         });
-        print('entrou $mapii');
         // Faça algo com os dados
       } else {
         // O documento não existe no bd
@@ -135,50 +132,38 @@ class ButtonScan {
                   ),
                   ElevatedButton(
                     onPressed: () async {
-                      ProgressDialog progressDialog = ProgressDialog(context);
-                      progressDialog.style(
-                          message: 'Carregando...',
-                          borderRadius: 10.0,
-                          backgroundColor: Colors.white,
-                          progressWidget: const CircularProgressIndicator(),
-                          elevation: 10.0,
-                          insetAnimCurve: Curves.easeInOut,
-                          progress: 0.0,
-                          maxProgress: 100.0,
-                          progressTextStyle: const TextStyle(
-                              color: Colors.black,
-                              fontSize: 13.0,
-                              fontWeight: FontWeight.w400),
-                          messageTextStyle: const TextStyle(
-                              color: Colors.black,
-                              fontSize: 19.0,
-                              fontWeight: FontWeight.w600));
-                      await progressDialog.show();
+                      final progressDialogFinal =
+                          await MyWidgetPadrao().progressDialog(context);
+                      await progressDialogFinal.show();
                       if (controllervalor.text.isNotEmpty) {
                         controllervalor.text =
                             controllervalor.text.replaceAll(',', '.');
-                        final imagePesquisada =
-                            await seachImage.searchAndUploadImage(
-                                "imagens: ${produtos.productName.toString()}",
-                                email);
+
+                        String imagePesquisada = '';
+
+                        if (produtos.imageFrontUrl != null) {
+                          imagePesquisada = produtos.imageFrontUrl!;
+                        } else {
+                          imagePesquisada =
+                              await seachImage.searchAndUploadImage(
+                                  "imagens: ${produtos.productName.toString()}",
+                                  email);
+                        }
 
                         mapii.addAll({
                           'nome':
                               (produtos.productName ?? 'sem nome').toString(),
                           'valorUnit': double.parse(controllervalor.text),
-                          'image': (produtos.imageFrontUrl ?? imagePesquisada)
-                              .toString(),
+                          'image': imagePesquisada.toString(),
                         });
 
-                        progressDialog.hide();
-                        Navigator.of(context).pop();
                         await collectionAdd.set({
-                          'nome':
-                              (produtos.productName ?? 'sem nome').toString(),
-                          'image': (produtos.imageFrontUrl ?? imagePesquisada)
-                              .toString(),
-                          'valorUnit': double.parse(controllervalor.text),
+                          'nome': mapii['nome'],
+                          'image': mapii['image'].toString(),
+                          'valorUnit': mapii['valorUnit'],
                         });
+                        progressDialogFinal.hide();
+                        Navigator.of(context).pop();
                       }
                     },
                     child: const Text('Adicionar'),
@@ -303,25 +288,9 @@ class ButtonScan {
                   ),
                   ElevatedButton(
                     onPressed: () async {
-                      ProgressDialog progressDialog = ProgressDialog(context);
-                      progressDialog.style(
-                          message: 'Carregando...',
-                          borderRadius: 10.0,
-                          backgroundColor: Colors.white,
-                          progressWidget: const CircularProgressIndicator(),
-                          elevation: 10.0,
-                          insetAnimCurve: Curves.easeInOut,
-                          progress: 0.0,
-                          maxProgress: 100.0,
-                          progressTextStyle: const TextStyle(
-                              color: Colors.black,
-                              fontSize: 13.0,
-                              fontWeight: FontWeight.w400),
-                          messageTextStyle: const TextStyle(
-                              color: Colors.black,
-                              fontSize: 19.0,
-                              fontWeight: FontWeight.w600));
-                      await progressDialog.show();
+                      final progressDialogFinal =
+                          await MyWidgetPadrao().progressDialog(context);
+                      await progressDialogFinal.show();
                       if (controllerNome.text.isNotEmpty &&
                           controllervalor.text.isNotEmpty) {
                         controllervalor.text =
@@ -336,13 +305,13 @@ class ButtonScan {
                           'image': imagePesquisada,
                         });
 
-                        progressDialog.hide();
-                        Navigator.of(context).pop();
                         await collectionAdd.set({
                           'nome': controllerNome.text,
                           'image': imagePesquisada,
                           'valorUnit': double.parse(controllervalor.text),
                         });
+                        progressDialogFinal.hide();
+                        Navigator.of(context).pop();
                       }
                     },
                     child: const Text('Adicionar'),

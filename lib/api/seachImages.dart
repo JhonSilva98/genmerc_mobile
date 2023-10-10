@@ -19,8 +19,6 @@ class ImageUploaderService {
 
     final response = await http.get(Uri.parse(url));
 
-    print('ainda fora ${response.statusCode}');
-
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       if (data.containsKey('items')) {
@@ -51,7 +49,6 @@ class ImageUploaderService {
               return '';
             }
           } catch (e) {
-            print("O erro foi $e");
             return '';
           }
         } else {
@@ -67,7 +64,6 @@ class ImageUploaderService {
 
     if (responseFinal.statusCode == 200) {
       final imageBytes = responseFinal.bodyBytes;
-      print('entrou');
 
       // Inicialize o Firebase (certifique-se de que o Firebase já esteja configurado no seu projeto)
       await Firebase.initializeApp();
@@ -76,7 +72,9 @@ class ImageUploaderService {
       final storage = FirebaseStorage.instance;
       //final storageRef = storage.ref().child('$query.jpg');
       //final foto = await storage.ref().putData(imageBytes);
-      final storageRef = storage.ref().child('$email/$query.jpg');
+      final storageRef = storage
+          .ref()
+          .child('$email/${DateTime.now().millisecondsSinceEpoch}.jpg');
 
       // Faça o upload da imagem para o Firebase Storage
       await storageRef.putData(imageBytes);

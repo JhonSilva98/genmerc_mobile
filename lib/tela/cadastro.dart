@@ -16,7 +16,7 @@ class _CadastroState extends State<Cadastro> {
   BancoDadosFirebase bdFirebase = BancoDadosFirebase();
   final TextEditingController _controller = TextEditingController();
   String photoSelect =
-      'https://firebasestorage.googleapis.com/v0/b/genmerc-mobile.appspot.com/o/ideogram.jpeg?alt=media&token=b2f40124-eb43-4860-a600-6e3eb43dd6d1';
+      'https://firebasestorage.googleapis.com/v0/b/genmerc-mobile.appspot.com/o/Administrativo%2Fideogram.jpeg?alt=media&token=4d0a8e07-8977-4ed5-9733-872585aab3e9&_gl=1*16v9f5f*_ga*MTQ3OTA0NDM3Ny4xNjk2ODU0MzAx*_ga_CW55HF8NVT*MTY5NjkzNzg0My44OS4xLjE2OTY5Mzc5OTguMi4wLjA.';
 
   @override
   Widget build(BuildContext context) {
@@ -131,7 +131,6 @@ class _CadastroState extends State<Cadastro> {
                     authProvider.user!.email.toString(),
                     _controller.text.toString(),
                   );
-
                   Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(

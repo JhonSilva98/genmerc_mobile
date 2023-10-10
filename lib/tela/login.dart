@@ -3,8 +3,8 @@ import 'package:genmerc_mobile/auth_services/loginProvider.dart';
 import 'package:genmerc_mobile/firebase/bancoDados.dart';
 import 'package:genmerc_mobile/tela/cadastro.dart';
 import 'package:genmerc_mobile/tela/telaPrincipal.dart';
+import 'package:genmerc_mobile/widgetPadrao/padrao.dart';
 import 'package:provider/provider.dart';
-import 'package:progress_dialog_null_safe/progress_dialog_null_safe.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -20,6 +20,7 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
+
     return Scaffold(
       backgroundColor: const Color(0XFF272938),
       body: SizedBox(
@@ -190,32 +191,16 @@ class _LoginState extends State<Login> {
                   flex: 2,
                   child: ElevatedButton(
                       onPressed: () async {
-                        ProgressDialog progressDialog = ProgressDialog(context);
-                        progressDialog.style(
-                            message: 'Carregando...',
-                            borderRadius: 10.0,
-                            backgroundColor: Colors.white,
-                            progressWidget: const CircularProgressIndicator(),
-                            elevation: 10.0,
-                            insetAnimCurve: Curves.easeInOut,
-                            progress: 0.0,
-                            maxProgress: 100.0,
-                            progressTextStyle: const TextStyle(
-                                color: Colors.black,
-                                fontSize: 13.0,
-                                fontWeight: FontWeight.w400),
-                            messageTextStyle: const TextStyle(
-                                color: Colors.black,
-                                fontSize: 19.0,
-                                fontWeight: FontWeight.w600));
-                        await progressDialog.show();
+                        final progressDialogFinal =
+                            await MyWidgetPadrao().progressDialog(context);
+                        await progressDialogFinal.show();
                         try {
                           await authProvider.signInWithEmailAndPassword(
                             _controllerEmail.text.toString(),
                             _controllerSenha.text.toString(),
                           );
                         } catch (error) {
-                          progressDialog.hide();
+                          progressDialogFinal.hide();
                           if (error.toString() ==
                               '[firebase_auth/user-disabled] The user account has been disabled by an administrator.') {
                             await authProvider.signOut();

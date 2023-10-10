@@ -31,7 +31,7 @@ class BancoDadosFirebase {
       return {
         'nome': 'genmarc',
         'foto':
-            'https://firebasestorage.googleapis.com/v0/b/genmerc-mobile.appspot.com/o/ideogram.jpeg?alt=media&token=b2f40124-eb43-4860-a600-6e3eb43dd6d1',
+            'https://firebasestorage.googleapis.com/v0/b/genmerc-mobile.appspot.com/o/Administrativo%2Fideogram.jpeg?alt=media&token=4d0a8e07-8977-4ed5-9733-872585aab3e9&_gl=1*16v9f5f*_ga*MTQ3OTA0NDM3Ny4xNjk2ODU0MzAx*_ga_CW55HF8NVT*MTY5NjkzNzg0My44OS4xLjE2OTY5Mzc5OTguMi4wLjA.',
       };
     }
   }
@@ -48,6 +48,21 @@ class BancoDadosFirebase {
     return document.exists;
   }
 
+  Future<void> deleteImageBD(String downloadUrl) async {
+    try {
+      // Crie uma referência para a imagem no Firebase Storage usando o link de download.
+      Reference storageReference =
+          FirebaseStorage.instance.refFromURL(downloadUrl);
+
+      // Apague a imagem.
+      await storageReference.delete();
+
+      print('Imagem apagada com sucesso.');
+    } catch (e) {
+      print('Erro ao apagar a imagem: $e');
+    }
+  }
+
   //criar dado bd caso nao exista
   Future<void> setDocumentInCollection(String document, String nome) async {
     try {
@@ -59,7 +74,7 @@ class BancoDadosFirebase {
       Map<String, dynamic> data = {
         'nome': nome,
         'foto': pathImage == null
-            ? 'https://firebasestorage.googleapis.com/v0/b/genmerc-mobile.appspot.com/o/ideogram.jpeg?alt=media&token=b2f40124-eb43-4860-a600-6e3eb43dd6d1'
+            ? 'https://firebasestorage.googleapis.com/v0/b/genmerc-mobile.appspot.com/o/Administrativo%2Fideogram.jpeg?alt=media&token=4d0a8e07-8977-4ed5-9733-872585aab3e9&_gl=1*16v9f5f*_ga*MTQ3OTA0NDM3Ny4xNjk2ODU0MzAx*_ga_CW55HF8NVT*MTY5NjkzNzg0My44OS4xLjE2OTY5Mzc5OTguMi4wLjA.'
             : imageUrl,
         // Adicione outros campos e valores conforme necessário
       };

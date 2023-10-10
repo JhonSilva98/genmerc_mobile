@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_ticket/flutter_ticket.dart';
 import 'package:genmerc_mobile/firebase/bancoDados.dart';
 import 'package:intl/intl.dart';
+import 'package:progress_dialog_null_safe/progress_dialog_null_safe.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class MyWidgetPadrao {
@@ -120,7 +121,7 @@ class MyWidgetPadrao {
               title: const Text('Confirmação de Pagamento'),
               content: const Text('Já realizou o pagamento?'),
               actions: <Widget>[
-                ElevatedButton(
+                TextButton(
                   onPressed: () {
                     // Adicione a lógica a ser executada quando o usuário selecionar "Cancelar" aqui
                     Navigator.of(context).pop(); // Fecha o AlertDialog
@@ -580,6 +581,24 @@ class MyWidgetPadrao {
     return dataBrasileira;
   }
 
+  Future<ProgressDialog> progressDialog(BuildContext context) async {
+    ProgressDialog progressDialog = ProgressDialog(context);
+    progressDialog.style(
+        message: 'Carregando...',
+        borderRadius: 10.0,
+        backgroundColor: Colors.white,
+        progressWidget: const CircularProgressIndicator(),
+        elevation: 10.0,
+        insetAnimCurve: Curves.easeInOut,
+        progress: 0.0,
+        maxProgress: 100.0,
+        progressTextStyle: const TextStyle(
+            color: Colors.black, fontSize: 13.0, fontWeight: FontWeight.w400),
+        messageTextStyle: const TextStyle(
+            color: Colors.black, fontSize: 19.0, fontWeight: FontWeight.w600));
+    return progressDialog;
+  }
+
   Future<bool> showAlertDialogCadastrarFiado(
       BuildContext context, String email, double valor, List produto) async {
     bool verificacao = false;
@@ -689,8 +708,15 @@ class MyWidgetPadrao {
 
                   // Faça algo com os dados, por exemplo, adicione-os ao Firestore
                   // Lembre-se de adicionar a lógica de validação e armazenamento dos dados aqui
-                  await BancoDadosFirebase().cadastrarFiado(context,
-                      email.toString(), nome, valor, telefone, data, produto);
+                  await BancoDadosFirebase().cadastrarFiado(
+                    context,
+                    email.toString(),
+                    nome,
+                    valor,
+                    telefone,
+                    data,
+                    produto,
+                  );
                   verificacao = true;
                   Navigator.of(context).pop(); // Fecha o AlertDialog
                 }
