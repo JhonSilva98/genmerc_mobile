@@ -19,7 +19,6 @@ class MyGetProductor {
     if (result.status == ProductResultV3.statusSuccess) {
       return result.product;
     } else {
-      print('product not found, please insert data for $barcode');
       return null;
     }
   }
@@ -34,7 +33,7 @@ class MyGetProductor {
     );
 
     // a registered user login for https://world.openfoodfacts.org/ is required
-    User myUser = User(userId: 'max@off.com', password: 'password');
+    User myUser = const User(userId: 'max@off.com', password: 'password');
 
     // query the OpenFoodFacts API
     Status result = await OpenFoodAPIClient.saveProduct(myUser, myProduct);
@@ -57,7 +56,7 @@ class MyGetProductor {
     );
 
     // a registered user login for https://world.openfoodfacts.org/ is required
-    User myUser = User(userId: 'max@off.com', password: 'password');
+    User myUser = const User(userId: 'max@off.com', password: 'password');
 
     // query the OpenFoodFacts API
     Status result = await OpenFoodAPIClient.addProductImage(myUser, image);
@@ -73,7 +72,7 @@ class MyGetProductor {
   /// Otherwise it should be added first to the server and then this can be called
   Future<String?> extractIngredient() async {
     // a registered user login for https://world.openfoodfacts.org/ is required
-    User myUser = User(userId: 'max@off.com', password: 'password');
+    User myUser = const User(userId: 'max@off.com', password: 'password');
 
     // query the OpenFoodFacts API
     OcrIngredientsResult response = await OpenFoodAPIClient.extractIngredients(
@@ -90,7 +89,7 @@ class MyGetProductor {
   /// And then save it back to the OFF server
   void saveAndExtractIngredient() async {
     // a registered user login for https://world.openfoodfacts.org/ is required
-    User myUser = User(userId: 'max@off.com', password: 'password');
+    User myUser = const User(userId: 'max@off.com', password: 'password');
 
     SendImage image = SendImage(
       lang: OpenFoodFactsLanguage.FRENCH,

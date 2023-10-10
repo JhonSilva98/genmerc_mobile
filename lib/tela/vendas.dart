@@ -340,12 +340,10 @@ class _VendasState extends State<Vendas> {
                                                     subtotal += valorFinal;
                                                     dateNameMes = funcionWidget
                                                         .obterNomeDoMes(_mes);
-                                                    print(dateNameMes);
                                                     whatch = true;
                                                   });
                                                   FocusScope.of(context)
                                                       .unfocus();
-                                                  print('A coleção existe.');
                                                 } else {
                                                   // A coleção não existe ou está vazia.
                                                   setState(() {

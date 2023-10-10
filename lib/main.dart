@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:genmerc_mobile/auth_services/keystore.dart';
-import 'package:genmerc_mobile/auth_services/loginProvider.dart';
+import 'package:genmerc_mobile/auth_services/login_provider.dart';
 import 'package:genmerc_mobile/theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:genmerc_mobile/trocaTela.dart';

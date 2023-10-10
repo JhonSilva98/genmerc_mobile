@@ -34,7 +34,6 @@ class AuthProvider with ChangeNotifier {
       await secureStorage.deleteCredentials();
       notifyListeners();
     } catch (error) {
-      print('erro no sighout $error');
       rethrow;
     }
   }

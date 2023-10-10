@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:genmerc_mobile/tela/telaPrincipal.dart';
+import 'package:genmerc_mobile/tela/tela_principal.dart';
 
 class MyAppTroca extends StatelessWidget {
   const MyAppTroca({super.key});

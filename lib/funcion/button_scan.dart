@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
-import 'package:genmerc_mobile/api/consumerProductor.dart';
-import 'package:genmerc_mobile/api/seachImages.dart';
+import 'package:genmerc_mobile/api/consumer_productor.dart';
+import 'package:genmerc_mobile/api/seach_images.dart';
 import 'package:genmerc_mobile/widgetPadrao/padrao.dart';
 
 class ButtonScan {
@@ -338,9 +338,7 @@ class ButtonScan {
         'valorUnit': 0.0,
         'image': 'error',
       });
-      print("Erro ao buscar o documento: $error");
     });
-    print('Ultimo $mapii');
     return mapii;
   }
 }

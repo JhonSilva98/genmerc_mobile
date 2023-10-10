@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:genmerc_mobile/auth_services/loginProvider.dart';
-import 'package:genmerc_mobile/firebase/bancoDados.dart';
+import 'package:genmerc_mobile/auth_services/login_provider.dart';
+import 'package:genmerc_mobile/firebase/banco_dados.dart';
 import 'package:genmerc_mobile/tela/cadastro.dart';
-import 'package:genmerc_mobile/tela/telaPrincipal.dart';
+import 'package:genmerc_mobile/tela/tela_principal.dart';
 import 'package:genmerc_mobile/widgetPadrao/padrao.dart';
 import 'package:provider/provider.dart';
 

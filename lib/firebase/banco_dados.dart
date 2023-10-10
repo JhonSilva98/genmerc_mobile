@@ -56,11 +56,7 @@ class BancoDadosFirebase {
 
       // Apague a imagem.
       await storageReference.delete();
-
-      print('Imagem apagada com sucesso.');
-    } catch (e) {
-      print('Erro ao apagar a imagem: $e');
-    }
+    } catch (e) {}
   }
 
   //criar dado bd caso nao exista
@@ -81,11 +77,7 @@ class BancoDadosFirebase {
 
       // Use o método `set()` para criar um novo documento na coleção ou substituir um documento existente com os dados especificados
       await documentReference.set(data);
-
-      print('Documento criado ou atualizado com sucesso.');
-    } catch (e) {
-      print('Erro ao criar ou atualizar o documento: $e');
-    }
+    } catch (e) {}
   }
 
   // pegar foto e usando a funcao uploadImageToStorageAndFirestore();
@@ -97,7 +89,6 @@ class BancoDadosFirebase {
       // Ela contém informações sobre o arquivo e pode ser usada para exibição ou upload.
       // Por exemplo: File(image.path)
       pathImage = image;
-      print('pegou');
     } else {
       // O usuário cancelou a seleção da imagem
       pathImage = null;
@@ -113,7 +104,6 @@ class BancoDadosFirebase {
       // Ela contém informações sobre o arquivo e pode ser usada para exibição ou upload.
       // Por exemplo: File(image.path)
       pathImage = image;
-      print('pegou');
     } else {
       // O usuário cancelou a seleção da imagem
       pathImage = null;
@@ -166,9 +156,7 @@ class BancoDadosFirebase {
         // Obter o URL da imagem após o upload
         imageUrl = await foto.ref.getDownloadURL();
         photeRemov = foto;
-      } catch (e) {
-        print('O erro foi $e');
-      }
+      } catch (e) {}
     }
   }
 
@@ -271,8 +259,6 @@ class BancoDadosFirebase {
 
       // Use o método `delete` para apagar o documento
       await documentReferenceFiado.delete();
-
-      print('Documento apagado com sucesso!');
     } catch (e) {
       MyWidgetPadrao.showErrorDialog(context);
     }

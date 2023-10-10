@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:genmerc_mobile/firebase/bancoDados.dart';
+import 'package:genmerc_mobile/firebase/banco_dados.dart';
 import 'package:genmerc_mobile/tela/login.dart';
-import 'package:genmerc_mobile/tela/telaPrincipal.dart';
+import 'package:genmerc_mobile/tela/tela_principal.dart';
 import 'package:provider/provider.dart';
-import 'package:genmerc_mobile/auth_services/loginProvider.dart';
+import 'package:genmerc_mobile/auth_services/login_provider.dart';
 
 class Cadastro extends StatefulWidget {
   const Cadastro({super.key});

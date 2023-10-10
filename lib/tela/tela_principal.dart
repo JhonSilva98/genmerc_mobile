@@ -2,11 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:genmerc_mobile/auth_services/loginProvider.dart';
-import 'package:genmerc_mobile/firebase/bancoDados.dart';
-import 'package:genmerc_mobile/funcion/buttonScan.dart';
+import 'package:genmerc_mobile/auth_services/login_provider.dart';
+import 'package:genmerc_mobile/firebase/banco_dados.dart';
+import 'package:genmerc_mobile/funcion/button_scan.dart';
 import 'package:genmerc_mobile/tela/fiado.dart';
-import 'package:genmerc_mobile/tela/gestaoProdutos.dart';
+import 'package:genmerc_mobile/tela/gestao_produtos.dart';
 import 'package:genmerc_mobile/tela/login.dart';
 import 'package:genmerc_mobile/tela/vendas.dart';
 import 'package:genmerc_mobile/widgetPadrao/padrao.dart';
@@ -150,13 +150,10 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                                 'valorUnit': valorUnit,
                                 'key': key
                               };
-                              print(listaProdutos);
                             });
-                            print(listaProdutos);
                           }
                         }
                         // Faça algo com o número (por exemplo, armazená-lo em algum lugar)
-                        print('Número inserido: $parsedNumber');
 
                         Navigator.of(context).pop(); // Fechar o AlertDialog
                       },
@@ -325,7 +322,6 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
       }
     } on PlatformException {
       barcodeScanRes = 'Failed to get platform version.';
-      print('Failed to get platform version.');
     }
 
     // If the widget was removed from the tree while the asynchronous platform
@@ -359,20 +355,16 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
     final authProvider = Provider.of<AuthProvider>(context);
 
     if (authProvider.user == null) {
-      try {
-        if (authProvider.user == null) {
-          // O usuário não está autenticado, então você pode redirecioná-lo para a tela de login ou outro lugar.
-          // Por exemplo:
-          SchedulerBinding.instance.addPostFrameCallback((_) {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => const Login()),
-              (Route<dynamic> route) => false,
-            );
-          });
-        }
-      } catch (e) {
-        print("Exceção ao redirecionar para a tela de login: $e");
+      if (authProvider.user == null) {
+        // O usuário não está autenticado, então você pode redirecioná-lo para a tela de login ou outro lugar.
+        // Por exemplo:
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const Login()),
+            (Route<dynamic> route) => false,
+          );
+        });
       }
     }
     return Scaffold(
@@ -708,8 +700,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                                                     double valorSomaFinal =
                                                         valorSomaindex +
                                                             subtotal;
-                                                    print(
-                                                        "o valor é $valorSomaFinal");
+
                                                     await documentReference
                                                         .set({
                                                       "valor": valorSomaFinal,

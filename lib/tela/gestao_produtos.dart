@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
-import 'package:genmerc_mobile/api/seachImages.dart';
-import 'package:genmerc_mobile/firebase/bancoDados.dart';
-import 'package:genmerc_mobile/funcion/buttonScan.dart';
+import 'package:genmerc_mobile/api/seach_images.dart';
+import 'package:genmerc_mobile/firebase/banco_dados.dart';
+import 'package:genmerc_mobile/funcion/button_scan.dart';
 import 'package:genmerc_mobile/widgetPadrao/padrao.dart';
 
 class GestaoProdutos extends StatefulWidget {
@@ -79,8 +79,6 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
       }
     } on PlatformException {
       barcodeScanRes = 'Failed to get platform version.';
-
-      print('Failed to get platform version.');
     }
 
     // If the widget was removed from the tree while the asynchronous platform

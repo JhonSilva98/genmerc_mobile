@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ticket/flutter_ticket.dart';
-import 'package:genmerc_mobile/firebase/bancoDados.dart';
+import 'package:genmerc_mobile/firebase/banco_dados.dart';
 import 'package:intl/intl.dart';
 import 'package:progress_dialog_null_safe/progress_dialog_null_safe.dart';
 import 'package:url_launcher/url_launcher_string.dart';
