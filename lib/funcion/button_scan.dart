@@ -69,17 +69,16 @@ class ButtonScan {
               return AlertDialog(
                 title: const Text('Adicione'),
                 content: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisSize: MainAxisSize.min,
                   //crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Flexible(
                       child: TextFormField(
                         controller: controllervalor,
                         textAlign: TextAlign.center,
-                        inputFormatters: [
+                        inputFormatters: <TextInputFormatter>[
                           FilteringTextInputFormatter.allow(
-                            RegExp(r'^[\d,]+(\.\d{0,2})?$'),
-                          ),
+                              RegExp(r'^\d+\.?\d{0,2}')),
                         ],
                         keyboardType: const TextInputType.numberWithOptions(
                           decimal: true,
@@ -163,6 +162,7 @@ class ButtonScan {
                           'valorUnit': mapii['valorUnit'],
                         });
                         progressDialogFinal.hide();
+                        if (!context.mounted) return;
                         Navigator.of(context).pop();
                       }
                     },
@@ -191,7 +191,7 @@ class ButtonScan {
               return AlertDialog(
                 title: const Text('Adicione'),
                 content: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisSize: MainAxisSize.min,
                   //crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Flexible(
@@ -232,10 +232,9 @@ class ButtonScan {
                       child: TextFormField(
                         controller: controllervalor,
                         textAlign: TextAlign.center,
-                        inputFormatters: [
+                        inputFormatters: <TextInputFormatter>[
                           FilteringTextInputFormatter.allow(
-                            RegExp(r'^[\d,]+(\.\d{0,2})?$'),
-                          ),
+                              RegExp(r'^\d+\.?\d{0,2}')),
                         ],
                         keyboardType: const TextInputType.numberWithOptions(
                           decimal: true,
@@ -311,6 +310,7 @@ class ButtonScan {
                           'valorUnit': double.parse(controllervalor.text),
                         });
                         progressDialogFinal.hide();
+                        if (!context.mounted) return;
                         Navigator.of(context).pop();
                       }
                     },

@@ -250,6 +250,7 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
                                                   }
                                                 }
                                                 imagePicker.imageUrl = '';
+                                                if (!context.mounted) return;
                                                 Navigator.of(context)
                                                     .pop(); // Fechar o dialog
                                               },
@@ -320,6 +321,7 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
                                                   }
                                                 }
                                                 imagePicker.imageUrl = '';
+                                                if (!context.mounted) return;
                                                 Navigator.of(context)
                                                     .pop(); // Fechar o dialog
                                               },
@@ -580,10 +582,8 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
                                                           decimal: true),
                                                   inputFormatters: <TextInputFormatter>[
                                                     FilteringTextInputFormatter
-                                                        .allow(
-                                                      RegExp(
-                                                          r'^[\d,]+(\.\d{0,2})?$'),
-                                                    ),
+                                                        .allow(RegExp(
+                                                            r'^\d+\.?\d{0,2}')),
                                                   ],
                                                   style: const TextStyle(
                                                       fontSize: 16.0),
@@ -644,6 +644,7 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
                                                   }
 
                                                   // Faça algo com o novo nome
+                                                  if (!context.mounted) return;
                                                   Navigator.of(context)
                                                       .pop(); // Fechar o dialog
                                                 },
@@ -790,7 +791,7 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
                                                   inputFormatters: <TextInputFormatter>[
                                                     FilteringTextInputFormatter
                                                         .allow(RegExp(
-                                                            r'^\d+([,.]\d{0,2})?$')),
+                                                            r'^\d+\.?\d{0,2}')),
                                                   ],
                                                   validator: (value) {
                                                     if (value == null ||
@@ -841,6 +842,7 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
                                                     image,
                                                   );
                                                   _loadDocuments();
+                                                  if (!context.mounted) return;
                                                   Navigator.of(context).pop();
                                                 }
                                               } catch (e) {

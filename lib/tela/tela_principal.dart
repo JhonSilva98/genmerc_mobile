@@ -78,13 +78,13 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                       TextFormField(
                         controller: numberController,
                         textAlign: TextAlign.center,
-                        inputFormatters: [
+                        inputFormatters: <TextInputFormatter>[
                           FilteringTextInputFormatter.allow(
-                            RegExp(r'^[\d,]+(\.\d{0,2})?$'),
-                          ),
+                              RegExp(r'^\d+\.?\d{0,2}')),
                         ],
                         keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true),
+                          decimal: true,
+                        ),
                         style: const TextStyle(
                           color: Colors.black,
                           fontSize: 50,
@@ -629,7 +629,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                                                     listaProdutos.clear();
                                                   });
                                                 }
-
+                                                if (!context.mounted) return;
                                                 Navigator.of(context).pop();
                                               }
                                             } catch (e) {
@@ -727,6 +727,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                                                 MyWidgetPadrao.showErrorDialog(
                                                     context);
                                               }
+                                              if (!context.mounted) return;
                                               Navigator.of(context)
                                                   .pop(); // Fechar o diálogo
                                             }

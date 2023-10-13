@@ -140,6 +140,7 @@ class MyWidgetPadrao {
                       valor,
                       context,
                     );
+                    if (!context.mounted) return;
                     Navigator.of(context).pop(); // Fecha o AlertDialog
                   },
                   child: const Text('Pago'),
@@ -720,6 +721,7 @@ class MyWidgetPadrao {
                     produto,
                   );
                   verificacao = true;
+                  if (!context.mounted) return;
                   Navigator.of(context).pop(); // Fecha o AlertDialog
                 }
               },
