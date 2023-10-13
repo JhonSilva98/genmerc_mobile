@@ -170,9 +170,11 @@ class MyWidgetPadrao {
                         left: 5,
                         top: 5,
                       ),
-                      child: Icon(
-                        Icons.account_balance_wallet_outlined,
-                        color: Color.fromARGB(230, 158, 158, 158),
+                      child: FittedBox(
+                        child: Icon(
+                          Icons.account_balance_wallet_outlined,
+                          color: Color.fromARGB(230, 158, 158, 158),
+                        ),
                       ),
                     ),
                     Container(

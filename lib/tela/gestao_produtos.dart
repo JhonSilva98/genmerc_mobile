@@ -134,10 +134,11 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
                                   MaterialStatePropertyAll(Colors.red)),
                           onPressed: () async {
                             // Implemente a lógica de alterar o nome aqui
+
+                            await BancoDadosFirebase().deleteImageBD(
+                              document['image'],
+                            );
                             try {
-                              await BancoDadosFirebase().deleteImageBD(
-                                document['image'],
-                              );
                               await _firestore
                                   .collection('users')
                                   .doc(widget.email)
@@ -214,11 +215,11 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
                                                 String newImage =
                                                     imagePicker.imageUrl;
                                                 if (newImage != '') {
+                                                  await imagePicker
+                                                      .deleteImageBD(
+                                                    document['image'],
+                                                  );
                                                   try {
-                                                    await imagePicker
-                                                        .deleteImageBD(
-                                                      document['image'],
-                                                    );
                                                     await _firestore
                                                         .collection('users')
                                                         .doc(widget.email)

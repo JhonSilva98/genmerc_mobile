@@ -49,12 +49,17 @@ class BancoDadosFirebase {
   }
 
   Future<void> deleteImageBD(String downloadUrl) async {
-    // Crie uma referência para a imagem no Firebase Storage usando o link de download.
-    Reference storageReference =
-        FirebaseStorage.instance.refFromURL(downloadUrl);
+    try {
+      // Crie uma referência para a imagem no Firebase Storage usando o link de download.
+      Reference storageReference =
+          FirebaseStorage.instance.refFromURL(downloadUrl);
 
-    // Apague a imagem.
-    await storageReference.delete();
+      // Apague a imagem.
+      await storageReference.delete();
+    } catch (e) {
+      // Capture e ignore qualquer exceção que ocorra durante a exclusão da imagem.
+    }
+    // Continue com outros processos aqui, pois o erro foi tratado e ignorado.
   }
 
   //criar dado bd caso nao exista
