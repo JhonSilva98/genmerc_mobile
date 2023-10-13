@@ -49,35 +49,31 @@ class BancoDadosFirebase {
   }
 
   Future<void> deleteImageBD(String downloadUrl) async {
-    try {
-      // Crie uma referência para a imagem no Firebase Storage usando o link de download.
-      Reference storageReference =
-          FirebaseStorage.instance.refFromURL(downloadUrl);
+    // Crie uma referência para a imagem no Firebase Storage usando o link de download.
+    Reference storageReference =
+        FirebaseStorage.instance.refFromURL(downloadUrl);
 
-      // Apague a imagem.
-      await storageReference.delete();
-    } catch (e) {}
+    // Apague a imagem.
+    await storageReference.delete();
   }
 
   //criar dado bd caso nao exista
   Future<void> setDocumentInCollection(String document, String nome) async {
-    try {
-      // Crie uma referência para a coleção e especifique o nome do documento
-      DocumentReference documentReference =
-          FirebaseFirestore.instance.collection('users').doc(document);
+    // Crie uma referência para a coleção e especifique o nome do documento
+    DocumentReference documentReference =
+        FirebaseFirestore.instance.collection('users').doc(document);
 
-      // Crie um mapa com os dados que você deseja adicionar ao documento
-      Map<String, dynamic> data = {
-        'nome': nome,
-        'foto': pathImage == null
-            ? 'https://firebasestorage.googleapis.com/v0/b/genmerc-mobile.appspot.com/o/Administrativo%2Fideogram.jpeg?alt=media&token=4d0a8e07-8977-4ed5-9733-872585aab3e9&_gl=1*16v9f5f*_ga*MTQ3OTA0NDM3Ny4xNjk2ODU0MzAx*_ga_CW55HF8NVT*MTY5NjkzNzg0My44OS4xLjE2OTY5Mzc5OTguMi4wLjA.'
-            : imageUrl,
-        // Adicione outros campos e valores conforme necessário
-      };
+    // Crie um mapa com os dados que você deseja adicionar ao documento
+    Map<String, dynamic> data = {
+      'nome': nome,
+      'foto': pathImage == null
+          ? 'https://firebasestorage.googleapis.com/v0/b/genmerc-mobile.appspot.com/o/Administrativo%2Fideogram.jpeg?alt=media&token=4d0a8e07-8977-4ed5-9733-872585aab3e9&_gl=1*16v9f5f*_ga*MTQ3OTA0NDM3Ny4xNjk2ODU0MzAx*_ga_CW55HF8NVT*MTY5NjkzNzg0My44OS4xLjE2OTY5Mzc5OTguMi4wLjA.'
+          : imageUrl,
+      // Adicione outros campos e valores conforme necessário
+    };
 
-      // Use o método `set()` para criar um novo documento na coleção ou substituir um documento existente com os dados especificados
-      await documentReference.set(data);
-    } catch (e) {}
+    // Use o método `set()` para criar um novo documento na coleção ou substituir um documento existente com os dados especificados
+    await documentReference.set(data);
   }
 
   // pegar foto e usando a funcao uploadImageToStorageAndFirestore();
@@ -148,15 +144,14 @@ class BancoDadosFirebase {
   Future<void> uploadImageToStorageAndFirestore(String email) async {
     if (pathImage != null) {
       File file = File(pathImage!.path);
-      try {
-        final foto = await storageReference
-            .ref('$email/${DateTime.now().millisecondsSinceEpoch}.jpg')
-            .putFile(file);
 
-        // Obter o URL da imagem após o upload
-        imageUrl = await foto.ref.getDownloadURL();
-        photeRemov = foto;
-      } catch (e) {}
+      final foto = await storageReference
+          .ref('$email/${DateTime.now().millisecondsSinceEpoch}.jpg')
+          .putFile(file);
+
+      // Obter o URL da imagem após o upload
+      imageUrl = await foto.ref.getDownloadURL();
+      photeRemov = foto;
     }
   }
 

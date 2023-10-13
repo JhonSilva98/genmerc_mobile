@@ -134,16 +134,21 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
                                   MaterialStatePropertyAll(Colors.red)),
                           onPressed: () async {
                             // Implemente a lógica de alterar o nome aqui
-                            await BancoDadosFirebase().deleteImageBD(
-                              document['image'],
-                            );
-                            await _firestore
-                                .collection('users')
-                                .doc(widget.email)
-                                .collection('bancodados')
-                                .doc(documentID)
-                                .delete();
-                            _loadDocuments();
+                            try {
+                              await BancoDadosFirebase().deleteImageBD(
+                                document['image'],
+                              );
+                              await _firestore
+                                  .collection('users')
+                                  .doc(widget.email)
+                                  .collection('bancodados')
+                                  .doc(documentID)
+                                  .delete();
+                              _loadDocuments();
+                            } catch (e) {
+                              MyWidgetPadrao.showErrorDialog(context);
+                            }
+
                             // Faça algo com o novo nome
                             Navigator.of(context).pop(); // Fechar o dialog
                           },
@@ -814,26 +819,32 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
                                           ),
                                           ElevatedButton(
                                             onPressed: () async {
-                                              if (formKey.currentState!
-                                                  .validate()) {
-                                                formKey.currentState!.save();
-                                                image =
-                                                    await ImageUploaderService()
-                                                        .searchAndUploadImage(
-                                                  'imagens: ${nome.toString()}',
-                                                  widget.email,
-                                                );
+                                              try {
+                                                if (formKey.currentState!
+                                                    .validate()) {
+                                                  formKey.currentState!.save();
+                                                  image =
+                                                      await ImageUploaderService()
+                                                          .searchAndUploadImage(
+                                                    'imagens: ${nome.toString()}',
+                                                    widget.email,
+                                                  );
 
-                                                // Lógica para cadastrar o produto com os dados fornecidos
-                                                await BancoDadosFirebase()
-                                                    .addDadosManualmente(
-                                                  widget.email,
-                                                  documentoID,
-                                                  nome,
-                                                  valorUnit,
-                                                  image,
-                                                );
-                                                _loadDocuments();
+                                                  // Lógica para cadastrar o produto com os dados fornecidos
+                                                  await BancoDadosFirebase()
+                                                      .addDadosManualmente(
+                                                    widget.email,
+                                                    documentoID,
+                                                    nome,
+                                                    valorUnit,
+                                                    image,
+                                                  );
+                                                  _loadDocuments();
+                                                  Navigator.of(context).pop();
+                                                }
+                                              } catch (e) {
+                                                MyWidgetPadrao.showErrorDialog(
+                                                    context);
                                                 Navigator.of(context).pop();
                                               }
                                             },

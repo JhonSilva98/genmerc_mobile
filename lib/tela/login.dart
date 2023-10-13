@@ -232,7 +232,7 @@ class _LoginState extends State<Login> {
                               },
                             );
                           } else {
-                            showDialog(
+                            await showDialog(
                               context: context,
                               builder: (BuildContext context) {
                                 return AlertDialog(
@@ -263,24 +263,30 @@ class _LoginState extends State<Login> {
                           }
                           rethrow;
                         }
-                        if (authProvider.user != null) {
-                          BancoDadosFirebase bdfirebase = BancoDadosFirebase();
-                          if (await bdfirebase.isDocumentExist(
-                            authProvider.user!.email.toString(),
-                          )) {
-                            Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const TelaPrincipal()),
-                              (Route<dynamic> route) => false,
-                            );
-                          } else {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const Cadastro()),
-                            );
+                        try {
+                          if (authProvider.user != null) {
+                            BancoDadosFirebase bdfirebase =
+                                BancoDadosFirebase();
+                            if (await bdfirebase.isDocumentExist(
+                              authProvider.user!.email.toString(),
+                            )) {
+                              Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const TelaPrincipal()),
+                                (Route<dynamic> route) => false,
+                              );
+                            } else {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const Cadastro()),
+                              );
+                            }
                           }
+                        } catch (e) {
+                          MyWidgetPadrao.showErrorDialog(context);
                         }
                       },
                       child: const Text('ENTRAR')),

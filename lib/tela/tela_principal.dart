@@ -600,37 +600,43 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                                           ),
                                           onPressed: () async {
                                             // Ação ao pressionar "Fiado"
-                                            if (listCard.isNotEmpty) {
-                                              for (var element
-                                                  in listaProdutos) {
-                                                Map removeMap = element;
-                                                removeMap.remove('key');
+                                            try {
+                                              if (listCard.isNotEmpty) {
+                                                for (var element
+                                                    in listaProdutos) {
+                                                  Map removeMap = element;
+                                                  removeMap.remove('key');
 
-                                                int index = listaProdutos
-                                                    .indexOf(element);
-                                                listaProdutos[index] =
-                                                    removeMap;
-                                                //listaProdutos[index];
-                                              }
-                                              bool verificacao =
-                                                  await MyWidgetPadrao()
-                                                      .showAlertDialogCadastrarFiado(
-                                                context,
-                                                authProvider.user!.email
-                                                    .toString(),
-                                                subtotal,
-                                                listaProdutos,
-                                              );
-                                              if (verificacao) {
-                                                setState(() {
-                                                  listCard.clear();
-                                                  subtotal = 0.0;
-                                                  listaProdutos.clear();
-                                                });
-                                              }
+                                                  int index = listaProdutos
+                                                      .indexOf(element);
+                                                  listaProdutos[index] =
+                                                      removeMap;
+                                                  //listaProdutos[index];
+                                                }
+                                                bool verificacao =
+                                                    await MyWidgetPadrao()
+                                                        .showAlertDialogCadastrarFiado(
+                                                  context,
+                                                  authProvider.user!.email
+                                                      .toString(),
+                                                  subtotal,
+                                                  listaProdutos,
+                                                );
+                                                if (verificacao) {
+                                                  setState(() {
+                                                    listCard.clear();
+                                                    subtotal = 0.0;
+                                                    listaProdutos.clear();
+                                                  });
+                                                }
 
-                                              Navigator.of(context).pop();
+                                                Navigator.of(context).pop();
+                                              }
+                                            } catch (e) {
+                                              MyWidgetPadrao.showErrorDialog(
+                                                  context);
                                             }
+
                                             // Fechar o diálogo
                                           },
                                           child: const Row(
