@@ -206,7 +206,7 @@ class MyWidgetPadrao {
                 scrollDirection: Axis.horizontal,
                 child: Padding(
                   padding: const EdgeInsets.only(
-                    left: 2.0,
+                    left: 10.0,
                   ),
                   child: FittedBox(
                     child: Text(
@@ -723,6 +723,12 @@ class MyWidgetPadrao {
                   verificacao = true;
                   if (!context.mounted) return;
                   Navigator.of(context).pop(); // Fecha o AlertDialog
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Fiado cadastrado'),
+                      duration: Duration(seconds: 2), // Duração da snackbar
+                    ),
+                  );
                 }
               },
             ),

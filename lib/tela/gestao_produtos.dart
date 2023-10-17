@@ -66,12 +66,6 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
         final resul = await ButtonScan(email: email, context: context)
             .executarFuncaoBarcode(barcodeScanRes);
         if (resul.isNotEmpty || resul['nome'] != 'error') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Dados adicionados!'),
-              duration: Duration(seconds: 2), // Duração da snackbar
-            ),
-          );
           _loadDocuments();
           //_showSnackBar(context);
           await scanBarcodeNormal(email, context);
@@ -208,18 +202,24 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
                                             child: ElevatedButton(
                                               onPressed: () async {
                                                 // Lógica para selecionar uma imagem da galeria
-
-                                                await imagePicker
-                                                    .getImageFromGallery(
-                                                        widget.email);
-                                                String newImage =
-                                                    imagePicker.imageUrl;
-                                                if (newImage != '') {
+                                                try {
                                                   await imagePicker
-                                                      .deleteImageBD(
-                                                    document['image'],
-                                                  );
-                                                  try {
+                                                      .getImageFromGallery(
+                                                          widget.email);
+                                                  String newImage =
+                                                      imagePicker.imageUrl;
+                                                  if (newImage != '') {
+                                                    final progressDialogFinal =
+                                                        await MyWidgetPadrao()
+                                                            .progressDialog(
+                                                                context);
+                                                    await progressDialogFinal
+                                                        .show();
+                                                    await imagePicker
+                                                        .deleteImageBD(
+                                                      document['image'],
+                                                    );
+
                                                     await _firestore
                                                         .collection('users')
                                                         .doc(widget.email)
@@ -230,26 +230,25 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
                                                       {'image': newImage},
                                                     );
                                                     _loadDocuments();
-                                                  } catch (e) {
-                                                    AlertDialog(
-                                                      title: const Text('Erro'),
-                                                      content: const Text(
-                                                          'Erro ao acessar banco de dados'),
-                                                      actions: [
-                                                        TextButton(
-                                                          onPressed: () {
-                                                            Navigator.of(
-                                                                    context)
-                                                                .pop(); // Fechar o dialog
-                                                          },
-                                                          child:
-                                                              const Text('Ok'),
-                                                        ),
-                                                      ],
-                                                    );
+                                                    progressDialogFinal.hide();
                                                   }
+                                                  imagePicker.imageUrl = '';
+                                                } catch (e) {
+                                                  AlertDialog(
+                                                    title: const Text('Erro'),
+                                                    content: const Text(
+                                                        'Erro ao acessar banco de dados'),
+                                                    actions: [
+                                                      TextButton(
+                                                        onPressed: () {
+                                                          Navigator.of(context)
+                                                              .pop(); // Fechar o dialog
+                                                        },
+                                                        child: const Text('Ok'),
+                                                      ),
+                                                    ],
+                                                  );
                                                 }
-                                                imagePicker.imageUrl = '';
                                                 if (!context.mounted) return;
                                                 Navigator.of(context)
                                                     .pop(); // Fechar o dialog
@@ -284,13 +283,19 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
                                             child: ElevatedButton(
                                               onPressed: () async {
                                                 // Lógica para capturar uma imagem da câmera
-                                                await imagePicker
-                                                    .getImageFromCamera(
-                                                        widget.email);
-                                                String newImage =
-                                                    imagePicker.imageUrl;
-                                                if (newImage != '') {
-                                                  try {
+                                                try {
+                                                  await imagePicker
+                                                      .getImageFromCamera(
+                                                          widget.email);
+                                                  String newImage =
+                                                      imagePicker.imageUrl;
+                                                  if (newImage != '') {
+                                                    final progressDialogFinal =
+                                                        await MyWidgetPadrao()
+                                                            .progressDialog(
+                                                                context);
+                                                    await progressDialogFinal
+                                                        .show();
                                                     await _firestore
                                                         .collection('users')
                                                         .doc(widget.email)
@@ -301,26 +306,25 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
                                                       {'image': newImage},
                                                     );
                                                     _loadDocuments();
-                                                  } catch (e) {
-                                                    AlertDialog(
-                                                      title: const Text('Erro'),
-                                                      content: const Text(
-                                                          'Erro ao acessar banco de dados'),
-                                                      actions: [
-                                                        TextButton(
-                                                          onPressed: () {
-                                                            Navigator.of(
-                                                                    context)
-                                                                .pop(); // Fechar o dialog
-                                                          },
-                                                          child:
-                                                              const Text('Ok'),
-                                                        ),
-                                                      ],
-                                                    );
+                                                    progressDialogFinal.hide();
                                                   }
+                                                  imagePicker.imageUrl = '';
+                                                } catch (e) {
+                                                  AlertDialog(
+                                                    title: const Text('Erro'),
+                                                    content: const Text(
+                                                        'Erro ao acessar banco de dados'),
+                                                    actions: [
+                                                      TextButton(
+                                                        onPressed: () {
+                                                          Navigator.of(context)
+                                                              .pop(); // Fechar o dialog
+                                                        },
+                                                        child: const Text('Ok'),
+                                                      ),
+                                                    ],
+                                                  );
                                                 }
-                                                imagePicker.imageUrl = '';
                                                 if (!context.mounted) return;
                                                 Navigator.of(context)
                                                     .pop(); // Fechar o dialog
@@ -824,6 +828,12 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
                                               try {
                                                 if (formKey.currentState!
                                                     .validate()) {
+                                                  final progressDialogFinal =
+                                                      await MyWidgetPadrao()
+                                                          .progressDialog(
+                                                              context);
+                                                  await progressDialogFinal
+                                                      .show();
                                                   formKey.currentState!.save();
                                                   image =
                                                       await ImageUploaderService()
@@ -842,6 +852,7 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
                                                     image,
                                                   );
                                                   _loadDocuments();
+                                                  progressDialogFinal.hide();
                                                   if (!context.mounted) return;
                                                   Navigator.of(context).pop();
                                                 }

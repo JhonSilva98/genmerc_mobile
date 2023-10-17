@@ -13,6 +13,7 @@ import 'package:genmerc_mobile/widgetPadrao/padrao.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:vibration/vibration.dart';
 
 class TelaPrincipal extends StatefulWidget {
   const TelaPrincipal({super.key});
@@ -38,7 +39,9 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
     String image,
     double quantidade,
   ) {
-    double valorFinal = quantidade * valorUnit;
+    double valorFinal = double.parse(
+      (quantidade * valorUnit).toStringAsFixed(2),
+    );
     subtotal += valorFinal;
 
     return Dismissible(
@@ -56,7 +59,14 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
         setState(() {
           listCard.removeWhere((item) => item.key == key);
           listaProdutos.removeWhere((item) => item['key'] == key);
-          subtotal -= valorFinal;
+          if (subtotal > 0) {
+            subtotal -= valorFinal;
+            if (subtotal < 0) {
+              subtotal = 0.0;
+            }
+          } else {
+            subtotal = 0.0;
+          }
         });
       },
       child: SizedBox(
@@ -146,7 +156,9 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                                   index, nome, valorUnit, image, parsedNumber!);
                               listaProdutos[widgetIndex] = {
                                 'nome': nome,
-                                'valor': parsedNumber * valorUnit,
+                                'valor': double.parse(
+                                  (parsedNumber * valorUnit).toStringAsFixed(2),
+                                ),
                                 'valorUnit': valorUnit,
                                 'key': key
                               };
@@ -276,7 +288,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
   List<Widget> listCard = [];
   final player = AudioPlayer();
 
-  void addForSeach(String nome, valorUnit, String image) {
+  Future<void> addForSeach(String nome, valorUnit, String image) async {
     final keyGlobal = GlobalKey();
     listaProdutos.add({
       'nome': nome,
@@ -296,6 +308,9 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
         ),
       );
     });
+    if (await Vibration.hasVibrator() == true) {
+      Vibration.vibrate(duration: 10);
+    }
   }
 
   Future<void> scanBarcodeNormal(String email, context) async {
@@ -310,11 +325,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
         final resul = await ButtonScan(email: email, context: context)
             .executarFuncaoBarcode(barcodeScanRes);
         if (resul.isNotEmpty || resul['nome'] != 'error') {
-          addForSeach(
-            resul['nome'],
-            resul['valorUnit'],
-            resul['image'],
-          );
+          addForSeach(resul['nome'], resul['valorUnit'], resul['image']);
 
           //_showSnackBar(context);
           await scanBarcodeNormal(email, context);
@@ -722,6 +733,21 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                                                     subtotal = 0.0;
                                                     listaProdutos.clear();
                                                   });
+                                                  await player.play(
+                                                    AssetSource(
+                                                      'Caixa_Registradora.mp3',
+                                                    ),
+                                                  );
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    const SnackBar(
+                                                      content: Text(
+                                                          'Compra finalizada'),
+                                                      duration: Duration(
+                                                          seconds:
+                                                              2), // Duração da snackbar
+                                                    ),
+                                                  );
                                                 }
                                               } catch (e) {
                                                 MyWidgetPadrao.showErrorDialog(
@@ -873,7 +899,13 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                                     content: GridView.builder(
                                       gridDelegate:
                                           const SliverGridDelegateWithFixedCrossAxisCount(
-                                        crossAxisCount: 1,
+                                        crossAxisCount: 2, // Número de colunas
+                                        mainAxisSpacing:
+                                            8.0, // Espaçamento vertical entre os cards
+                                        crossAxisSpacing:
+                                            8.0, // Espaçamento horizontal entre os cards
+                                        childAspectRatio:
+                                            1.0, // Relação de aspecto para tornar os cards quadrados
                                       ),
                                       itemCount: filteredDocuments.length,
                                       itemBuilder: (context, index) {
@@ -882,6 +914,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                                         //final documentID =
                                         //filteredDocuments[index].id;
                                         return Column(
+                                          mainAxisSize: MainAxisSize.min,
                                           children: [
                                             Expanded(
                                               flex: 3,
@@ -937,16 +970,58 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                                                               ),
                                                             ),
                                                           ),
-                                                          child: const Padding(
+                                                          child: Padding(
                                                             padding:
-                                                                EdgeInsets.only(
+                                                                const EdgeInsets
+                                                                    .only(
                                                               top: 8,
                                                               left: 5,
                                                             ),
-                                                            child: Icon(
-                                                              Icons.add,
-                                                              color:
-                                                                  Colors.white,
+                                                            child: Column(
+                                                              children: [
+                                                                const Expanded(
+                                                                  child: Icon(
+                                                                    Icons.add,
+                                                                    color: Colors
+                                                                        .white,
+                                                                  ),
+                                                                ),
+                                                                Expanded(
+                                                                  child:
+                                                                      FittedBox(
+                                                                    child:
+                                                                        Padding(
+                                                                      padding:
+                                                                          const EdgeInsets
+                                                                              .only(
+                                                                        left: 2,
+                                                                        right:
+                                                                            4,
+                                                                      ),
+                                                                      child:
+                                                                          Text(
+                                                                        'R\$ ${double.parse(
+                                                                          document['valorUnit']
+                                                                              .toString(),
+                                                                        ).toStringAsFixed(
+                                                                              2,
+                                                                            ).replaceAll('.', ',')}',
+                                                                        textAlign:
+                                                                            TextAlign.center,
+                                                                        style:
+                                                                            const TextStyle(
+                                                                          color:
+                                                                              Colors.white,
+                                                                          fontWeight:
+                                                                              FontWeight.bold,
+                                                                          fontFamily:
+                                                                              'Demi',
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ],
                                                             ),
                                                           ),
                                                         ),
@@ -962,43 +1037,14 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                                             Expanded(
                                               flex: 2,
                                               child: SingleChildScrollView(
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  children: [
-                                                    Expanded(
-                                                      flex: 2,
-                                                      child: Text(
-                                                        document['nome']
-                                                            .toString()
-                                                            .toUpperCase(),
-                                                        style: const TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontFamily: 'Demi',
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Expanded(
-                                                      flex: 1,
-                                                      child: Text(
-                                                        'R\$ ${double.parse(
-                                                          document['valorUnit']
-                                                              .toString(),
-                                                        ).toStringAsFixed(
-                                                              2,
-                                                            ).replaceAll('.', ',')}',
-                                                        textAlign:
-                                                            TextAlign.center,
-                                                        style: const TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontFamily: 'Demi',
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
+                                                child: Text(
+                                                  document['nome']
+                                                      .toString()
+                                                      .toUpperCase(),
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontFamily: 'Demi',
+                                                  ),
                                                 ),
                                               ),
                                             ),
@@ -1019,7 +1065,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                             },
                           );
                         } catch (erro) {
-                          MyWidgetPadrao.showErrorDialog(contextDialog!);
+                          MyWidgetPadrao.showErrorDialog(context);
                         }
                       },
                       icon: const Icon(Icons.search),

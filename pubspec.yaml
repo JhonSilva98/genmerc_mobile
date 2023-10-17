@@ -50,6 +50,7 @@ dependencies:
   flutter_ticket: ^1.0.1
   url_launcher: ^6.1.14
   flutter_secure_storage: ^9.0.0
+  vibration: ^1.8.3
 
 dev_dependencies:
   flutter_test:
@@ -77,6 +78,7 @@ flutter:
   assets:
     - assets/beep-07a.mp3
     - assets/ideogram.jpeg
+    - assets/Caixa_Registradora.mp3
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

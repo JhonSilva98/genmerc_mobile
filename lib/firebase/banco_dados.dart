@@ -90,11 +90,11 @@ class BancoDadosFirebase {
       // Ela contém informações sobre o arquivo e pode ser usada para exibição ou upload.
       // Por exemplo: File(image.path)
       pathImage = image;
+      await uploadImageToStorageAndFirestore(email);
     } else {
       // O usuário cancelou a seleção da imagem
       pathImage = null;
     }
-    await uploadImageToStorageAndFirestore(email);
   }
 
   Future<void> getImageFromCamera(String email) async {
@@ -104,12 +104,13 @@ class BancoDadosFirebase {
       // Aqui você pode usar a variável 'image' para acessar a imagem selecionada
       // Ela contém informações sobre o arquivo e pode ser usada para exibição ou upload.
       // Por exemplo: File(image.path)
+
       pathImage = image;
+      await uploadImageToStorageAndFirestore(email);
     } else {
       // O usuário cancelou a seleção da imagem
       pathImage = null;
     }
-    await uploadImageToStorageAndFirestore(email);
   }
 
   Future<void> addDadosManualmente(
