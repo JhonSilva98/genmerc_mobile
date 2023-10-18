@@ -5,6 +5,9 @@ import 'package:openfoodfacts/openfoodfacts.dart';
 class MyGetProductor {
   /// request a product from the OpenFoodFacts database
   Future<Product?> getProduct(String barcode) async {
+    OpenFoodAPIConfiguration.userAgent = UserAgent(
+      name: 'genmerc_mobile',
+    );
     //var barcode = '0048151623426';
 
     final ProductQueryConfiguration configuration = ProductQueryConfiguration(

@@ -121,29 +121,196 @@ class MyWidgetPadrao {
               title: const Text('Confirmação de Pagamento'),
               content: const Text('Já realizou o pagamento?'),
               actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    // Adicione a lógica a ser executada quando o usuário selecionar "Cancelar" aqui
-                    Navigator.of(context).pop(); // Fecha o AlertDialog
-                  },
-                  child: const Text('Cancelar'),
-                ),
-                ElevatedButton(
-                  style: const ButtonStyle(
-                      backgroundColor: MaterialStatePropertyAll(Colors.green),
-                      foregroundColor: MaterialStatePropertyAll(Colors.white)),
-                  onPressed: () async {
-                    // Adicione a lógica a ser executada quando o usuário selecionar "Pago" aqui
-                    await BancoDadosFirebase().setVendasDeleteFiadoDoc(
-                      email,
-                      docFiado,
-                      valor,
-                      context,
-                    );
-                    if (!context.mounted) return;
-                    Navigator.of(context).pop(); // Fecha o AlertDialog
-                  },
-                  child: const Text('Pago'),
+                Flex(
+                  direction: Axis.horizontal,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      flex: 1,
+                      child: IconButton(
+                        onPressed: () async {
+                          await showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text('Apagar'),
+                                  content: const Text(
+                                      "Você deseja apagar esse fiado?"),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context)
+                                            .pop(); // Fechar o dialog
+                                      },
+                                      child: const Text('Cancelar'),
+                                    ),
+                                    ElevatedButton(
+                                      style: const ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStatePropertyAll(
+                                                  Colors.red)),
+                                      onPressed: () async {
+                                        await BancoDadosFirebase().deleteFiado(
+                                          email,
+                                          docFiado,
+                                          context,
+                                        );
+                                        if (!context.mounted) return;
+                                        Navigator.of(context).pop();
+                                        if (!context.mounted) return;
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text(
+                                        "Apagar",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              });
+                        },
+                        icon: Icon(
+                          Icons.delete_rounded,
+                          color: Colors.red,
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 5,
+                    ),
+                    Flexible(
+                      flex: 3,
+                      child: ElevatedButton(
+                        style: const ButtonStyle(
+                            backgroundColor:
+                                MaterialStatePropertyAll(Colors.orange),
+                            foregroundColor:
+                                MaterialStatePropertyAll(Colors.white)),
+                        onPressed: () async {
+                          if (!context.mounted) return;
+                          Navigator.of(context).pop();
+                          final DateFormat dateFormat =
+                              DateFormat('dd/MM/yyyy');
+                          TextEditingController dataController =
+                              TextEditingController();
+                          await showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                  title: const Text('Reagendamento'),
+                                  content: TextFormField(
+                                    readOnly: true,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Data a pagar (dd/MM/yyyy)',
+                                      border: OutlineInputBorder(),
+                                      prefixIcon: Icon(
+                                        Icons.calendar_month_outlined,
+                                      ),
+                                    ),
+                                    style: const TextStyle(
+                                      fontSize: 16.0,
+                                    ),
+                                    keyboardType: TextInputType.datetime,
+                                    textCapitalization:
+                                        TextCapitalization.words,
+                                    onTap: () async {
+                                      final DateTime currentDate =
+                                          DateTime.now();
+                                      final DateTime lastDate = currentDate
+                                          .add(const Duration(days: 5 * 365));
+                                      final date = await showDatePicker(
+                                          context: context,
+                                          initialDate: DateTime.now(),
+                                          firstDate: DateTime.now(),
+                                          lastDate: lastDate);
+                                      final getDateController =
+                                          '${date!.day.toString().length < 2 ? '0${date.day.toString()}' : date.day.toString()}/${date.month.toString().length < 2 ? '0${date.month.toString()}' : date.month.toString()}/${date.year}';
+
+                                      dataController.text = getDateController;
+                                    },
+                                    controller: dataController,
+                                    validator: (value) {
+                                      try {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Campo obrigatório';
+                                        }
+
+                                        dateFormat.parseStrict(
+                                            value); // Tenta fazer o parse da data
+                                        return null; // A data é válida
+                                      } catch (e) {
+                                        return 'Data inválida';
+                                      }
+                                    },
+                                  ),
+                                  actions: <Widget>[
+                                    TextButton(
+                                        onPressed: () {
+                                          if (!context.mounted) return;
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Text("Cancelar")),
+                                    ElevatedButton(
+                                        onPressed: () async {
+                                          String dataFinal =
+                                              converterDataBrasileira(
+                                                  dataController.text);
+                                          try {
+                                            await BancoDadosFirebase()
+                                                .updateReagendar(
+                                                    email,
+                                                    docFiado,
+                                                    dataFinal,
+                                                    context);
+                                            if (!context.mounted) return;
+                                            Navigator.of(context).pop();
+                                          } catch (e) {
+                                            await showErrorDialog(context);
+                                          }
+                                        },
+                                        child: Text("Reagendar")),
+                                  ]);
+                            },
+                          );
+                        },
+                        child: FittedBox(
+                          fit: BoxFit.cover,
+                          child: const Text(
+                            'Reagendar',
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 5,
+                    ),
+                    Flexible(
+                      flex: 2,
+                      child: ElevatedButton(
+                        style: const ButtonStyle(
+                            backgroundColor:
+                                MaterialStatePropertyAll(Colors.green),
+                            foregroundColor:
+                                MaterialStatePropertyAll(Colors.white)),
+                        onPressed: () async {
+                          // Adicione a lógica a ser executada quando o usuário selecionar "Pago" aqui
+                          await BancoDadosFirebase().setVendasDeleteFiadoDoc(
+                            email,
+                            docFiado,
+                            valor,
+                            context,
+                          );
+                          if (!context.mounted) return;
+                          Navigator.of(context).pop(); // Fecha o AlertDialog
+                        },
+                        child: FittedBox(
+                          child: const Text('Pago'),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             );

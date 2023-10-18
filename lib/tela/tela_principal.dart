@@ -30,6 +30,9 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
   double subtotal = 0.0;
   List listaProdutos = [];
   BuildContext? contextDialog;
+  bool verAttFotoNome = true;
+  List<Widget> listCard = [];
+  final player = AudioPlayer();
 
   Widget cardPersonalite2(
     Key key,
@@ -195,7 +198,14 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                         image,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
-                          return const Icon(Icons.photo_library_outlined);
+                          return Image.network(
+                            'https://firebasestorage.googleapis.com/v0/b/genmerc-mobile.appspot.com/o/Administrativo%2Fdairy.png?alt=media&token=7c2c92df-11c2-402d-9f63-d6933f213a64&_gl=1*1ajv9ft*_ga*MTQ3OTA0NDM3Ny4xNjk2ODU0MzAx*_ga_CW55HF8NVT*MTY5NzU3MDExOC45NC4xLjE2OTc1NzI0MjEuMzEuMC4w',
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Icon(
+                              Icons.photo_library_outlined,
+                            ),
+                          );
                         },
                       ),
                     ),
@@ -283,10 +293,6 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
       ),
     );
   }
-
-  bool verAttFotoNome = true;
-  List<Widget> listCard = [];
-  final player = AudioPlayer();
 
   Future<void> addForSeach(String nome, valorUnit, String image) async {
     final keyGlobal = GlobalKey();
@@ -533,6 +539,33 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
           direction: Axis.vertical,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            if (subtotal > 0)
+              Align(
+                alignment: Alignment.topCenter,
+                child: TextButton(
+                    onPressed: () {
+                      setState(() {
+                        listCard.clear();
+                        listaProdutos.clear();
+                        subtotal = 0.0;
+                      });
+                    },
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.delete_sweep_rounded,
+                          color: Colors.red,
+                        ),
+                        Text(
+                          "Limpar tudo",
+                          style: TextStyle(
+                            color: Colors.red,
+                          ),
+                        ),
+                      ],
+                    )),
+              ),
             Expanded(
               child: SizedBox(
                 height: double.infinity,
@@ -934,9 +967,19 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                                                         fit: BoxFit.cover,
                                                         errorBuilder: (context,
                                                             error, stackTrace) {
-                                                          return const Center(
-                                                            child: Icon(
-                                                              Icons.store,
+                                                          return Image.network(
+                                                            'https://firebasestorage.googleapis.com/v0/b/genmerc-mobile.appspot.com/o/Administrativo%2Fdairy.png?alt=media&token=7c2c92df-11c2-402d-9f63-d6933f213a64&_gl=1*1ajv9ft*_ga*MTQ3OTA0NDM3Ny4xNjk2ODU0MzAx*_ga_CW55HF8NVT*MTY5NzU3MDExOC45NC4xLjE2OTc1NzI0MjEuMzEuMC4w',
+                                                            fit: BoxFit.contain,
+                                                            width:
+                                                                double.infinity,
+                                                            height:
+                                                                double.infinity,
+                                                            errorBuilder: (context,
+                                                                    error,
+                                                                    stackTrace) =>
+                                                                const Icon(
+                                                              Icons
+                                                                  .photo_library_outlined,
                                                             ),
                                                           );
                                                         },
@@ -1032,18 +1075,28 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                                               ),
                                             ),
                                             const SizedBox(
-                                              height: 10,
+                                              height: 5,
                                             ),
                                             Expanded(
-                                              flex: 2,
+                                              flex: 1,
                                               child: SingleChildScrollView(
-                                                child: Text(
-                                                  document['nome']
-                                                      .toString()
-                                                      .toUpperCase(),
-                                                  style: const TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontFamily: 'Demi',
+                                                scrollDirection:
+                                                    Axis.horizontal,
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                    left: 8.0,
+                                                    right: 8.0,
+                                                  ),
+                                                  child: Text(
+                                                    document['nome']
+                                                        .toString()
+                                                        .toUpperCase(),
+                                                    style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontFamily: 'Demi',
+                                                    ),
                                                   ),
                                                 ),
                                               ),

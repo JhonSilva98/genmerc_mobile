@@ -265,6 +265,45 @@ class BancoDadosFirebase {
     }
   }
 
+  Future<void> updateReagendar(
+    String email,
+    String docFiado,
+    String data,
+    context,
+  ) async {
+    try {
+      var documentReferenceFiado = FirebaseFirestore.instance
+          .collection('users')
+          .doc(email)
+          .collection('fiado')
+          .doc(docFiado);
+
+      // Use o método `delete` para apagar o documento
+      await documentReferenceFiado.update({'data': data});
+    } catch (e) {
+      MyWidgetPadrao.showErrorDialog(context);
+    }
+  }
+
+  Future<void> deleteFiado(
+    String email,
+    String docFiado,
+    context,
+  ) async {
+    try {
+      var documentReferenceFiado = FirebaseFirestore.instance
+          .collection('users')
+          .doc(email)
+          .collection('fiado')
+          .doc(docFiado);
+
+      // Use o método `delete` para apagar o documento
+      await documentReferenceFiado.delete();
+    } catch (e) {
+      MyWidgetPadrao.showErrorDialog(context);
+    }
+  }
+
   Future<List<QueryDocumentSnapshot>> catchProducto(String email) async {
     final FirebaseFirestore firestore = FirebaseFirestore.instance;
     List<QueryDocumentSnapshot> allDocuments = [];

@@ -176,9 +176,14 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
                             height: double.infinity,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
-                              return const Center(
-                                child: Icon(
-                                  Icons.store,
+                              return Image.network(
+                                'https://firebasestorage.googleapis.com/v0/b/genmerc-mobile.appspot.com/o/Administrativo%2Fdairy.png?alt=media&token=7c2c92df-11c2-402d-9f63-d6933f213a64&_gl=1*1ajv9ft*_ga*MTQ3OTA0NDM3Ny4xNjk2ODU0MzAx*_ga_CW55HF8NVT*MTY5NzU3MDExOC45NC4xLjE2OTc1NzI0MjEuMzEuMC4w',
+                                fit: BoxFit.contain,
+                                width: double.infinity,
+                                height: double.infinity,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    const Icon(
+                                  Icons.photo_library_outlined,
                                 ),
                               );
                             },
@@ -417,7 +422,12 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
                                     onPressed: () async {
                                       final TextEditingController
                                           nameController =
-                                          TextEditingController();
+                                          TextEditingController(
+                                        text: document['nome']
+                                            .toString()
+                                            .toUpperCase(),
+                                      );
+
                                       await showDialog(
                                           context: context,
                                           builder: (BuildContext context) {
@@ -560,7 +570,11 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
                                   onPressed: () async {
                                     final TextEditingController
                                         numberController =
-                                        TextEditingController();
+                                        TextEditingController(
+                                      text: document['valorUnit']
+                                          .toStringAsFixed(2)
+                                          .replaceAll('.', ','),
+                                    );
 
                                     await showDialog(
                                         context: context,
