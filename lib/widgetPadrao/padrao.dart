@@ -160,7 +160,7 @@ class MyWidgetPadrao {
                                         if (!context.mounted) return;
                                         Navigator.of(context).pop();
                                       },
-                                      child: Text(
+                                      child: const Text(
                                         "Apagar",
                                         style: TextStyle(
                                           color: Colors.white,
@@ -171,13 +171,13 @@ class MyWidgetPadrao {
                                 );
                               });
                         },
-                        icon: Icon(
+                        icon: const Icon(
                           Icons.delete_rounded,
                           color: Colors.red,
                         ),
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 5,
                     ),
                     Flexible(
@@ -251,7 +251,7 @@ class MyWidgetPadrao {
                                           if (!context.mounted) return;
                                           Navigator.of(context).pop();
                                         },
-                                        child: Text("Cancelar")),
+                                        child: const Text("Cancelar")),
                                     ElevatedButton(
                                         onPressed: () async {
                                           String dataFinal =
@@ -270,20 +270,20 @@ class MyWidgetPadrao {
                                             await showErrorDialog(context);
                                           }
                                         },
-                                        child: Text("Reagendar")),
+                                        child: const Text("Reagendar")),
                                   ]);
                             },
                           );
                         },
-                        child: FittedBox(
+                        child: const FittedBox(
                           fit: BoxFit.cover,
-                          child: const Text(
+                          child: Text(
                             'Reagendar',
                           ),
                         ),
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 5,
                     ),
                     Flexible(
@@ -305,8 +305,8 @@ class MyWidgetPadrao {
                           if (!context.mounted) return;
                           Navigator.of(context).pop(); // Fecha o AlertDialog
                         },
-                        child: FittedBox(
-                          child: const Text('Pago'),
+                        child: const FittedBox(
+                          child: Text('Pago'),
                         ),
                       ),
                     ),
