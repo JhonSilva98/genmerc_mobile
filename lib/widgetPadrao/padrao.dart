@@ -150,15 +150,22 @@ class MyWidgetPadrao {
                                               MaterialStatePropertyAll(
                                                   Colors.red)),
                                       onPressed: () async {
-                                        await BancoDadosFirebase().deleteFiado(
-                                          email,
-                                          docFiado,
-                                          context,
-                                        );
-                                        if (!context.mounted) return;
-                                        Navigator.of(context).pop();
-                                        if (!context.mounted) return;
-                                        Navigator.of(context).pop();
+                                        try {
+                                          await BancoDadosFirebase()
+                                              .deleteFiado(
+                                            email,
+                                            docFiado,
+                                            context,
+                                          );
+                                          if (!context.mounted) return;
+                                          Navigator.of(context).pop();
+                                          if (!context.mounted) return;
+                                          Navigator.of(context).pop();
+                                        } catch (e) {
+                                          MyWidgetPadrao.showErrorDialog(
+                                            context,
+                                          );
+                                        }
                                       },
                                       child: const Text(
                                         "Apagar",
