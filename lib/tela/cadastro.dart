@@ -126,7 +126,7 @@ class _CadastroState extends State<Cadastro> {
           Flexible(
             child: ElevatedButton(
               onPressed: () async {
-                if (_controller.text != '') {
+                if (_controller.text != '' || _controller.text.isNotEmpty) {
                   await bdFirebase.setDocumentInCollection(
                     authProvider.user!.email.toString(),
                     _controller.text.toString(),

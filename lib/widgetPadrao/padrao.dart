@@ -52,7 +52,9 @@ class MyWidgetPadrao {
     );
   }
 
-  static showErrorDialogBancoDados(BuildContext context) async {
+  static showErrorDialogBancoDados(
+    BuildContext context,
+  ) async {
     await showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -72,18 +74,26 @@ class MyWidgetPadrao {
     );
   }
 
-  String obterNomeDoMes(int numeroDoMes) {
+  String obterNomeDoMes(
+    int numeroDoMes,
+  ) {
     final DateTime data = DateTime(1, numeroDoMes);
     return DateFormat('MMMM', 'pt_BR').format(data);
   }
 
-  String obterNomeDoDiaDaSemana(int ano, int mes, int dia) {
+  String obterNomeDoDiaDaSemana(
+    int ano,
+    int mes,
+    int dia,
+  ) {
     final DateTime data = DateTime(ano, mes, dia);
     String nomeDoDia = DateFormat('EEEE', 'pt_BR').format(data);
     return nomeDoDia;
   }
 
-  Map<String, dynamic> colorEtiqueta(String dataVencimento) {
+  Map<String, dynamic> colorEtiqueta(
+    String dataVencimento,
+  ) {
     DateTime data = DateTime.now();
 
     DateTime dataComparar = DateTime.parse(dataVencimento);
@@ -110,8 +120,16 @@ class MyWidgetPadrao {
     return mapColorText;
   }
 
-  Future<Widget> cardPersonalite(String nome, String data, double valor, numero,
-      context, String email, String docFiado, var listaProdutos) async {
+  Future<Widget> cardPersonalite(
+    String nome,
+    String data,
+    double valor,
+    numero,
+    context,
+    String email,
+    String docFiado,
+    var listaProdutos,
+  ) async {
     return InkWell(
       onLongPress: () async {
         await showDialog(
@@ -692,7 +710,9 @@ class MyWidgetPadrao {
     );
   }
 
-  Future<void> fazerChamada(String numero) async {
+  Future<void> fazerChamada(
+    String numero,
+  ) async {
     final urlChamada = 'tel:$numero';
 
     if (await canLaunchUrlString(urlChamada)) {
@@ -722,7 +742,9 @@ class MyWidgetPadrao {
     }
   }
 
-  String converterData(String dataAmericana) {
+  String converterData(
+    String dataAmericana,
+  ) {
     // Divida a data americana em partes
     List<String> partes = dataAmericana.split('-');
 
@@ -740,7 +762,9 @@ class MyWidgetPadrao {
     return dataAmericana;
   }
 
-  String converterDataBrasileira(String dataBrasileira) {
+  String converterDataBrasileira(
+    String dataBrasileira,
+  ) {
     // Divida a data brasileira em partes
     List<String> partes = dataBrasileira.split('/');
 
@@ -758,7 +782,9 @@ class MyWidgetPadrao {
     return dataBrasileira;
   }
 
-  Future<ProgressDialog> progressDialog(BuildContext context) async {
+  Future<ProgressDialog> progressDialog(
+    BuildContext context,
+  ) async {
     ProgressDialog progressDialog = ProgressDialog(context);
     progressDialog.style(
         message: 'Carregando...',

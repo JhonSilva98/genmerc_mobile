@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:genmerc_mobile/auth_services/login_provider.dart';
 import 'package:genmerc_mobile/firebase/banco_dados.dart';
 import 'package:genmerc_mobile/funcion/button_scan.dart';
+import 'package:genmerc_mobile/funcion/logic_button.dart';
 import 'package:genmerc_mobile/tela/fiado.dart';
 import 'package:genmerc_mobile/tela/gestao_produtos.dart';
 import 'package:genmerc_mobile/tela/login.dart';
@@ -23,6 +24,7 @@ class TelaPrincipal extends StatefulWidget {
 }
 
 class _TelaPrincipalState extends State<TelaPrincipal> {
+  Logicbutton logicbutton = Logicbutton();
   BancoDadosFirebase bdFirebase = BancoDadosFirebase();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   List<QueryDocumentSnapshot> allDocuments = [];
@@ -34,7 +36,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
   List<Widget> listCard = [];
   final player = AudioPlayer();
 
-  Widget cardPersonalite2(
+  Widget _cardPersonalite(
     Key key,
     int index,
     String nome,
@@ -155,7 +157,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                           if (widgetIndex != -1) {
                             // Substitua o widget com outro widget
                             setState(() {
-                              listCard[widgetIndex] = cardPersonalite2(key,
+                              listCard[widgetIndex] = _cardPersonalite(key,
                                   index, nome, valorUnit, image, parsedNumber!);
                               listaProdutos[widgetIndex] = {
                                 'nome': nome,
@@ -294,7 +296,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
     );
   }
 
-  Future<void> addForSeach(String nome, valorUnit, String image) async {
+  Future<void> _addForSeach(String nome, valorUnit, String image) async {
     final keyGlobal = GlobalKey();
     listaProdutos.add({
       'nome': nome,
@@ -304,7 +306,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
     });
     setState(() {
       listCard.add(
-        cardPersonalite2(
+        _cardPersonalite(
           keyGlobal,
           listCard.length,
           nome,
@@ -319,7 +321,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
     }
   }
 
-  Future<void> scanBarcodeNormal(String email, context) async {
+  Future<void> _scanBarcodeNormal(String email, context) async {
     String barcodeScanRes;
     //ButtonScan funcion = ButtonScan(email: email, context: context);
     // Platform messages may fail, so we use a try/catch PlatformException.
@@ -331,10 +333,10 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
         final resul = await ButtonScan(email: email, context: context)
             .executarFuncaoBarcode(barcodeScanRes);
         if (resul.isNotEmpty || resul['nome'] != 'error') {
-          addForSeach(resul['nome'], resul['valorUnit'], resul['image']);
+          _addForSeach(resul['nome'], resul['valorUnit'], resul['image']);
 
           //_showSnackBar(context);
-          await scanBarcodeNormal(email, context);
+          await _scanBarcodeNormal(email, context);
         }
       }
     } on PlatformException {
@@ -364,6 +366,368 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
       final title = document['nome'] as String;
       return title.toLowerCase().contains(query.toLowerCase());
     }).toList();
+  }
+
+  Future<void> _logicBUTTONContinuar(
+    contextFinal,
+    String email,
+  ) async {
+    await showDialog(
+      context: contextFinal,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Selecione uma opção:'),
+          content: Flex(
+            direction: Axis.horizontal,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Flexible(
+                child: ElevatedButton(
+                  style: const ButtonStyle(
+                    foregroundColor: MaterialStatePropertyAll(Colors.white),
+                    backgroundColor:
+                        MaterialStatePropertyAll(Colors.orangeAccent),
+                  ),
+                  onPressed: () async {
+                    // Ação ao pressionar "Fiado"
+                    try {
+                      if (listCard.isNotEmpty) {
+                        for (var element in listaProdutos) {
+                          Map removeMap = element;
+                          removeMap.remove('key');
+
+                          int index = listaProdutos.indexOf(element);
+                          listaProdutos[index] = removeMap;
+                          //listaProdutos[index];
+                        }
+                        bool verificacao = await MyWidgetPadrao()
+                            .showAlertDialogCadastrarFiado(
+                          context,
+                          email,
+                          subtotal,
+                          listaProdutos,
+                        );
+                        if (verificacao) {
+                          setState(() {
+                            listCard.clear();
+                            subtotal = 0.0;
+                            listaProdutos.clear();
+                          });
+                        }
+                        if (!context.mounted) return;
+                        Navigator.of(context).pop();
+                      }
+                    } catch (e) {
+                      MyWidgetPadrao.showErrorDialog(context);
+                    }
+
+                    // Fechar o diálogo
+                  },
+                  child: const Row(
+                    children: [
+                      Icon(Icons.account_balance_wallet_outlined),
+                      SizedBox(
+                        width: 2,
+                      ),
+                      FittedBox(child: Text('Fiado')),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(
+                width: 8,
+              ),
+              Flexible(
+                child: ElevatedButton(
+                  style: const ButtonStyle(
+                    foregroundColor: MaterialStatePropertyAll(Colors.white),
+                    backgroundColor: MaterialStatePropertyAll(
+                      Colors.green,
+                    ),
+                  ),
+                  onPressed: () async {
+                    // Ação ao pressionar "Finalizar"
+                    if (listCard.isNotEmpty) {
+                      DateTime now = DateTime.now();
+                      try {
+                        if (subtotal > 0) {
+                          final ano = now.year;
+                          final mes = now.month;
+                          final dia = now.day;
+
+                          DocumentReference<Map<String, dynamic>>
+                              documentReference = FirebaseFirestore.instance
+                                  .collection('users')
+                                  .doc(
+                                    email,
+                                  )
+                                  .collection("vendas")
+                                  .doc("$ano")
+                                  .collection("mes")
+                                  .doc("$mes")
+                                  .collection("dia")
+                                  .doc("$dia");
+                          final DocumentSnapshot<Map<String, dynamic>>
+                              snapshot = await documentReference.get();
+                          if (snapshot.exists) {
+                            final valorSoma = snapshot.data();
+                            double valorSomaindex =
+                                double.parse(valorSoma!["valor"].toString());
+                            double valorSomaFinal = valorSomaindex + subtotal;
+
+                            await documentReference.set({
+                              "valor": valorSomaFinal,
+                            });
+                          } else {
+                            await documentReference.set({
+                              "valor": subtotal,
+                            });
+                          }
+                          setState(() {
+                            listCard.clear();
+                            subtotal = 0.0;
+                            listaProdutos.clear();
+                          });
+                          await player.play(
+                            AssetSource(
+                              'Caixa_Registradora.mp3',
+                            ),
+                          );
+                          ScaffoldMessenger.of(contextFinal).showSnackBar(
+                            const SnackBar(
+                              content: Text('Compra finalizada'),
+                              duration:
+                                  Duration(seconds: 2), // Duração da snackbar
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        MyWidgetPadrao.showErrorDialog(contextFinal);
+                      }
+                      if (!context.mounted) return;
+                      Navigator.of(context).pop(); // Fechar o diálogo
+                    }
+                  },
+                  child: const Flex(
+                    direction: Axis.horizontal,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
+                        flex: 1,
+                        child: Icon(Icons.store_mall_directory_rounded),
+                      ),
+                      Flexible(
+                        flex: 1,
+                        child: SizedBox(
+                          width: 5,
+                        ),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: FittedBox(
+                          child: Text('Finalizar'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _logicBUTTONSearchPrincipal(
+    context,
+    String email,
+  ) async {
+    try {
+      await _loadDocuments(
+        email,
+      );
+
+      TextEditingController controllerSeach = TextEditingController();
+      await showDialog(
+        context: contextDialog!,
+        builder: (BuildContext context) {
+          return StatefulBuilder(
+            builder: (
+              BuildContext context,
+              StateSetter setState,
+            ) {
+              return AlertDialog(
+                elevation: 10,
+                title: TextField(
+                  controller: controllerSeach,
+                  onChanged: (value) {
+                    setState(() {
+                      _filterDocuments(value);
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    hintText: 'Pesquisar...',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                content: GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2, // Número de colunas
+                    mainAxisSpacing: 8.0, // Espaçamento vertical entre os cards
+                    crossAxisSpacing:
+                        8.0, // Espaçamento horizontal entre os cards
+                    childAspectRatio:
+                        1.0, // Relação de aspecto para tornar os cards quadrados
+                  ),
+                  itemCount: filteredDocuments.length,
+                  itemBuilder: (context, index) {
+                    final document = filteredDocuments[index];
+                    //final documentID =
+                    //filteredDocuments[index].id;
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Expanded(
+                          flex: 3,
+                          child: Card(
+                            //surfaceTintColor: Colors.yellow,
+                            elevation: 10,
+                            child: Stack(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Image.network(
+                                    document['image'],
+                                    width: double.infinity,
+                                    height: double.infinity,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Image.network(
+                                        'https://firebasestorage.googleapis.com/v0/b/genmerc-mobile.appspot.com/o/Administrativo%2Fdairy.png?alt=media&token=7c2c92df-11c2-402d-9f63-d6933f213a64&_gl=1*1ajv9ft*_ga*MTQ3OTA0NDM3Ny4xNjk2ODU0MzAx*_ga_CW55HF8NVT*MTY5NzU3MDExOC45NC4xLjE2OTc1NzI0MjEuMzEuMC4w',
+                                        fit: BoxFit.contain,
+                                        width: double.infinity,
+                                        height: double.infinity,
+                                        errorBuilder:
+                                            (context, error, stackTrace) =>
+                                                const Icon(
+                                          Icons.photo_library_outlined,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                                Align(
+                                  alignment: Alignment.bottomRight,
+                                  child: InkWell(
+                                    onTap: () {
+                                      _addForSeach(
+                                        document['nome'],
+                                        document['valorUnit'],
+                                        document['image'],
+                                      );
+                                    },
+                                    child: Container(
+                                      height: 50,
+                                      width: 50,
+                                      decoration: const BoxDecoration(
+                                        color: Color(0xff33b17c),
+                                        borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(
+                                            100,
+                                          ),
+                                        ),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(
+                                          top: 8,
+                                          left: 5,
+                                        ),
+                                        child: Column(
+                                          children: [
+                                            const Expanded(
+                                              child: Icon(
+                                                Icons.add,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            Expanded(
+                                              child: FittedBox(
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                    left: 2,
+                                                    right: 4,
+                                                  ),
+                                                  child: Text(
+                                                    'R\$ ${double.parse(
+                                                      document['valorUnit']
+                                                          .toString(),
+                                                    ).toStringAsFixed(
+                                                          2,
+                                                        ).replaceAll('.', ',')}',
+                                                    textAlign: TextAlign.center,
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontFamily: 'Demi',
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                left: 8.0,
+                                right: 8.0,
+                              ),
+                              child: Text(
+                                document['nome'].toString().toUpperCase(),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'Demi',
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+                actions: [
+                  ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text("OK"))
+                ],
+              );
+            },
+          );
+        },
+      );
+    } catch (erro) {
+      MyWidgetPadrao.showErrorDialog(context);
+    }
   }
 
   @override
@@ -510,19 +874,10 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
         actions: [
           IconButton(
             onPressed: () async {
-              try {
-                await authProvider.signOut();
-              } catch (e) {
-                await MyWidgetPadrao.showErrorDialog(context);
-                SchedulerBinding.instance.addPostFrameCallback((_) {
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const TelaPrincipal()),
-                    (Route<dynamic> route) => false,
-                  );
-                });
-              }
+              await logicbutton.logicButtonLogoff(
+                authProvider,
+                context,
+              );
             },
             tooltip: 'Sair',
             icon: const Icon(
@@ -550,7 +905,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                         subtotal = 0.0;
                       });
                     },
-                    child: Row(
+                    child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
@@ -622,205 +977,9 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                       Flexible(
                         child: ElevatedButton(
                           onPressed: () async {
-                            await showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: const Text('Selecione uma opção:'),
-                                  content: Flex(
-                                    direction: Axis.horizontal,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: <Widget>[
-                                      Flexible(
-                                        child: ElevatedButton(
-                                          style: const ButtonStyle(
-                                            foregroundColor:
-                                                MaterialStatePropertyAll(
-                                                    Colors.white),
-                                            backgroundColor:
-                                                MaterialStatePropertyAll(
-                                                    Colors.orangeAccent),
-                                          ),
-                                          onPressed: () async {
-                                            // Ação ao pressionar "Fiado"
-                                            try {
-                                              if (listCard.isNotEmpty) {
-                                                for (var element
-                                                    in listaProdutos) {
-                                                  Map removeMap = element;
-                                                  removeMap.remove('key');
-
-                                                  int index = listaProdutos
-                                                      .indexOf(element);
-                                                  listaProdutos[index] =
-                                                      removeMap;
-                                                  //listaProdutos[index];
-                                                }
-                                                bool verificacao =
-                                                    await MyWidgetPadrao()
-                                                        .showAlertDialogCadastrarFiado(
-                                                  context,
-                                                  authProvider.user!.email
-                                                      .toString(),
-                                                  subtotal,
-                                                  listaProdutos,
-                                                );
-                                                if (verificacao) {
-                                                  setState(() {
-                                                    listCard.clear();
-                                                    subtotal = 0.0;
-                                                    listaProdutos.clear();
-                                                  });
-                                                }
-                                                if (!context.mounted) return;
-                                                Navigator.of(context).pop();
-                                              }
-                                            } catch (e) {
-                                              MyWidgetPadrao.showErrorDialog(
-                                                  context);
-                                            }
-
-                                            // Fechar o diálogo
-                                          },
-                                          child: const Row(
-                                            children: [
-                                              Icon(Icons
-                                                  .account_balance_wallet_outlined),
-                                              SizedBox(
-                                                width: 2,
-                                              ),
-                                              FittedBox(child: Text('Fiado')),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(
-                                        width: 8,
-                                      ),
-                                      Flexible(
-                                        child: ElevatedButton(
-                                          style: const ButtonStyle(
-                                            foregroundColor:
-                                                MaterialStatePropertyAll(
-                                                    Colors.white),
-                                            backgroundColor:
-                                                MaterialStatePropertyAll(
-                                              Colors.green,
-                                            ),
-                                          ),
-                                          onPressed: () async {
-                                            // Ação ao pressionar "Finalizar"
-                                            if (listCard.isNotEmpty) {
-                                              DateTime now = DateTime.now();
-                                              try {
-                                                if (subtotal > 0) {
-                                                  final ano = now.year;
-                                                  final mes = now.month;
-                                                  final dia = now.day;
-
-                                                  DocumentReference<
-                                                          Map<String, dynamic>>
-                                                      documentReference =
-                                                      FirebaseFirestore.instance
-                                                          .collection('users')
-                                                          .doc(
-                                                            authProvider
-                                                                .user!.email
-                                                                .toString(),
-                                                          )
-                                                          .collection("vendas")
-                                                          .doc("$ano")
-                                                          .collection("mes")
-                                                          .doc("$mes")
-                                                          .collection("dia")
-                                                          .doc("$dia");
-                                                  final DocumentSnapshot<
-                                                          Map<String, dynamic>>
-                                                      snapshot =
-                                                      await documentReference
-                                                          .get();
-                                                  if (snapshot.exists) {
-                                                    final valorSoma =
-                                                        snapshot.data();
-                                                    double valorSomaindex =
-                                                        double.parse(
-                                                            valorSoma!["valor"]
-                                                                .toString());
-                                                    double valorSomaFinal =
-                                                        valorSomaindex +
-                                                            subtotal;
-
-                                                    await documentReference
-                                                        .set({
-                                                      "valor": valorSomaFinal,
-                                                    });
-                                                  } else {
-                                                    await documentReference
-                                                        .set({
-                                                      "valor": subtotal,
-                                                    });
-                                                  }
-                                                  setState(() {
-                                                    listCard.clear();
-                                                    subtotal = 0.0;
-                                                    listaProdutos.clear();
-                                                  });
-                                                  await player.play(
-                                                    AssetSource(
-                                                      'Caixa_Registradora.mp3',
-                                                    ),
-                                                  );
-                                                  ScaffoldMessenger.of(context)
-                                                      .showSnackBar(
-                                                    const SnackBar(
-                                                      content: Text(
-                                                          'Compra finalizada'),
-                                                      duration: Duration(
-                                                          seconds:
-                                                              2), // Duração da snackbar
-                                                    ),
-                                                  );
-                                                }
-                                              } catch (e) {
-                                                MyWidgetPadrao.showErrorDialog(
-                                                    context);
-                                              }
-                                              if (!context.mounted) return;
-                                              Navigator.of(context)
-                                                  .pop(); // Fechar o diálogo
-                                            }
-                                          },
-                                          child: const Flex(
-                                            direction: Axis.horizontal,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Flexible(
-                                                flex: 1,
-                                                child: Icon(Icons
-                                                    .store_mall_directory_rounded),
-                                              ),
-                                              Flexible(
-                                                flex: 1,
-                                                child: SizedBox(
-                                                  width: 5,
-                                                ),
-                                              ),
-                                              Expanded(
-                                                flex: 3,
-                                                child: FittedBox(
-                                                  child: Text('Finalizar'),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
+                            await _logicBUTTONContinuar(
+                              context,
+                              authProvider.user!.email.toString(),
                             );
                           },
                           style: ButtonStyle(
@@ -851,7 +1010,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
         child: FloatingActionButton(
           onPressed: () async {
             try {
-              await scanBarcodeNormal(
+              await _scanBarcodeNormal(
                 authProvider.user!.email.toString(),
                 context,
               );
@@ -902,224 +1061,10 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                   FittedBox(
                     child: IconButton(
                       onPressed: () async {
-                        try {
-                          await _loadDocuments(
-                            authProvider.user!.email.toString(),
-                          );
-
-                          TextEditingController controllerSeach =
-                              TextEditingController();
-                          await showDialog(
-                            context: contextDialog!,
-                            builder: (BuildContext context) {
-                              return StatefulBuilder(
-                                builder: (BuildContext context,
-                                    StateSetter setState) {
-                                  return AlertDialog(
-                                    elevation: 10,
-                                    title: TextField(
-                                      controller: controllerSeach,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          _filterDocuments(value);
-                                        });
-                                      },
-                                      decoration: const InputDecoration(
-                                        hintText: 'Pesquisar...',
-                                        border: OutlineInputBorder(),
-                                      ),
-                                    ),
-                                    content: GridView.builder(
-                                      gridDelegate:
-                                          const SliverGridDelegateWithFixedCrossAxisCount(
-                                        crossAxisCount: 2, // Número de colunas
-                                        mainAxisSpacing:
-                                            8.0, // Espaçamento vertical entre os cards
-                                        crossAxisSpacing:
-                                            8.0, // Espaçamento horizontal entre os cards
-                                        childAspectRatio:
-                                            1.0, // Relação de aspecto para tornar os cards quadrados
-                                      ),
-                                      itemCount: filteredDocuments.length,
-                                      itemBuilder: (context, index) {
-                                        final document =
-                                            filteredDocuments[index];
-                                        //final documentID =
-                                        //filteredDocuments[index].id;
-                                        return Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Expanded(
-                                              flex: 3,
-                                              child: Card(
-                                                //surfaceTintColor: Colors.yellow,
-                                                elevation: 10,
-                                                child: Stack(
-                                                  children: [
-                                                    ClipRRect(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10),
-                                                      child: Image.network(
-                                                        document['image'],
-                                                        width: double.infinity,
-                                                        height: double.infinity,
-                                                        fit: BoxFit.cover,
-                                                        errorBuilder: (context,
-                                                            error, stackTrace) {
-                                                          return Image.network(
-                                                            'https://firebasestorage.googleapis.com/v0/b/genmerc-mobile.appspot.com/o/Administrativo%2Fdairy.png?alt=media&token=7c2c92df-11c2-402d-9f63-d6933f213a64&_gl=1*1ajv9ft*_ga*MTQ3OTA0NDM3Ny4xNjk2ODU0MzAx*_ga_CW55HF8NVT*MTY5NzU3MDExOC45NC4xLjE2OTc1NzI0MjEuMzEuMC4w',
-                                                            fit: BoxFit.contain,
-                                                            width:
-                                                                double.infinity,
-                                                            height:
-                                                                double.infinity,
-                                                            errorBuilder: (context,
-                                                                    error,
-                                                                    stackTrace) =>
-                                                                const Icon(
-                                                              Icons
-                                                                  .photo_library_outlined,
-                                                            ),
-                                                          );
-                                                        },
-                                                      ),
-                                                    ),
-                                                    Align(
-                                                      alignment:
-                                                          Alignment.bottomRight,
-                                                      child: InkWell(
-                                                        onTap: () {
-                                                          addForSeach(
-                                                            document['nome'],
-                                                            document[
-                                                                'valorUnit'],
-                                                            document['image'],
-                                                          );
-                                                        },
-                                                        child: Container(
-                                                          height: 50,
-                                                          width: 50,
-                                                          decoration:
-                                                              const BoxDecoration(
-                                                            color: Color(
-                                                                0xff33b17c),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .only(
-                                                              topLeft: Radius
-                                                                  .circular(
-                                                                100,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                          child: Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .only(
-                                                              top: 8,
-                                                              left: 5,
-                                                            ),
-                                                            child: Column(
-                                                              children: [
-                                                                const Expanded(
-                                                                  child: Icon(
-                                                                    Icons.add,
-                                                                    color: Colors
-                                                                        .white,
-                                                                  ),
-                                                                ),
-                                                                Expanded(
-                                                                  child:
-                                                                      FittedBox(
-                                                                    child:
-                                                                        Padding(
-                                                                      padding:
-                                                                          const EdgeInsets
-                                                                              .only(
-                                                                        left: 2,
-                                                                        right:
-                                                                            4,
-                                                                      ),
-                                                                      child:
-                                                                          Text(
-                                                                        'R\$ ${double.parse(
-                                                                          document['valorUnit']
-                                                                              .toString(),
-                                                                        ).toStringAsFixed(
-                                                                              2,
-                                                                            ).replaceAll('.', ',')}',
-                                                                        textAlign:
-                                                                            TextAlign.center,
-                                                                        style:
-                                                                            const TextStyle(
-                                                                          color:
-                                                                              Colors.white,
-                                                                          fontWeight:
-                                                                              FontWeight.bold,
-                                                                          fontFamily:
-                                                                              'Demi',
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(
-                                              height: 5,
-                                            ),
-                                            Expanded(
-                                              flex: 1,
-                                              child: SingleChildScrollView(
-                                                scrollDirection:
-                                                    Axis.horizontal,
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                    left: 8.0,
-                                                    right: 8.0,
-                                                  ),
-                                                  child: Text(
-                                                    document['nome']
-                                                        .toString()
-                                                        .toUpperCase(),
-                                                    style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontFamily: 'Demi',
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    ),
-                                    actions: [
-                                      ElevatedButton(
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                          child: const Text("OK"))
-                                    ],
-                                  );
-                                },
-                              );
-                            },
-                          );
-                        } catch (erro) {
-                          MyWidgetPadrao.showErrorDialog(context);
-                        }
+                        await _logicBUTTONSearchPrincipal(
+                          context,
+                          authProvider.user!.email.toString(),
+                        );
                       },
                       icon: const Icon(Icons.search),
                       color: Colors.white,

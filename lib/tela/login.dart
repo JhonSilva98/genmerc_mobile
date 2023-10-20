@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:genmerc_mobile/auth_services/login_provider.dart';
-import 'package:genmerc_mobile/firebase/banco_dados.dart';
-import 'package:genmerc_mobile/tela/cadastro.dart';
-import 'package:genmerc_mobile/tela/tela_principal.dart';
-import 'package:genmerc_mobile/widgetPadrao/padrao.dart';
+import 'package:genmerc_mobile/funcion/logic_button.dart';
 import 'package:provider/provider.dart';
 
 class Login extends StatefulWidget {
@@ -191,103 +188,12 @@ class _LoginState extends State<Login> {
                   flex: 2,
                   child: ElevatedButton(
                       onPressed: () async {
-                        final progressDialogFinal =
-                            await MyWidgetPadrao().progressDialog(context);
-                        await progressDialogFinal.show();
-                        try {
-                          await authProvider.signInWithEmailAndPassword(
-                            _controllerEmail.text.toString(),
-                            _controllerSenha.text.toString(),
-                          );
-                        } catch (error) {
-                          progressDialogFinal.hide();
-                          if (error.toString() ==
-                              '[firebase_auth/user-disabled] The user account has been disabled by an administrator.') {
-                            await authProvider.signOut();
-                            await showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: const Text('Conta Desativada'),
-                                  content: const Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Sua conta foi desativada. Por favor, entre em contato com o suporte para obter assistência.',
-                                      ),
-                                    ],
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        // Fechar o diálogo
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: const Text('OK'),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          } else {
-                            await showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title:
-                                      const Text('Erro nos dados ou conexão'),
-                                  content: const Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Sua senha ou email são inválidos ou está sem conexão com a internet. Por favor, tente novamente.',
-                                      ),
-                                    ],
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        // Fechar o diálogo
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: const Text('OK'),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          }
-                          rethrow;
-                        }
-                        try {
-                          if (authProvider.user != null) {
-                            BancoDadosFirebase bdfirebase =
-                                BancoDadosFirebase();
-                            if (await bdfirebase.isDocumentExist(
-                              authProvider.user!.email.toString(),
-                            )) {
-                              Navigator.pushAndRemoveUntil(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        const TelaPrincipal()),
-                                (Route<dynamic> route) => false,
-                              );
-                            } else {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const Cadastro()),
-                              );
-                            }
-                          }
-                        } catch (e) {
-                          MyWidgetPadrao.showErrorDialog(context);
-                        }
+                        await Logicbutton().logicButtonLogin(
+                          context,
+                          _controllerEmail.text,
+                          _controllerSenha.text,
+                          authProvider,
+                        );
                       },
                       child: const Text('ENTRAR')),
                 )

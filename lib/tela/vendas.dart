@@ -22,6 +22,10 @@ class _VendasState extends State<Vendas> {
   @override
   void initState() {
     super.initState();
+    logicInit(context);
+  }
+
+  Future<void> logicInit(contextFinal) async {
     final dat = DateTime.now();
     _mes = dat.month;
     _ano = dat.year;
@@ -56,7 +60,7 @@ class _VendasState extends State<Vendas> {
             dateNameMes = funcionWidget.obterNomeDoMes(_mes);
             whatch = true;
           });
-          FocusScope.of(context).unfocus();
+          FocusScope.of(contextFinal).unfocus();
         } else {
           // A coleção não existe ou está vazia.
           setState(() {
@@ -65,11 +69,65 @@ class _VendasState extends State<Vendas> {
               subtotal = 0.0;
             });
           });
-          MyWidgetPadrao.showErrorDialogBancoDados(context);
+          MyWidgetPadrao.showErrorDialogBancoDados(contextFinal);
         }
       });
     } catch (e) {
-      MyWidgetPadrao.showErrorDialog(context);
+      MyWidgetPadrao.showErrorDialog(contextFinal);
+    }
+  }
+
+  Future<void> logicBUTTONSearch(contextFinal) async {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      // Faça algo com os valores dos números inteiros.
+
+      try {
+        await initializeDateFormatting('pt_BR');
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(widget.email)
+            .collection('vendas')
+            .doc("$_ano")
+            .collection('mes')
+            .doc('$_mes')
+            .collection('dia')
+            .get()
+            .then((QuerySnapshot querySnapshot) {
+          if (querySnapshot.docs.isNotEmpty) {
+            // A coleção existe e possui pelo menos um documento.
+            double valorFinal = 0.0;
+
+            // Iterar pelos documentos e somar os valores ao subtotal
+            for (var document in querySnapshot.docs) {
+              // Suponha que os valores que você deseja somar estão em um campo chamado "valor"
+              double valor = double.parse(document['valor']
+                  .toString()); // Use o valor padrão 0.0 se o campo não existir
+
+              valorFinal += valor;
+            }
+
+            subtotal = 0.0;
+            setState(() {
+              subtotal += valorFinal;
+              dateNameMes = funcionWidget.obterNomeDoMes(_mes);
+              whatch = true;
+            });
+            FocusScope.of(contextFinal).unfocus();
+          } else {
+            // A coleção não existe ou está vazia.
+            setState(() {
+              setState(() {
+                whatch = false;
+                subtotal = 0.0;
+              });
+            });
+            MyWidgetPadrao.showErrorDialogBancoDados(contextFinal);
+          }
+        });
+      } catch (e) {
+        MyWidgetPadrao.showErrorDialog(contextFinal);
+      }
     }
   }
 
@@ -301,68 +359,7 @@ class _VendasState extends State<Vendas> {
                                           color: Colors.blue[300],
                                         ),
                                         onPressed: () async {
-                                          if (_formKey.currentState!
-                                              .validate()) {
-                                            _formKey.currentState!.save();
-                                            // Faça algo com os valores dos números inteiros.
-
-                                            try {
-                                              await initializeDateFormatting(
-                                                  'pt_BR');
-                                              await FirebaseFirestore.instance
-                                                  .collection('users')
-                                                  .doc(widget.email)
-                                                  .collection('vendas')
-                                                  .doc("$_ano")
-                                                  .collection('mes')
-                                                  .doc('$_mes')
-                                                  .collection('dia')
-                                                  .get()
-                                                  .then((QuerySnapshot
-                                                      querySnapshot) {
-                                                if (querySnapshot
-                                                    .docs.isNotEmpty) {
-                                                  // A coleção existe e possui pelo menos um documento.
-                                                  double valorFinal = 0.0;
-
-                                                  // Iterar pelos documentos e somar os valores ao subtotal
-                                                  for (var document
-                                                      in querySnapshot.docs) {
-                                                    // Suponha que os valores que você deseja somar estão em um campo chamado "valor"
-                                                    double valor = double.parse(
-                                                        document['valor']
-                                                            .toString()); // Use o valor padrão 0.0 se o campo não existir
-
-                                                    valorFinal += valor;
-                                                  }
-
-                                                  subtotal = 0.0;
-                                                  setState(() {
-                                                    subtotal += valorFinal;
-                                                    dateNameMes = funcionWidget
-                                                        .obterNomeDoMes(_mes);
-                                                    whatch = true;
-                                                  });
-                                                  FocusScope.of(context)
-                                                      .unfocus();
-                                                } else {
-                                                  // A coleção não existe ou está vazia.
-                                                  setState(() {
-                                                    setState(() {
-                                                      whatch = false;
-                                                      subtotal = 0.0;
-                                                    });
-                                                  });
-                                                  MyWidgetPadrao
-                                                      .showErrorDialogBancoDados(
-                                                          context);
-                                                }
-                                              });
-                                            } catch (e) {
-                                              MyWidgetPadrao.showErrorDialog(
-                                                  context);
-                                            }
-                                          }
+                                          await logicBUTTONSearch(context);
                                         },
                                       ),
                                     ),
