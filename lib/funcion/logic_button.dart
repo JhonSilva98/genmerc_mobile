@@ -11,7 +11,7 @@ import 'package:genmerc_mobile/funcion/button_scan.dart';
 import 'package:genmerc_mobile/tela/cadastro.dart';
 import 'package:genmerc_mobile/tela/tela_principal.dart';
 import 'package:genmerc_mobile/widgetPadrao/padrao.dart';
-//import 'package:provider/provider.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 class Logicbutton {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -119,6 +119,7 @@ class Logicbutton {
     AuthProvider authProvider = authProviderFinal;
     try {
       await authProvider.signOut();
+      DefaultCacheManager().emptyCache();
     } catch (e) {
       await MyWidgetPadrao.showErrorDialog(context);
       SchedulerBinding.instance.addPostFrameCallback((_) {
@@ -737,7 +738,6 @@ class Logicbutton {
                           ),
                           onPressed: () async {
                             // Ação ao pressionar "Finalizar"
-                            Navigator.of(context).pop();
                             try {
                               await scanBarcodeNormal(email, contextFinal);
                             } catch (e) {

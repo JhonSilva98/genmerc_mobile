@@ -1,9 +1,10 @@
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
 import 'package:genmerc_mobile/widgetPadrao/padrao.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image/image.dart' as img;
 
 class BancoDadosFirebase {
   FirebaseStorage storageReference = FirebaseStorage.instance;
@@ -146,9 +147,47 @@ class BancoDadosFirebase {
     }
   }
 
+  Future<XFile?> resizeAndReturnXFile(XFile pickedFile) async {
+    // Obtém os bytes da imagem original
+    List<int> imageBytes = await pickedFile.readAsBytes();
+
+    // Verifica o tamanho do arquivo da imagem original em bytes
+    int fileSizeInBytes = imageBytes.length;
+
+    // Verifica se o tamanho do arquivo é maior que 1 MB (1 MB = 1048576 bytes)
+    if (fileSizeInBytes > 1048576) {
+      // Converte os bytes em uma imagem
+      img.Image originalImage =
+          img.decodeImage(Uint8List.fromList(imageBytes))!;
+
+      // Calcula as novas dimensões mantendo 50% da resolução original
+      int novaLargura = (originalImage.width * 0.5).round();
+      int novaAltura = (originalImage.height * 0.5).round();
+
+      // Redimensiona a imagem
+      img.Image resizedImage =
+          img.copyResize(originalImage, width: novaLargura, height: novaAltura);
+
+      // Reduz a qualidade da imagem para diminuir o tamanho do arquivo
+      List<int> resizedImageBytes = img.encodeJpg(resizedImage,
+          quality: 50); // Ajuste o valor da qualidade conforme necessário
+
+      // Cria um novo arquivo temporário com os dados da imagem redimensionada e comprimida
+      File resizedFile = File(pickedFile.path);
+      await resizedFile.writeAsBytes(resizedImageBytes);
+
+      // Retorna a imagem redimensionada e comprimida como XFile
+      return XFile(resizedFile.path);
+    } else {
+      // Se o arquivo for menor ou igual a 1 MB, retorna a imagem original sem redimensionar
+      return pickedFile;
+    }
+  }
+
   //enviar a foto firebase e pegar o link
   Future<void> uploadImageToStorageAndFirestore(String email) async {
     if (pathImage != null) {
+      pathImage = await resizeAndReturnXFile(pathImage!);
       File file = File(pathImage!.path);
 
       final foto = await storageReference

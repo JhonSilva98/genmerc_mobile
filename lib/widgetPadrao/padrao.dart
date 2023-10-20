@@ -790,7 +790,12 @@ class MyWidgetPadrao {
         message: 'Carregando...',
         borderRadius: 10.0,
         backgroundColor: Colors.white,
-        progressWidget: const CircularProgressIndicator(),
+        progressWidget: const FittedBox(
+          child: Padding(
+            padding: EdgeInsets.all(8.0),
+            child: CircularProgressIndicator(),
+          ),
+        ),
         elevation: 10.0,
         insetAnimCurve: Curves.easeInOut,
         progress: 0.0,

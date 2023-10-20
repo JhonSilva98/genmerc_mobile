@@ -429,7 +429,12 @@ class _VendasState extends State<Vendas> {
                               .snapshots(),
                           builder: (context, snapshot) {
                             if (!snapshot.hasData) {
-                              return const CircularProgressIndicator(); // Exibe um indicador de carregamento enquanto os dados são buscados.
+                              return const FittedBox(
+                                child: Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: CircularProgressIndicator(),
+                                ),
+                              ); // Exibe um indicador de carregamento enquanto os dados são buscados.
                             }
 
                             final docs = snapshot.data!.docs;

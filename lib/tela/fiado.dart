@@ -105,7 +105,12 @@ class _FiadoState extends State<Fiado> {
             .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return const CircularProgressIndicator(); // Exibe um indicador de carregamento enquanto os dados são buscados.
+            return const FittedBox(
+              child: Padding(
+                padding: EdgeInsets.all(8.0),
+                child: CircularProgressIndicator(),
+              ),
+            ); // Exibe um indicador de carregamento enquanto os dados são buscados.
           }
 
           final docs = snapshot.data!.docs;
@@ -136,7 +141,12 @@ class _FiadoState extends State<Fiado> {
                     ),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const CircularProgressIndicator();
+                        return const FittedBox(
+                          child: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: CircularProgressIndicator(),
+                          ),
+                        );
                       } else if (snapshot.hasError) {
                         return Text('Erro: ${snapshot.error}');
                       } else {

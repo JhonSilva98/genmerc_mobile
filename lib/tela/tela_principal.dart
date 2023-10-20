@@ -15,6 +15,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:vibration/vibration.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class TelaPrincipal extends StatefulWidget {
   const TelaPrincipal({super.key});
@@ -196,19 +197,32 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                         topLeft: Radius.circular(10),
                         bottomLeft: Radius.circular(10),
                       ),
-                      child: Image.network(
-                        image,
+                      child: CachedNetworkImage(
+                        imageUrl: image,
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Image.network(
-                            'https://firebasestorage.googleapis.com/v0/b/genmerc-mobile.appspot.com/o/Administrativo%2Fdairy.png?alt=media&token=7c2c92df-11c2-402d-9f63-d6933f213a64&_gl=1*1ajv9ft*_ga*MTQ3OTA0NDM3Ny4xNjk2ODU0MzAx*_ga_CW55HF8NVT*MTY5NzU3MDExOC45NC4xLjE2OTc1NzI0MjEuMzEuMC4w',
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                                const Icon(
-                              Icons.photo_library_outlined,
+                        placeholder: (context, url) => const FittedBox(
+                          child: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: CircularProgressIndicator(),
+                          ),
+                        ),
+                        errorWidget: (context, url, error) =>
+                            CachedNetworkImage(
+                          imageUrl:
+                              'https://firebasestorage.googleapis.com/v0/b/genmerc-mobile.appspot.com/o/Administrativo%2Fdairy.png?alt=media&token=7c2c92df-11c2-402d-9f63-d6933f213a64&_gl=1*1ajv9ft*_ga*MTQ3OTA0NDM3Ny4xNjk2ODU0MzAx*_ga_CW55HF8NVT*MTY5NzU3MDExOC45NC4xLjE2OTc1NzI0MjEuMzEuMC4w',
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => const FittedBox(
+                            child: Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: CircularProgressIndicator(),
                             ),
-                          );
-                        },
+                          ),
+                          errorWidget: (context, url, error) => const Icon(
+                            Icons.photo_library_outlined,
+                            size:
+                                48, // Defina o tamanho do ícone conforme necessário
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -300,8 +314,8 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
     final keyGlobal = GlobalKey();
     listaProdutos.add({
       'nome': nome,
-      'valor': valorUnit,
-      'valorUnit': valorUnit,
+      'valor': double.parse(valorUnit.toString()),
+      'valorUnit': double.parse(valorUnit.toString()),
       'key': keyGlobal
     });
     setState(() {
@@ -310,7 +324,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
           keyGlobal,
           listCard.length,
           nome,
-          valorUnit,
+          double.parse(valorUnit.toString()),
           image,
           1,
         ),
@@ -597,18 +611,38 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                               children: [
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(10),
-                                  child: Image.network(
-                                    document['image'],
+                                  child: CachedNetworkImage(
+                                    imageUrl: document['image'],
                                     width: double.infinity,
                                     height: double.infinity,
                                     fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Image.network(
-                                        'https://firebasestorage.googleapis.com/v0/b/genmerc-mobile.appspot.com/o/Administrativo%2Fdairy.png?alt=media&token=7c2c92df-11c2-402d-9f63-d6933f213a64&_gl=1*1ajv9ft*_ga*MTQ3OTA0NDM3Ny4xNjk2ODU0MzAx*_ga_CW55HF8NVT*MTY5NzU3MDExOC45NC4xLjE2OTc1NzI0MjEuMzEuMC4w',
+                                    placeholder: (context, url) =>
+                                        const FittedBox(
+                                      child: Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: FittedBox(
+                                          child: Padding(
+                                            padding: EdgeInsets.all(8.0),
+                                            child: CircularProgressIndicator(),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    errorWidget: (context, error, stackTrace) {
+                                      return CachedNetworkImage(
+                                        imageUrl:
+                                            'https://firebasestorage.googleapis.com/v0/b/genmerc-mobile.appspot.com/o/Administrativo%2Fdairy.png?alt=media&token=7c2c92df-11c2-402d-9f63-d6933f213a64&_gl=1*1ajv9ft*_ga*MTQ3OTA0NDM3Ny4xNjk2ODU0MzAx*_ga_CW55HF8NVT*MTY5NzU3MDExOC45NC4xLjE2OTc1NzI0MjEuMzEuMC4w',
                                         fit: BoxFit.contain,
+                                        placeholder: (context, url) =>
+                                            const FittedBox(
+                                          child: Padding(
+                                            padding: EdgeInsets.all(8.0),
+                                            child: CircularProgressIndicator(),
+                                          ),
+                                        ),
                                         width: double.infinity,
                                         height: double.infinity,
-                                        errorBuilder:
+                                        errorWidget:
                                             (context, error, stackTrace) =>
                                                 const Icon(
                                           Icons.photo_library_outlined,
@@ -778,7 +812,12 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
             builder: (context, snapshot) {
               Map<String, dynamic>? dados = snapshot.data;
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return const CircularProgressIndicator(); // Mostrar um indicador de carregamento enquanto os dados estão sendo buscados.
+                return const FittedBox(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: CircularProgressIndicator(),
+                  ),
+                ); // Mostrar um indicador de carregamento enquanto os dados estão sendo buscados.
               } else if (snapshot.hasError) {
                 return const Text(
                   "Erro",
@@ -857,7 +896,12 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
           builder: (context, snapshot) {
             Map<String, dynamic>? dados = snapshot.data;
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const CircularProgressIndicator(); // Mostrar um indicador de carregamento enquanto os dados estão sendo buscados.
+              return const FittedBox(
+                child: Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: CircularProgressIndicator(),
+                ),
+              ); // Mostrar um indicador de carregamento enquanto os dados estão sendo buscados.
             } else if (snapshot.hasError) {
               return const Text("Erro");
             } else {
@@ -894,7 +938,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
           direction: Axis.vertical,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            if (subtotal > 0)
+            if (listCard.isNotEmpty)
               Align(
                 alignment: Alignment.topCenter,
                 child: TextButton(
