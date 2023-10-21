@@ -11,44 +11,49 @@ class ImageUploaderService {
       'AIzaSyCOBgJqSi69QIjkxSQyV9lbK5Zir_c5z-0';*/ // Substitua pela sua chave de API do Google
 
   Future<String> searchAndUploadImage(String query, String email) async {
-    String linkFinala = '';
-    String imageUrlFinal = '';
-    String textoSemEspacos = query.replaceAll(' ', '');
-    final url =
-        'https://www.googleapis.com/customsearch/v1?q=$textoSemEspacos&key=AIzaSyCOBgJqSi69QIjkxSQyV9lbK5Zir_c5z-0&cx=23c6de77b49344894';
+    try {
+      String linkFinala = '';
+      String imageUrlFinal = '';
+      String textoSemEspacos = query.replaceAll(' ', '');
+      final url =
+          'https://www.googleapis.com/customsearch/v1?q=$textoSemEspacos&key=AIzaSyCOBgJqSi69QIjkxSQyV9lbK5Zir_c5z-0&cx=23c6de77b49344894';
 
-    final response = await http.get(Uri.parse(url));
+      final response = await http.get(Uri.parse(url));
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      if (data.containsKey('items')) {
-        final items = data['items'] as List<dynamic>;
-        if (items.isNotEmpty) {
-          final firstResult = items[0];
-          try {
-            final pagemap = firstResult['pagemap'] as Map<String, dynamic>;
-            if (pagemap.containsKey('product') && pagemap.isNotEmpty) {
-              final product = pagemap['product'] as List<dynamic>;
-              final productoinicial = product[0] as Map<String, dynamic>;
-              if (productoinicial.containsKey('image')) {
-                final imageFinal = productoinicial['image'] ?? '';
-                linkFinala = imageFinal;
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data.containsKey('items')) {
+          final items = data['items'] as List<dynamic>;
+          if (items.isNotEmpty) {
+            final firstResult = items[0];
+            try {
+              final pagemap = firstResult['pagemap'] as Map<String, dynamic>;
+              if (pagemap.containsKey('product') && pagemap.isNotEmpty) {
+                final product = pagemap['product'] as List<dynamic>;
+                final productoinicial = product[0] as Map<String, dynamic>;
+                if (productoinicial.containsKey('image')) {
+                  final imageFinal = productoinicial['image'] ?? '';
+                  linkFinala = imageFinal;
+                } else {
+                  return '';
+                }
+              } else if (pagemap.containsKey('metatags') &&
+                  pagemap.isNotEmpty) {
+                final metatags = pagemap['metatags'] as List<dynamic>;
+                final metatagsinicial = metatags[0] as Map<String, dynamic>;
+                if (metatagsinicial.containsKey('og:image')) {
+                  final imageFinal = metatagsinicial['og:image'] ?? '';
+                  linkFinala = imageFinal;
+                } else {
+                  return '';
+                }
               } else {
                 return '';
               }
-            } else if (pagemap.containsKey('metatags') && pagemap.isNotEmpty) {
-              final metatags = pagemap['metatags'] as List<dynamic>;
-              final metatagsinicial = metatags[0] as Map<String, dynamic>;
-              if (metatagsinicial.containsKey('og:image')) {
-                final imageFinal = metatagsinicial['og:image'] ?? '';
-                linkFinala = imageFinal;
-              } else {
-                return '';
-              }
-            } else {
+            } catch (e) {
               return '';
             }
-          } catch (e) {
+          } else {
             return '';
           }
         } else {
@@ -57,32 +62,32 @@ class ImageUploaderService {
       } else {
         return '';
       }
-    } else {
-      return '';
-    }
-    final responseFinal = await http.get(Uri.parse(linkFinala));
+      final responseFinal = await http.get(Uri.parse(linkFinala));
 
-    if (responseFinal.statusCode == 200) {
-      final imageBytes = responseFinal.bodyBytes;
+      if (responseFinal.statusCode == 200) {
+        final imageBytes = responseFinal.bodyBytes;
 
-      // Inicialize o Firebase (certifique-se de que o Firebase já esteja configurado no seu projeto)
-      await Firebase.initializeApp();
+        // Inicialize o Firebase (certifique-se de que o Firebase já esteja configurado no seu projeto)
+        await Firebase.initializeApp();
 
-      // Obtenha uma referência para o Firebase Storage
-      final storage = FirebaseStorage.instance;
-      //final storageRef = storage.ref().child('$query.jpg');
-      //final foto = await storage.ref().putData(imageBytes);
-      final storageRef = storage
-          .ref()
-          .child('$email/${DateTime.now().millisecondsSinceEpoch}.jpg');
+        // Obtenha uma referência para o Firebase Storage
+        final storage = FirebaseStorage.instance;
+        //final storageRef = storage.ref().child('$query.jpg');
+        //final foto = await storage.ref().putData(imageBytes);
+        final storageRef = storage
+            .ref()
+            .child('$email/${DateTime.now().millisecondsSinceEpoch}.jpg');
 
-      // Faça o upload da imagem para o Firebase Storage
-      await storageRef.putData(imageBytes);
+        // Faça o upload da imagem para o Firebase Storage
+        await storageRef.putData(imageBytes);
 
-      imageUrlFinal = await storageRef.getDownloadURL();
+        imageUrlFinal = await storageRef.getDownloadURL();
 
-      return imageUrlFinal;
-    } else {
+        return imageUrlFinal;
+      } else {
+        return '';
+      }
+    } catch (e) {
       return '';
     }
   }
