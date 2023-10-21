@@ -386,26 +386,26 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
     contextFinal,
     String email,
   ) async {
-    await showDialog(
-      context: contextFinal,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Selecione uma opção:'),
-          content: Flex(
-            direction: Axis.horizontal,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Flexible(
-                child: ElevatedButton(
-                  style: const ButtonStyle(
-                    foregroundColor: MaterialStatePropertyAll(Colors.white),
-                    backgroundColor:
-                        MaterialStatePropertyAll(Colors.orangeAccent),
-                  ),
-                  onPressed: () async {
-                    // Ação ao pressionar "Fiado"
-                    try {
-                      if (listCard.isNotEmpty) {
+    if (listCard.isNotEmpty && subtotal > 0) {
+      await showDialog(
+        context: contextFinal,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Selecione uma opção:'),
+            content: Flex(
+              direction: Axis.horizontal,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Flexible(
+                  child: ElevatedButton(
+                    style: const ButtonStyle(
+                      foregroundColor: MaterialStatePropertyAll(Colors.white),
+                      backgroundColor:
+                          MaterialStatePropertyAll(Colors.orangeAccent),
+                    ),
+                    onPressed: () async {
+                      // Ação ao pressionar "Fiado"
+                      try {
                         for (var element in listaProdutos) {
                           Map removeMap = element;
                           removeMap.remove('key');
@@ -430,38 +430,36 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                         }
                         if (!context.mounted) return;
                         Navigator.of(context).pop();
+                      } catch (e) {
+                        MyWidgetPadrao.showErrorDialog(context);
                       }
-                    } catch (e) {
-                      MyWidgetPadrao.showErrorDialog(context);
-                    }
 
-                    // Fechar o diálogo
-                  },
-                  child: const Row(
-                    children: [
-                      Icon(Icons.account_balance_wallet_outlined),
-                      SizedBox(
-                        width: 2,
-                      ),
-                      FittedBox(child: Text('Fiado')),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(
-                width: 8,
-              ),
-              Flexible(
-                child: ElevatedButton(
-                  style: const ButtonStyle(
-                    foregroundColor: MaterialStatePropertyAll(Colors.white),
-                    backgroundColor: MaterialStatePropertyAll(
-                      Colors.green,
+                      // Fechar o diálogo
+                    },
+                    child: const Row(
+                      children: [
+                        Icon(Icons.account_balance_wallet_outlined),
+                        SizedBox(
+                          width: 2,
+                        ),
+                        FittedBox(child: Text('Fiado')),
+                      ],
                     ),
                   ),
-                  onPressed: () async {
-                    // Ação ao pressionar "Finalizar"
-                    if (listCard.isNotEmpty) {
+                ),
+                const SizedBox(
+                  width: 8,
+                ),
+                Flexible(
+                  child: ElevatedButton(
+                    style: const ButtonStyle(
+                      foregroundColor: MaterialStatePropertyAll(Colors.white),
+                      backgroundColor: MaterialStatePropertyAll(
+                        Colors.green,
+                      ),
+                    ),
+                    onPressed: () async {
+                      // Ação ao pressionar "Finalizar"
                       DateTime now = DateTime.now();
                       try {
                         if (subtotal > 0) {
@@ -520,37 +518,37 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                       }
                       if (!context.mounted) return;
                       Navigator.of(context).pop(); // Fechar o diálogo
-                    }
-                  },
-                  child: const Flex(
-                    direction: Axis.horizontal,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Flexible(
-                        flex: 1,
-                        child: Icon(Icons.store_mall_directory_rounded),
-                      ),
-                      Flexible(
-                        flex: 1,
-                        child: SizedBox(
-                          width: 5,
+                    },
+                    child: const Flex(
+                      direction: Axis.horizontal,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Flexible(
+                          flex: 1,
+                          child: Icon(Icons.store_mall_directory_rounded),
                         ),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: FittedBox(
-                          child: Text('Finalizar'),
+                        Flexible(
+                          flex: 1,
+                          child: SizedBox(
+                            width: 5,
+                          ),
                         ),
-                      ),
-                    ],
+                        Expanded(
+                          flex: 3,
+                          child: FittedBox(
+                            child: Text('Finalizar'),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
+              ],
+            ),
+          );
+        },
+      );
+    }
   }
 
   Future<void> _logicBUTTONSearchPrincipal(
