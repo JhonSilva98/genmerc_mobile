@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ticket/flutter_ticket.dart';
 import 'package:genmerc_mobile/firebase/banco_dados.dart';
@@ -6,6 +7,7 @@ import 'package:progress_dialog_null_safe/progress_dialog_null_safe.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class MyWidgetPadrao {
+  final player = AudioPlayer();
   static TextStyle myBeautifulTextStyle = const TextStyle(
     color: Colors.white, // Cor do texto
     fontSize: 50.0, // Tamanho da fonte
@@ -216,6 +218,7 @@ class MyWidgetPadrao {
                         onPressed: () async {
                           if (!context.mounted) return;
                           Navigator.of(context).pop();
+
                           final DateFormat dateFormat =
                               DateFormat('dd/MM/yyyy');
                           TextEditingController dataController =
@@ -279,20 +282,22 @@ class MyWidgetPadrao {
                                         child: const Text("Cancelar")),
                                     ElevatedButton(
                                         onPressed: () async {
-                                          String dataFinal =
-                                              converterDataBrasileira(
-                                                  dataController.text);
-                                          try {
-                                            await BancoDadosFirebase()
-                                                .updateReagendar(
-                                                    email,
-                                                    docFiado,
-                                                    dataFinal,
-                                                    context);
-                                            if (!context.mounted) return;
-                                            Navigator.of(context).pop();
-                                          } catch (e) {
-                                            await showErrorDialog(context);
+                                          if (dataController.text.isNotEmpty) {
+                                            String dataFinal =
+                                                converterDataBrasileira(
+                                                    dataController.text);
+                                            try {
+                                              await BancoDadosFirebase()
+                                                  .updateReagendar(
+                                                      email,
+                                                      docFiado,
+                                                      dataFinal,
+                                                      context);
+                                              if (!context.mounted) return;
+                                              Navigator.of(context).pop();
+                                            } catch (e) {
+                                              await showErrorDialog(context);
+                                            }
                                           }
                                         },
                                         child: const Text("Reagendar")),
@@ -326,6 +331,11 @@ class MyWidgetPadrao {
                             docFiado,
                             valor,
                             context,
+                          );
+                          await player.play(
+                            AssetSource(
+                              'Caixa_Registradora.mp3',
+                            ),
                           );
                           if (!context.mounted) return;
                           Navigator.of(context).pop(); // Fecha o AlertDialog

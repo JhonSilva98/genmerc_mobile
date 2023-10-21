@@ -1,4 +1,5 @@
 import 'package:audioplayers/audioplayers.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -211,6 +212,7 @@ class Logicbutton {
                           final progressDialogFinal = await MyWidgetPadrao()
                               .progressDialog(contextFinal);
                           await progressDialogFinal.show();
+
                           await imagePicker.deleteImageBD(
                             image,
                           );
@@ -225,6 +227,7 @@ class Logicbutton {
                           );
                           //_loadDocuments();
                           progressDialogFinal.hide();
+                          CachedNetworkImageProvider(image).evict();
                         }
                         imagePicker.imageUrl = '';
                       } catch (e) {
