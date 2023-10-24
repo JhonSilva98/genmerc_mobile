@@ -125,16 +125,18 @@ class MyWidgetPadrao {
   }
 
   Future<Widget> cardPersonalite(
-      String nome,
-      String data,
-      double valor,
-      numero,
-      context,
-      String email,
-      String docFiado,
-      var listaProdutos,
-      String endereco,
-      String dataCompra) async {
+    String nome,
+    String data,
+    double valor,
+    numero,
+    context,
+    String email,
+    String docFiado,
+    var listaProdutos,
+    String endereco,
+    String dataCompra,
+    String complemento,
+  ) async {
     return InkWell(
       onLongPress: () async {
         await showDialog(
@@ -574,12 +576,24 @@ class MyWidgetPadrao {
                                     title: const Text("Endereço"),
                                     content: TextField(
                                       maxLines: null,
-                                      controller:
-                                          TextEditingController(text: endereco),
+                                      controller: TextEditingController(
+                                        text: '$endereco\nCompl.: $complemento',
+                                      ),
                                       readOnly: true,
+                                      decoration: const InputDecoration(
+                                        border: InputBorder
+                                            .none, // Remove a borda inferior
+                                        hintText: '', // Remove o texto de dica
+                                        contentPadding: EdgeInsets.all(
+                                            0), // Define o preenchimento como zero
+                                      ),
                                       style: const TextStyle(
+                                        // Personalize o estilo do texto, se necessário
+                                        fontSize: 16.0,
+                                        color: Colors.black, // Cor do texto
                                         fontWeight: FontWeight.bold,
                                         fontFamily: 'Demi',
+                                        // Outros estilos
                                       ),
                                     ),
                                     actions: [
@@ -893,12 +907,14 @@ class MyWidgetPadrao {
     await showDialog(
       context: context,
       builder: (BuildContext context) {
+        //initializeDateFormatting('pt_BR', null);
         final DateFormat dateFormat = DateFormat('dd/MM/yyyy');
         TextEditingController nomeController = TextEditingController();
         TextEditingController telefoneController = TextEditingController();
         TextEditingController dataController = TextEditingController();
         TextEditingController controllerPlace = TextEditingController();
         TextEditingController dataCompraController = TextEditingController();
+        TextEditingController complementController = TextEditingController();
 
         final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
@@ -981,8 +997,37 @@ class MyWidgetPadrao {
                   itmClick: (Prediction prediction) =>
                       controllerPlace.text = prediction.description!,
                 ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Expanded(
+                      flex: 1,
+                      child: SizedBox(),
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: TextFormField(
+                        controller: complementController,
+                        keyboardType: TextInputType.name,
+                        //focusNode: focusNode,
+                        decoration: const InputDecoration(
+                          labelText: 'Complemento',
+                          icon: Icon(
+                            Icons.edit_location_alt_rounded,
+                          ),
+                        ),
+                        /*validator: (value) {
+                          if (value!.isEmpty) {
+                            return 'Por favor, insira o nome.';
+                          }
+                          return null;
+                        },*/
+                      ),
+                    ),
+                  ],
+                ),
                 const SizedBox(
-                  height: 10,
+                  height: 20,
                 ),
                 TextFormField(
                   readOnly: true,
@@ -991,10 +1036,12 @@ class MyWidgetPadrao {
                     final DateTime lastDate =
                         currentDate.add(const Duration(days: 5 * 365));
                     final date = await showDatePicker(
-                        context: context,
-                        initialDate: DateTime.now(),
-                        firstDate: DateTime.now(),
-                        lastDate: lastDate);
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime.now(),
+                      lastDate: lastDate,
+                      //locale: const Locale('pt', 'BR'),
+                    );
                     final getDateController =
                         '${date!.day.toString().length < 2 ? '0${date.day.toString()}' : date.day.toString()}/${date.month.toString().length < 2 ? '0${date.month.toString()}' : date.month.toString()}/${date.year}';
 
@@ -1032,10 +1079,12 @@ class MyWidgetPadrao {
                     final DateTime lastDate =
                         currentDate.add(const Duration(days: 5 * 365));
                     final date = await showDatePicker(
-                        context: context,
-                        initialDate: DateTime.now(),
-                        firstDate: DateTime.now(),
-                        lastDate: lastDate);
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime.now(),
+                      lastDate: lastDate,
+                      //locale: const Locale('pt', 'BR'),
+                    );
                     final getDateController =
                         '${date!.day.toString().length < 2 ? '0${date.day.toString()}' : date.day.toString()}/${date.month.toString().length < 2 ? '0${date.month.toString()}' : date.month.toString()}/${date.year}';
 
@@ -1074,7 +1123,7 @@ class MyWidgetPadrao {
                 Navigator.of(context).pop(); // Fecha o AlertDialog
               },
             ),
-            TextButton(
+            ElevatedButton(
               child: const Text('Cadastrar'),
               onPressed: () async {
                 if (formKey.currentState!.validate()) {
@@ -1085,6 +1134,7 @@ class MyWidgetPadrao {
                   String data = converterDataBrasileira(dataController.text);
                   String dataCompra =
                       converterDataBrasileira(dataCompraController.text);
+                  String complemento = complementController.text;
 
                   // Faça algo com os dados, por exemplo, adicione-os ao Firestore
                   // Lembre-se de adicionar a lógica de validação e armazenamento dos dados aqui
@@ -1098,6 +1148,7 @@ class MyWidgetPadrao {
                     produto,
                     endereco,
                     dataCompra,
+                    complemento,
                   );
                   verificacao = true;
                   if (!context.mounted) return;

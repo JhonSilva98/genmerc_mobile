@@ -26,6 +26,7 @@ class _FiadoState extends State<Fiado> {
     var listProdutos,
     String endereco,
     String dataCompra,
+    String complemento,
   ) async {
     await initializeDateFormatting('pt_BR');
     return await cardPersonalite.cardPersonalite(
@@ -39,6 +40,7 @@ class _FiadoState extends State<Fiado> {
       listProdutos,
       endereco,
       dataCompra,
+      complemento,
     );
   }
 
@@ -134,16 +136,18 @@ class _FiadoState extends State<Fiado> {
 
                 return FutureBuilder(
                     future: cardWidget(
-                        catchDados["nome"].toString(),
-                        catchDados["data"].toString(),
-                        valor,
-                        catchDados["telefone"].toString(),
-                        context,
-                        widget.email,
-                        nomeDoDocumento,
-                        catchDados['produtos'],
-                        catchDados['endereco'],
-                        catchDados['dataCompra']),
+                      catchDados["nome"].toString(),
+                      catchDados["data"].toString(),
+                      valor,
+                      catchDados["telefone"].toString(),
+                      context,
+                      widget.email,
+                      nomeDoDocumento,
+                      catchDados['produtos'],
+                      catchDados['endereco'],
+                      catchDados['dataCompra'],
+                      catchDados['complemento'],
+                    ),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const FittedBox(

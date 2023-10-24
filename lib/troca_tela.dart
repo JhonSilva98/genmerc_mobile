@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:genmerc_mobile/tela/tela_principal.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 class MyAppTroca extends StatelessWidget {
   const MyAppTroca({super.key});
@@ -13,6 +14,13 @@ class MyAppTroca extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('pt', 'BR'), // Define o idioma para português do Brasil
+      ],
       home: const TelaPrincipal(),
     );
   }
