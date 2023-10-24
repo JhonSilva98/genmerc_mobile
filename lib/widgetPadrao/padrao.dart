@@ -2,6 +2,8 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ticket/flutter_ticket.dart';
 import 'package:genmerc_mobile/firebase/banco_dados.dart';
+import 'package:google_places_autocomplete_text_field/google_places_autocomplete_text_field.dart';
+import 'package:google_places_autocomplete_text_field/model/prediction.dart';
 import 'package:intl/intl.dart';
 import 'package:progress_dialog_null_safe/progress_dialog_null_safe.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -123,15 +125,16 @@ class MyWidgetPadrao {
   }
 
   Future<Widget> cardPersonalite(
-    String nome,
-    String data,
-    double valor,
-    numero,
-    context,
-    String email,
-    String docFiado,
-    var listaProdutos,
-  ) async {
+      String nome,
+      String data,
+      double valor,
+      numero,
+      context,
+      String email,
+      String docFiado,
+      var listaProdutos,
+      String endereco,
+      String dataCompra) async {
     return InkWell(
       onLongPress: () async {
         await showDialog(
@@ -487,7 +490,10 @@ class MyWidgetPadrao {
                               context: context,
                               builder: (BuildContext context) {
                                 return AlertDialog(
-                                  title: const Text("Lista de compras"),
+                                  title: Text(
+                                    "Lista de compras feita na data ${converterData(dataCompra)}",
+                                    style: const TextStyle(fontSize: 20),
+                                  ),
                                   content: SizedBox(
                                     width:
                                         MediaQuery.of(context).size.width / 2,
@@ -508,7 +514,7 @@ class MyWidgetPadrao {
                                                 listaProdutos[index]['nome'],
                                               ),
                                               subtitle: Text(
-                                                "Quantidade: ${(double.parse(listaProdutos[index]['valor'].toString()) / double.parse(listaProdutos[index]['valorUnit'].toString())).toStringAsFixed(2).replaceAll('.', ',')} ",
+                                                "Quantidade: ${(double.parse(listaProdutos[index]['valor'].toString()) / double.parse(listaProdutos[index]['valorUnit'].toString())).toStringAsFixed(2).replaceAll('.', ',') == 'NaN' ? 0 : (double.parse(listaProdutos[index]['valor'].toString()) / double.parse(listaProdutos[index]['valorUnit'].toString())).toStringAsFixed(2).replaceAll('.', ',')} ",
                                               ),
                                               trailing: Text(
                                                 'R\$ ${listaProdutos[index]['valor'].toStringAsFixed(2).replaceAll('.', ',')}',
@@ -561,11 +567,65 @@ class MyWidgetPadrao {
                         fit: BoxFit.cover,
                         child: IconButton(
                           onPressed: () async {
+                            await showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: const Text("Endereço"),
+                                    content: TextField(
+                                      maxLines: null,
+                                      controller:
+                                          TextEditingController(text: endereco),
+                                      readOnly: true,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'Demi',
+                                      ),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(),
+                                          child: const Text("Cancelar")),
+                                      ElevatedButton(
+                                          onPressed: () async {
+                                            await openGoogleMaps(
+                                              endereco,
+                                            );
+                                            if (!context.mounted) return;
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: const Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                Icons.place_outlined,
+                                              ),
+                                              Text("Navegar")
+                                            ],
+                                          ))
+                                    ],
+                                  );
+                                });
+                          },
+                          icon: const Icon(
+                            Icons.place,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Flexible(
+                      child: FittedBox(
+                        fit: BoxFit.cover,
+                        child: IconButton(
+                          onPressed: () async {
                             await abrirWhatsApp(
                               numero,
                               nome,
                               valor,
                               listaProdutos,
+                              dataCompra,
                             );
                           },
                           icon: const Icon(
@@ -732,15 +792,15 @@ class MyWidgetPadrao {
     }
   }
 
-  Future<void> abrirWhatsApp(
-      String numero, String nome, double valor, produtos) async {
+  Future<void> abrirWhatsApp(String numero, String nome, double valor, produtos,
+      String dataCompra) async {
     String listProdutos = '';
     for (var contact in produtos) {
       listProdutos +=
           '- ${contact['nome']}, ${(double.parse(contact['valor'].toString()) / double.parse(contact['valorUnit'].toString())).toStringAsFixed(1)}x, R\$ ${double.parse(contact['valor'].toString()).toStringAsFixed(2).replaceAll('.', ',')}\n';
     }
     final mensagem =
-        'Olá $nome, tudo bom? Apenas relembrando sobre a compra aqui no mercadinho no valor de R\$ ${valor.toStringAsFixed(2).replaceAll(".", ",")}.\n\n - *Lista de compras* -\n$listProdutos\n Aguardo o pagamento conforme combinado. Obrigado.';
+        'Olá $nome, tudo bom? Apenas relembrando sobre a compra aqui no mercadinho no data de ${converterData(dataCompra)} no valor de R\$ ${valor.toStringAsFixed(2).replaceAll(".", ",")}.\n\n - *Lista de compras* -\n$listProdutos\n Aguardo o pagamento conforme combinado. Obrigado.';
 
     final urlWhatsApp =
         'https://api.whatsapp.com/send?phone=$numero&text=$mensagem';
@@ -749,6 +809,16 @@ class MyWidgetPadrao {
       await launchUrlString(urlWhatsApp);
     } else {
       throw 'Não foi possível abrir o WhatsApp.';
+    }
+  }
+
+  Future<void> openGoogleMaps(String address) async {
+    final String googleMapsUrl =
+        'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(address)}';
+    if (await canLaunchUrlString(googleMapsUrl)) {
+      await launchUrlString(googleMapsUrl);
+    } else {
+      throw 'Could not launch $googleMapsUrl';
     }
   }
 
@@ -827,6 +897,8 @@ class MyWidgetPadrao {
         TextEditingController nomeController = TextEditingController();
         TextEditingController telefoneController = TextEditingController();
         TextEditingController dataController = TextEditingController();
+        TextEditingController controllerPlace = TextEditingController();
+        TextEditingController dataCompraController = TextEditingController();
 
         final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
@@ -835,13 +907,15 @@ class MyWidgetPadrao {
           content: Form(
             key: formKey,
             child: ListView(
-              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              //keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               padding: const EdgeInsets.all(16),
               children: [
                 TextFormField(
                   controller: nomeController,
                   keyboardType: TextInputType.name,
-                  decoration: const InputDecoration(labelText: 'Nome'),
+                  //focusNode: focusNode,
+                  decoration: const InputDecoration(
+                      labelText: 'Nome', icon: Icon(Icons.abc)),
                   validator: (value) {
                     if (value!.isEmpty) {
                       return 'Por favor, insira o nome.';
@@ -856,7 +930,11 @@ class MyWidgetPadrao {
                   controller: telefoneController,
                   maxLength: 11,
                   keyboardType: TextInputType.number,
+                  //focusNode: focusNode,
                   decoration: const InputDecoration(
+                    icon: Icon(
+                      Icons.phone,
+                    ),
                     labelText: 'Telefone',
                     prefixText: '+55 ',
                   ),
@@ -865,6 +943,83 @@ class MyWidgetPadrao {
                       return 'Por favor, insira um número de telefone válido.';
                     }
                     return null;
+                  },
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                GooglePlacesAutoCompleteTextFormField(
+                  textEditingController: controllerPlace,
+                  googleAPIKey: 'AIzaSyCOBgJqSi69QIjkxSQyV9lbK5Zir_c5z-0',
+                  keyboardType: TextInputType.streetAddress,
+                  predictionsStyle:
+                      const TextStyle(fontWeight: FontWeight.bold),
+                  inputDecoration: const InputDecoration(
+                    icon: Icon(
+                      Icons.maps_home_work,
+                      size: 20,
+                    ),
+                    labelText: 'Endereço',
+                  ),
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Por favor, digite um endereço!';
+                    }
+                    return null;
+                  },
+                  // proxyURL: _yourProxyURL, //
+                  maxLines: 1,
+                  overlayContainer: (child) => Material(
+                    elevation: 1.0,
+                    color: const Color.fromARGB(255, 115, 172, 238),
+                    borderRadius: BorderRadius.circular(12),
+                    child: child,
+                  ),
+                  getPlaceDetailWithLatLng: (prediction) {
+                    print('placeDetails${prediction.lng}');
+                  },
+                  itmClick: (Prediction prediction) =>
+                      controllerPlace.text = prediction.description!,
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                TextFormField(
+                  readOnly: true,
+                  onTap: () async {
+                    final DateTime currentDate = DateTime.now();
+                    final DateTime lastDate =
+                        currentDate.add(const Duration(days: 5 * 365));
+                    final date = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime.now(),
+                        lastDate: lastDate);
+                    final getDateController =
+                        '${date!.day.toString().length < 2 ? '0${date.day.toString()}' : date.day.toString()}/${date.month.toString().length < 2 ? '0${date.month.toString()}' : date.month.toString()}/${date.year}';
+
+                    dataCompraController.text = getDateController;
+                  },
+                  controller: dataCompraController,
+                  decoration: const InputDecoration(
+                      labelText: 'Data da compra (dd/MM/yyyy)',
+                      icon: Icon(
+                        Icons.date_range_rounded,
+                      )),
+                  keyboardType: TextInputType.datetime,
+                  //focusNode: focusNode,
+                  validator: (value) {
+                    try {
+                      if (value == null || value.isEmpty) {
+                        return 'Campo obrigatório';
+                      }
+
+                      dateFormat
+                          .parseStrict(value); // Tenta fazer o parse da data
+                      return null; // A data é válida
+                    } catch (e) {
+                      return 'Data inválida';
+                    }
                   },
                 ),
                 const SizedBox(
@@ -888,8 +1043,12 @@ class MyWidgetPadrao {
                   },
                   controller: dataController,
                   decoration: const InputDecoration(
-                      labelText: 'Data a pagar (dd/MM/yyyy)'),
+                      labelText: 'Data a pagar (dd/MM/yyyy)',
+                      icon: Icon(
+                        Icons.date_range_rounded,
+                      )),
                   keyboardType: TextInputType.datetime,
+                  //focusNode: focusNode,
                   validator: (value) {
                     try {
                       if (value == null || value.isEmpty) {
@@ -922,7 +1081,10 @@ class MyWidgetPadrao {
                   // Validação passou, faça algo com os dados
                   String nome = nomeController.text;
                   String telefone = '+55${telefoneController.text}';
+                  String endereco = controllerPlace.text;
                   String data = converterDataBrasileira(dataController.text);
+                  String dataCompra =
+                      converterDataBrasileira(dataCompraController.text);
 
                   // Faça algo com os dados, por exemplo, adicione-os ao Firestore
                   // Lembre-se de adicionar a lógica de validação e armazenamento dos dados aqui
@@ -934,6 +1096,8 @@ class MyWidgetPadrao {
                     telefone,
                     data,
                     produto,
+                    endereco,
+                    dataCompra,
                   );
                   verificacao = true;
                   if (!context.mounted) return;

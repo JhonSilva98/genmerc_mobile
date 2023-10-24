@@ -1,0 +1,48 @@
+import 'package:flutter/material.dart';
+import 'package:google_maps_webservice/places.dart';
+
+class AddressFormField extends StatefulWidget {
+  @override
+  _AddressFormFieldState createState() => _AddressFormFieldState();
+}
+
+class _AddressFormFieldState extends State<AddressFormField> {
+  final _places = GoogleMapsPlaces(apiKey: 'AIzaSyCOBgJqSi69QIjkxSQyV9lbK5Zir_c5z-0');
+  TextEditingController _addressController = TextEditingController();
+
+  @override
+  void dispose() {
+    _addressController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _autocompleteAddress(String input) async {
+    if (input.isNotEmpty) {
+      PlacesAutocompleteResponse response = await _places.autocomplete(
+        input,
+        types: ['address'],
+      );
+
+      if (response.isOkay) {
+        setState(() {
+          _addressController.text = response.predictions[0].description;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        TextFormField(
+          controller: _addressController,
+          onChanged: (address) {
+            _autocompleteAddress(address);
+          },
+          decoration: InputDecoration(labelText: 'Endereço'),
+        ),
+      ],
+    );
+  }
+}
