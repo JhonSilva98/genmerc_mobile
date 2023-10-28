@@ -145,7 +145,7 @@ class Logicbutton {
           builder: (BuildContext context) {
             return AlertDialog(
               title: const Text('Apagar'),
-              content: const Text("Você deseja apagar esse dado?"),
+              content: const Text("Você deseja apagar este dado?"),
               actions: <Widget>[
                 TextButton(
                   onPressed: () {
@@ -158,6 +158,7 @@ class Logicbutton {
                       backgroundColor: MaterialStatePropertyAll(Colors.red)),
                   onPressed: () async {
                     // Implemente a lógica e apagar aqui
+
                     await BancoDadosFirebase().deleteImageBD(
                       image,
                     );
@@ -167,6 +168,7 @@ class Logicbutton {
                         .collection('bancodados')
                         .doc(documentID)
                         .delete();
+                    CachedNetworkImageProvider(image).evict();
                     if (!context.mounted) return;
                     Navigator.of(context).pop();
                   },
