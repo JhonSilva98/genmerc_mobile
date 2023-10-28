@@ -571,17 +571,15 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
             ) {
               return AlertDialog(
                 elevation: 10,
-                title: TextField(
+                title: SearchBar(
                   controller: controllerSeach,
                   onChanged: (value) {
                     setState(() {
                       _filterDocuments(value);
                     });
                   },
-                  decoration: const InputDecoration(
-                    hintText: 'Pesquisar...',
-                    border: OutlineInputBorder(),
-                  ),
+                  hintText: 'Pesquisar...',
+                  leading: const Icon(Icons.search),
                 ),
                 content: GridView.builder(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -783,7 +781,8 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 232, 237, 240),
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 160, 194, 224),
+        centerTitle: true,
+        backgroundColor: const Color.fromARGB(255, 29, 128, 214),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             image: DecorationImage(
@@ -1067,7 +1066,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
             ), // Valor alto para tornar o botão redondo
           ), // Ícone do botão
           backgroundColor:
-              const Color.fromARGB(255, 98, 156, 206), // Cor de fundo do botão
+              const Color.fromARGB(255, 206, 25, 64), // Cor de fundo do botão
           elevation: 4.0,
           child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -1089,7 +1088,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
       bottomNavigationBar: SizedBox(
         height: 70,
         child: BottomAppBar(
-          color: const Color.fromARGB(255, 160, 194, 224),
+          color: const Color.fromARGB(255, 29, 128, 214),
           shape: const CircularNotchedRectangle(),
           clipBehavior: Clip.antiAlias,
           child: Row(

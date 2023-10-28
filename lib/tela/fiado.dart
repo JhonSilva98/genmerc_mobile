@@ -50,6 +50,7 @@ class _FiadoState extends State<Fiado> {
 
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         backgroundColor: Colors.blue[300],
         flexibleSpace: Container(
           decoration: BoxDecoration(

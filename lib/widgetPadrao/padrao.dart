@@ -516,7 +516,7 @@ class MyWidgetPadrao {
                                                 listaProdutos[index]['nome'],
                                               ),
                                               subtitle: Text(
-                                                "Quantidade: ${(double.parse(listaProdutos[index]['valor'].toString()) / double.parse(listaProdutos[index]['valorUnit'].toString())).toStringAsFixed(2).replaceAll('.', ',') == 'NaN' ? 0 : (double.parse(listaProdutos[index]['valor'].toString()) / double.parse(listaProdutos[index]['valorUnit'].toString())).toStringAsFixed(2).replaceAll('.', ',')} ",
+                                                "Quantidade: ${(double.parse(listaProdutos[index]['valor'].toString()) / double.parse(listaProdutos[index]['valorUnit'].toString())).toStringAsFixed(1).replaceAll('.', ',') == 'NaN' ? 0 : (double.parse(listaProdutos[index]['valor'].toString()) / double.parse(listaProdutos[index]['valorUnit'].toString())).toStringAsFixed(1).replaceAll('.', ',')} ",
                                               ),
                                               trailing: Text(
                                                 'R\$ ${listaProdutos[index]['valor'].toStringAsFixed(2).replaceAll('.', ',')}',
@@ -811,10 +811,10 @@ class MyWidgetPadrao {
     String listProdutos = '';
     for (var contact in produtos) {
       listProdutos +=
-          '- ${contact['nome']}, ${(double.parse(contact['valor'].toString()) / double.parse(contact['valorUnit'].toString())).toStringAsFixed(1)}x, R\$ ${double.parse(contact['valor'].toString()).toStringAsFixed(2).replaceAll('.', ',')}\n';
+          '*-* ${contact['nome'].toString().toUpperCase()} | ${(double.parse(contact['valor'].toString()) / double.parse(contact['valorUnit'].toString())).toStringAsFixed(1)} Un. | R\$ ${double.parse(contact['valor'].toString()).toStringAsFixed(2).replaceAll('.', ',')}\n\n';
     }
     final mensagem =
-        'Olá $nome, tudo bom? Apenas relembrando sobre a compra aqui no mercadinho no data de ${converterData(dataCompra)} no valor de R\$ ${valor.toStringAsFixed(2).replaceAll(".", ",")}.\n\n - *Lista de compras* -\n$listProdutos\n Aguardo o pagamento conforme combinado. Obrigado.';
+        'Olá $nome, tudo bom? Apenas relembrando sobre a compra aqui no mercadinho no data de ${converterData(dataCompra)} no valor de R\$ ${valor.toStringAsFixed(2).replaceAll(".", ",")}.\n\n           - *LISTA DE COMPRAS* -\n\n$listProdutos\n Aguardo o pagamento conforme combinado. Obrigado.';
 
     final urlWhatsApp =
         'https://api.whatsapp.com/send?phone=$numero&text=$mensagem';

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:genmerc_mobile/widgetPadrao/padrao.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -135,6 +136,7 @@ class _VendasState extends State<Vendas> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         backgroundColor: Colors.blue[300],
         flexibleSpace: Container(
           decoration: BoxDecoration(
@@ -254,6 +256,10 @@ class _VendasState extends State<Vendas> {
                                     Expanded(
                                       flex: 3,
                                       child: TextFormField(
+                                        maxLength:
+                                            2, // Define o número máximo de caracteres permitidos
+                                        maxLengthEnforcement: MaxLengthEnforcement
+                                            .enforced, // Garante que o limite seja aplicado
                                         scrollPadding: const EdgeInsets.all(8),
                                         textAlign: TextAlign.center,
                                         style: const TextStyle(
@@ -299,6 +305,10 @@ class _VendasState extends State<Vendas> {
                                     Expanded(
                                       flex: 3,
                                       child: TextFormField(
+                                        maxLength:
+                                            4, // Define o número máximo de caracteres permitidos
+                                        maxLengthEnforcement: MaxLengthEnforcement
+                                            .enforced, // Garante que o limite seja aplicado
                                         textAlign: TextAlign.center,
                                         style: const TextStyle(
                                           fontSize: 30,

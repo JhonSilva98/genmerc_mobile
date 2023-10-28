@@ -23,6 +23,7 @@ class _CadastroState extends State<Cadastro> {
     final authProvider = Provider.of<AuthProvider>(context);
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         flexibleSpace: Container(
           decoration: BoxDecoration(
             image: DecorationImage(

@@ -87,12 +87,13 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
     contextPrincipal = context;
     return Scaffold(
       appBar: AppBar(
-        title: TextField(
+        toolbarHeight: 100,
+        title: SearchBar(
           onChanged: _filterDocuments,
-          decoration: const InputDecoration(
-            hintText: 'Pesquisar...',
-          ),
+          hintText: 'Pesquisar...',
+          leading: const Icon(Icons.search),
         ),
+        centerTitle: true,
       ),
       body: GridView.builder(
         itemCount: filteredDocuments.length,
