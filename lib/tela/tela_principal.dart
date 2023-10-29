@@ -571,15 +571,43 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
             ) {
               return AlertDialog(
                 elevation: 10,
-                title: SearchBar(
-                  controller: controllerSeach,
-                  onChanged: (value) {
-                    setState(() {
-                      _filterDocuments(value);
-                    });
-                  },
-                  hintText: 'Pesquisar...',
-                  leading: const Icon(Icons.search),
+                title: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius:
+                        BorderRadius.circular(25.0), // Borda arredondada
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: TextFormField(
+                    controller: controllerSeach,
+                    onChanged: (value) {
+                      setState(() {
+                        _filterDocuments(value);
+                      });
+                    },
+                    style: const TextStyle(
+                      fontSize: 16.0,
+                    ),
+                    decoration: const InputDecoration(
+                      hintText: 'Pesquisar...',
+                      hintStyle: TextStyle(
+                        color: Colors.grey,
+                      ),
+                      prefixIcon: Icon(
+                        Icons.search,
+                        color: Colors.grey,
+                      ),
+                      border: InputBorder.none, // Remove a borda padrão
+                      contentPadding: EdgeInsets.symmetric(vertical: 12.0),
+                    ),
+                  ),
                 ),
                 content: GridView.builder(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
