@@ -62,61 +62,72 @@ class ButtonScan {
 
         if (produtos != null) {
           TextEditingController controllervalor = TextEditingController();
+          final formKey = GlobalKey<FormState>();
           await showDialog(
             context: context,
             barrierDismissible: false,
             builder: (BuildContext context) {
               return AlertDialog(
                 title: const Text('Adicione'),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  //crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Flexible(
-                      child: TextFormField(
-                        controller: controllervalor,
-                        textAlign: TextAlign.center,
-                        inputFormatters: <TextInputFormatter>[
-                          FilteringTextInputFormatter.allow(
-                              RegExp(r'^\d+\.?\d{0,2}')),
-                        ],
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
+                content: Form(
+                  key: formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    //crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Flexible(
+                        child: TextFormField(
+                          controller: controllervalor,
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return 'Precisa ser preenchido!';
+                            }
+                            // Você pode adicionar regras de validação adicionais aqui, se necessário.
+                            return null; // Retorna null se o valor for válido.
+                          },
+                          textAlign: TextAlign.center,
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r'^\d+\.?\d{0,2}')),
+                          ],
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          decoration: InputDecoration(
+                              labelText: 'Digite o valor do produto:',
+                              border: const OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.white, // Cor da borda branca
+                                ),
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(50.0),
+                                ),
+                              ),
+                              focusedBorder: const OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors
+                                      .white, // Cor da borda branca quando focado
+                                ),
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(8.0),
+                                ),
+                              ),
+                              hintStyle:
+                                  MyWidgetPadrao.myBeautifulTextStyleBlack),
                         ),
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        decoration: InputDecoration(
-                            labelText: 'Digite o valor do produto:',
-                            border: const OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.white, // Cor da borda branca
-                              ),
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(50.0),
-                              ),
-                            ),
-                            focusedBorder: const OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors
-                                    .white, // Cor da borda branca quando focado
-                              ),
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(8.0),
-                              ),
-                            ),
-                            hintStyle:
-                                MyWidgetPadrao.myBeautifulTextStyleBlack),
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      'Adicione os dados inexistentes',
-                      style: TextStyle(fontSize: 14, color: Colors.grey),
-                    ),
-                  ],
+                      const SizedBox(height: 10),
+                      const Text(
+                        'Adicione os dados inexistentes',
+                        style: TextStyle(fontSize: 14, color: Colors.grey),
+                      ),
+                    ],
+                  ),
                 ),
                 actions: <Widget>[
                   TextButton(
@@ -131,39 +142,42 @@ class ButtonScan {
                   ),
                   ElevatedButton(
                     onPressed: () async {
-                      final progressDialogFinal =
-                          await MyWidgetPadrao().progressDialog(context);
-                      await progressDialogFinal.show();
-                      if (controllervalor.text.isNotEmpty) {
-                        controllervalor.text =
-                            controllervalor.text.replaceAll(',', '.');
+                      if (formKey.currentState!.validate()) {
+                        formKey.currentState!.save();
+                        final progressDialogFinal =
+                            await MyWidgetPadrao().progressDialog(context);
+                        await progressDialogFinal.show();
+                        if (controllervalor.text.isNotEmpty) {
+                          controllervalor.text =
+                              controllervalor.text.replaceAll(',', '.');
 
-                        String imagePesquisada = '';
+                          String imagePesquisada = '';
 
-                        if (produtos.imageFrontUrl != null) {
-                          imagePesquisada = produtos.imageFrontUrl!;
-                        } else {
-                          imagePesquisada =
-                              await seachImage.searchAndUploadImage(
-                                  "imagens: ${produtos.productName.toString()}",
-                                  email);
+                          if (produtos.imageFrontUrl != null) {
+                            imagePesquisada = produtos.imageFrontUrl!;
+                          } else {
+                            imagePesquisada =
+                                await seachImage.searchAndUploadImage(
+                                    "imagens: ${produtos.productName.toString()}",
+                                    email);
+                          }
+
+                          mapii.addAll({
+                            'nome':
+                                (produtos.productName ?? 'sem nome').toString(),
+                            'valorUnit': double.parse(controllervalor.text),
+                            'image': imagePesquisada.toString(),
+                          });
+
+                          await collectionAdd.set({
+                            'nome': mapii['nome'],
+                            'image': mapii['image'].toString(),
+                            'valorUnit': mapii['valorUnit'],
+                          });
+                          progressDialogFinal.hide();
+                          if (!context.mounted) return;
+                          Navigator.of(context).pop();
                         }
-
-                        mapii.addAll({
-                          'nome':
-                              (produtos.productName ?? 'sem nome').toString(),
-                          'valorUnit': double.parse(controllervalor.text),
-                          'image': imagePesquisada.toString(),
-                        });
-
-                        await collectionAdd.set({
-                          'nome': mapii['nome'],
-                          'image': mapii['image'].toString(),
-                          'valorUnit': mapii['valorUnit'],
-                        });
-                        progressDialogFinal.hide();
-                        if (!context.mounted) return;
-                        Navigator.of(context).pop();
                       }
                     },
                     child: const Text('Adicionar'),
@@ -184,95 +198,113 @@ class ButtonScan {
         } else {
           TextEditingController controllerNome = TextEditingController();
           TextEditingController controllervalor = TextEditingController();
+          final formKey = GlobalKey<FormState>();
           await showDialog(
             context: context,
             barrierDismissible: false,
             builder: (BuildContext context) {
               return AlertDialog(
                 title: const Text('Adicione'),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  //crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Flexible(
-                      child: TextFormField(
-                        controller: controllerNome,
-                        textAlign: TextAlign.center,
-                        keyboardType: TextInputType.name,
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                content: Form(
+                  key: formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    //crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Flexible(
+                        child: TextFormField(
+                          controller: controllerNome,
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return 'Precisa ser preenchido!';
+                            }
+                            // Você pode adicionar regras de validação adicionais aqui, se necessário.
+                            return null; // Retorna null se o valor for válido.
+                          },
+                          textAlign: TextAlign.center,
+                          keyboardType: TextInputType.name,
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          decoration: InputDecoration(
+                              labelText: 'Digite o nome do produto',
+                              border: const OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.white, // Cor da borda branca
+                                ),
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(50.0),
+                                ),
+                              ),
+                              focusedBorder: const OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors
+                                      .white, // Cor da borda branca quando focado
+                                ),
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(8.0),
+                                ),
+                              ),
+                              hintStyle:
+                                  MyWidgetPadrao.myBeautifulTextStyleBlack),
                         ),
-                        decoration: InputDecoration(
-                            labelText: 'Digite o nome do produto',
-                            border: const OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.white, // Cor da borda branca
-                              ),
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(50.0),
-                              ),
-                            ),
-                            focusedBorder: const OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors
-                                    .white, // Cor da borda branca quando focado
-                              ),
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(8.0),
-                              ),
-                            ),
-                            hintStyle:
-                                MyWidgetPadrao.myBeautifulTextStyleBlack),
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                    Flexible(
-                      child: TextFormField(
-                        controller: controllervalor,
-                        textAlign: TextAlign.center,
-                        inputFormatters: <TextInputFormatter>[
-                          FilteringTextInputFormatter.allow(
-                              RegExp(r'^\d+\.?\d{0,2}')),
-                        ],
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
+                      const SizedBox(height: 10),
+                      Flexible(
+                        child: TextFormField(
+                          controller: controllervalor,
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return 'Precisa ser preenchido!';
+                            }
+                            // Você pode adicionar regras de validação adicionais aqui, se necessário.
+                            return null; // Retorna null se o valor for válido.
+                          },
+                          textAlign: TextAlign.center,
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r'^\d+\.?\d{0,2}')),
+                          ],
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          decoration: InputDecoration(
+                              labelText: 'Digite o valor do produto:',
+                              border: const OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.white, // Cor da borda branca
+                                ),
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(50.0),
+                                ),
+                              ),
+                              focusedBorder: const OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors
+                                      .white, // Cor da borda branca quando focado
+                                ),
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(8.0),
+                                ),
+                              ),
+                              hintStyle:
+                                  MyWidgetPadrao.myBeautifulTextStyleBlack),
                         ),
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        decoration: InputDecoration(
-                            labelText: 'Digite o valor do produto:',
-                            border: const OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.white, // Cor da borda branca
-                              ),
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(50.0),
-                              ),
-                            ),
-                            focusedBorder: const OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors
-                                    .white, // Cor da borda branca quando focado
-                              ),
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(8.0),
-                              ),
-                            ),
-                            hintStyle:
-                                MyWidgetPadrao.myBeautifulTextStyleBlack),
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      'Adicione os dados inexistentes',
-                      style: TextStyle(fontSize: 14, color: Colors.grey),
-                    ),
-                  ],
+                      const SizedBox(height: 10),
+                      const Text(
+                        'Adicione os dados inexistentes',
+                        style: TextStyle(fontSize: 14, color: Colors.grey),
+                      ),
+                    ],
+                  ),
                 ),
                 actions: <Widget>[
                   TextButton(
@@ -287,31 +319,34 @@ class ButtonScan {
                   ),
                   ElevatedButton(
                     onPressed: () async {
-                      final progressDialogFinal =
-                          await MyWidgetPadrao().progressDialog(context);
-                      await progressDialogFinal.show();
-                      if (controllerNome.text.isNotEmpty &&
-                          controllervalor.text.isNotEmpty) {
-                        controllervalor.text =
-                            controllervalor.text.replaceAll(',', '.');
-                        final imagePesquisada =
-                            await seachImage.searchAndUploadImage(
-                                "imagens: ${controllerNome.text}", email);
+                      if (formKey.currentState!.validate()) {
+                        formKey.currentState!.save();
+                        final progressDialogFinal =
+                            await MyWidgetPadrao().progressDialog(context);
+                        await progressDialogFinal.show();
+                        if (controllerNome.text.isNotEmpty &&
+                            controllervalor.text.isNotEmpty) {
+                          controllervalor.text =
+                              controllervalor.text.replaceAll(',', '.');
+                          final imagePesquisada =
+                              await seachImage.searchAndUploadImage(
+                                  "imagens: ${controllerNome.text}", email);
 
-                        mapii.addAll({
-                          'nome': controllerNome.text,
-                          'valorUnit': double.parse(controllervalor.text),
-                          'image': imagePesquisada,
-                        });
+                          mapii.addAll({
+                            'nome': controllerNome.text,
+                            'valorUnit': double.parse(controllervalor.text),
+                            'image': imagePesquisada,
+                          });
 
-                        await collectionAdd.set({
-                          'nome': controllerNome.text,
-                          'image': imagePesquisada,
-                          'valorUnit': double.parse(controllervalor.text),
-                        });
-                        progressDialogFinal.hide();
-                        if (!context.mounted) return;
-                        Navigator.of(context).pop();
+                          await collectionAdd.set({
+                            'nome': controllerNome.text,
+                            'image': imagePesquisada,
+                            'valorUnit': double.parse(controllervalor.text),
+                          });
+                          progressDialogFinal.hide();
+                          if (!context.mounted) return;
+                          Navigator.of(context).pop();
+                        }
                       }
                     },
                     child: const Text('Adicionar'),
