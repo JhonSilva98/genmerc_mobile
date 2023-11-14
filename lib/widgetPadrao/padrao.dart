@@ -1,6 +1,7 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ticket/flutter_ticket.dart';
+import 'package:genmerc_mobile/api/mercado_pago.dart';
 import 'package:genmerc_mobile/firebase/banco_dados.dart';
 import 'package:google_places_autocomplete_text_field/google_places_autocomplete_text_field.dart';
 import 'package:google_places_autocomplete_text_field/model/prediction.dart';
@@ -640,6 +641,7 @@ class MyWidgetPadrao {
                               valor,
                               listaProdutos,
                               dataCompra,
+                              email,
                             );
                           },
                           icon: const Icon(
@@ -806,15 +808,21 @@ class MyWidgetPadrao {
     }
   }
 
-  Future<void> abrirWhatsApp(String numero, String nome, double valor, produtos,
-      String dataCompra) async {
+  Future<void> abrirWhatsApp(
+    String numero,
+    String nome,
+    double valor,
+    produtos,
+    String dataCompra,
+    String email,
+  ) async {
     String listProdutos = '';
     for (var contact in produtos) {
       listProdutos +=
           '*-* ${contact['nome'].toString().toUpperCase()} | ${(double.parse(contact['valor'].toString()) / double.parse(contact['valorUnit'].toString())).toStringAsFixed(1)} Un. | R\$ ${double.parse(contact['valor'].toString()).toStringAsFixed(2).replaceAll('.', ',')}\n\n';
     }
     final mensagem =
-        'Olá $nome, tudo bom? Apenas relembrando sobre a compra aqui no mercadinho no data de ${converterData(dataCompra)} no valor de R\$ ${valor.toStringAsFixed(2).replaceAll(".", ",")}.\n\n           - *LISTA DE COMPRAS* -\n\n$listProdutos\n Aguardo o pagamento conforme combinado. Obrigado.';
+        'Olá $nome, tudo bom? Apenas relembrando sobre a compra aqui no mercadinho no data de ${converterData(dataCompra)} no valor de R\$ ${valor.toStringAsFixed(2).replaceAll(".", ",")}.\n\n           - *LISTA DE COMPRAS* -\n\n$listProdutos\n Aguardo o pagamento conforme combinado no link abaixo.\n${await criarLinkPagamento(valor, email)} \nObrigado.';
 
     final urlWhatsApp =
         'https://api.whatsapp.com/send?phone=$numero&text=$mensagem';
