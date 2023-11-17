@@ -87,7 +87,16 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
     contextPrincipal = context;
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 29, 128, 214),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Colors.blue[300],
         flexibleSpace: Container(
           decoration: BoxDecoration(
             image: DecorationImage(

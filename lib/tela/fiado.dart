@@ -50,7 +50,6 @@ class _FiadoState extends State<Fiado> {
 
     return Scaffold(
       appBar: AppBar(
-        centerTitle: true,
         backgroundColor: Colors.blue[300],
         flexibleSpace: Container(
           decoration: BoxDecoration(
@@ -59,7 +58,9 @@ class _FiadoState extends State<Fiado> {
                 "assets/ideogram.jpeg",
               ), // Substitua pelo caminho da sua imagem
               colorFilter: ColorFilter.mode(
-                Colors.white.withOpacity(0.15), // Ajuste a opacidade aqui
+                Colors.white.withOpacity(
+                  0.15,
+                ), // Ajuste a opacidade aqui
                 BlendMode
                     .dstATop, // Define o modo de mesclagem para mesclar com a cor de fundo
               ),
@@ -67,6 +68,19 @@ class _FiadoState extends State<Fiado> {
             ),
           ),
         ),
+        toolbarHeight: 100,
+        shadowColor: Colors.black,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(15),
+          ),
+        ),
+        centerTitle: true,
+        actions: const [
+          SizedBox(
+            width: 20,
+          )
+        ],
         title: Center(
           child: Stack(
             children: [
@@ -96,13 +110,14 @@ class _FiadoState extends State<Fiado> {
           ),
         ),
         leading: IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            icon: const Icon(
-              Icons.arrow_back_ios_new_rounded,
-              color: Colors.white,
-            )),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Colors.white,
+          ),
+        ),
       ),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance

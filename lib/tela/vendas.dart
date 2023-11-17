@@ -136,7 +136,6 @@ class _VendasState extends State<Vendas> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        centerTitle: true,
         backgroundColor: Colors.blue[300],
         flexibleSpace: Container(
           decoration: BoxDecoration(
@@ -145,7 +144,9 @@ class _VendasState extends State<Vendas> {
                 "assets/ideogram.jpeg",
               ), // Substitua pelo caminho da sua imagem
               colorFilter: ColorFilter.mode(
-                Colors.white.withOpacity(0.15), // Ajuste a opacidade aqui
+                Colors.white.withOpacity(
+                  0.15,
+                ), // Ajuste a opacidade aqui
                 BlendMode
                     .dstATop, // Define o modo de mesclagem para mesclar com a cor de fundo
               ),
@@ -153,6 +154,14 @@ class _VendasState extends State<Vendas> {
             ),
           ),
         ),
+        toolbarHeight: 100,
+        shadowColor: Colors.black,
+        centerTitle: true,
+        actions: const [
+          SizedBox(
+            width: 20,
+          )
+        ],
         title: Center(
           child: Stack(
             children: [
@@ -208,6 +217,16 @@ class _VendasState extends State<Vendas> {
                     flex: 1,
                     child: Container(
                       decoration: const BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black54,
+                            blurRadius: 15.0,
+                            offset: Offset(0.0, 0.75),
+                          ),
+                        ],
+                        borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(15),
+                            bottomRight: Radius.circular(15)),
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
