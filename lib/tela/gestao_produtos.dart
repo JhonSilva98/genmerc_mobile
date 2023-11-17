@@ -87,17 +87,41 @@ class _GestaoProdutosState extends State<GestaoProdutos> {
     contextPrincipal = context;
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: const Color.fromARGB(255, 29, 128, 214),
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: const AssetImage(
+                "assets/ideogram.jpeg",
+              ), // Substitua pelo caminho da sua imagem
+              colorFilter: ColorFilter.mode(
+                Colors.white.withOpacity(
+                  0.15,
+                ), // Ajuste a opacidade aqui
+                BlendMode
+                    .dstATop, // Define o modo de mesclagem para mesclar com a cor de fundo
+              ),
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
         toolbarHeight: 100,
+        shadowColor: Colors.black,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(15),
+          ),
+        ),
         title: Container(
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(25.0), // Borda arredondada
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.5),
+                color: Colors.black.withOpacity(0.5),
                 spreadRadius: 2,
                 blurRadius: 5,
-                offset: const Offset(0, 3),
+                offset: const Offset(0, 2),
               ),
             ],
           ),

@@ -11,6 +11,7 @@ import 'package:url_launcher/url_launcher_string.dart';
 
 class MyWidgetPadrao {
   final player = AudioPlayer();
+
   static TextStyle myBeautifulTextStyle = const TextStyle(
     color: Colors.white, // Cor do texto
     fontSize: 50.0, // Tamanho da fonte
@@ -138,6 +139,11 @@ class MyWidgetPadrao {
     String dataCompra,
     String complemento,
   ) async {
+    String link = await BancoDadosFirebase().getLinkPagamento(
+      email,
+      docFiado,
+    );
+
     return InkWell(
       onLongPress: () async {
         await showDialog(
@@ -161,7 +167,7 @@ class MyWidgetPadrao {
                                 return AlertDialog(
                                   title: const Text('Apagar'),
                                   content: const Text(
-                                      "Você deseja apagar esse fiado?"),
+                                      "Você deseja apagar este fiado?"),
                                   actions: <Widget>[
                                     TextButton(
                                       onPressed: () {
@@ -335,7 +341,7 @@ class MyWidgetPadrao {
                           await BancoDadosFirebase().setVendasDeleteFiadoDoc(
                             email,
                             docFiado,
-                            valor,
+                            double.parse(valor.toStringAsFixed(2)),
                             context,
                           );
                           await player.play(
@@ -642,6 +648,7 @@ class MyWidgetPadrao {
                               listaProdutos,
                               dataCompra,
                               email,
+                              link,
                             );
                           },
                           icon: const Icon(
@@ -815,6 +822,7 @@ class MyWidgetPadrao {
     produtos,
     String dataCompra,
     String email,
+    String link,
   ) async {
     String listProdutos = '';
     for (var contact in produtos) {
@@ -822,7 +830,7 @@ class MyWidgetPadrao {
           '*-* ${contact['nome'].toString().toUpperCase()} | ${(double.parse(contact['valor'].toString()) / double.parse(contact['valorUnit'].toString())).toStringAsFixed(1)} Un. | R\$ ${double.parse(contact['valor'].toString()).toStringAsFixed(2).replaceAll('.', ',')}\n\n';
     }
     final mensagem =
-        'Olá $nome, tudo bom? Apenas relembrando sobre a compra aqui no mercadinho no data de ${converterData(dataCompra)} no valor de R\$ ${valor.toStringAsFixed(2).replaceAll(".", ",")}.\n\n           - *LISTA DE COMPRAS* -\n\n$listProdutos\n Aguardo o pagamento conforme combinado no link abaixo.\n${await criarLinkPagamento(valor, email)} \nObrigado.';
+        'Olá $nome, tudo bom? Apenas relembrando sobre a compra aqui no mercadinho no data de ${converterData(dataCompra)} no valor de R\$ ${valor.toStringAsFixed(2).replaceAll(".", ",")}.\n\n           - *LISTA DE COMPRAS* -\n\n$listProdutos\n Aguardo o pagamento conforme combinado no link abaixo.\n\n$link \n\nObrigado.';
 
     final urlWhatsApp =
         'https://api.whatsapp.com/send?phone=$numero&text=$mensagem';
@@ -985,12 +993,12 @@ class MyWidgetPadrao {
                     ),
                     labelText: 'Endereço',
                   ),
-                  validator: (value) {
+                  /*validator: (value) {
                     if (value!.isEmpty) {
                       return 'Por favor, digite um endereço!';
                     }
                     return null;
-                  },
+                  },*/
                   // proxyURL: _yourProxyURL, //
                   maxLines: 1,
                   overlayContainer: (child) => Material(
@@ -999,9 +1007,7 @@ class MyWidgetPadrao {
                     borderRadius: BorderRadius.circular(12),
                     child: child,
                   ),
-                  getPlaceDetailWithLatLng: (prediction) {
-                    print('placeDetails${prediction.lng}');
-                  },
+                  getPlaceDetailWithLatLng: (prediction) {},
                   itmClick: (Prediction prediction) =>
                       controllerPlace.text = prediction.description!,
                 ),
@@ -1135,6 +1141,7 @@ class MyWidgetPadrao {
               child: const Text('Cadastrar'),
               onPressed: () async {
                 if (formKey.currentState!.validate()) {
+                  MercadoPagoLink mercadopago = MercadoPagoLink();
                   // Validação passou, faça algo com os dados
                   String nome = nomeController.text;
                   String telefone = '+55${telefoneController.text}';
@@ -1143,6 +1150,8 @@ class MyWidgetPadrao {
                   String dataCompra =
                       converterDataBrasileira(dataCompraController.text);
                   String complemento = complementController.text;
+                  String link =
+                      await mercadopago.criarLinkPagamento(valor, email);
 
                   // Faça algo com os dados, por exemplo, adicione-os ao Firestore
                   // Lembre-se de adicionar a lógica de validação e armazenamento dos dados aqui
@@ -1157,6 +1166,7 @@ class MyWidgetPadrao {
                     endereco,
                     dataCompra,
                     complemento,
+                    link,
                   );
                   verificacao = true;
                   if (!context.mounted) return;

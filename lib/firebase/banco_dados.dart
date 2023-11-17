@@ -147,6 +147,18 @@ class BancoDadosFirebase {
     }
   }
 
+  Future<String> getLinkPagamento(String email, String documentoID) async {
+    final FirebaseFirestore firestore = FirebaseFirestore.instance;
+    final verificacao = await firestore
+        .collection('users')
+        .doc(email)
+        .collection('fiado')
+        .doc(documentoID)
+        .get();
+    final String verLink = verificacao.data()!['link'];
+    return verLink;
+  }
+
   Future<XFile?> resizeAndReturnXFile(XFile pickedFile) async {
     // Obtém os bytes da imagem original
     List<int> imageBytes = await pickedFile.readAsBytes();
@@ -217,6 +229,7 @@ class BancoDadosFirebase {
     String endereco,
     String dataCompra,
     String complemento,
+    String link,
   ) async {
     var documentReferenceFiado = FirebaseFirestore.instance
         .collection('users')
@@ -234,6 +247,7 @@ class BancoDadosFirebase {
         'endereco': endereco,
         'dataCompra': dataCompra,
         'complemento': complemento,
+        'link': link,
       });
     } catch (e) {
       MyWidgetPadrao.showErrorDialog(context);
@@ -256,7 +270,7 @@ class BancoDadosFirebase {
           .collection('mes')
           .doc(data.month.toString())
           .collection('dia')
-          .doc(data.day.toString())
+          .doc(data.day < 10 ? "0${data.day}" : data.day.toString())
           .get();
       documentReference.then((documentSnapshot) {
         var documentReferenceSet = FirebaseFirestore.instance
@@ -267,7 +281,7 @@ class BancoDadosFirebase {
             .collection('mes')
             .doc(data.month.toString())
             .collection('dia')
-            .doc(data.day.toString());
+            .doc(data.day < 10 ? "0${data.day}" : data.day.toString());
         if (documentSnapshot.exists) {
           // O documento existe, você pode acessar seus dados assim:
           var dados = documentSnapshot.data();

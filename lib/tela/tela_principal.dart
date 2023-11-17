@@ -465,7 +465,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                         if (subtotal > 0) {
                           final ano = now.year;
                           final mes = now.month;
-                          final dia = now.day;
+                          final dia = now.day < 10 ? "0${now.day}" : now.day;
 
                           DocumentReference<Map<String, dynamic>>
                               documentReference = FirebaseFirestore.instance
@@ -810,6 +810,13 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
       backgroundColor: const Color.fromARGB(255, 232, 237, 240),
       appBar: AppBar(
         centerTitle: true,
+        toolbarHeight: 100,
+        shadowColor: Colors.black,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(15),
+          ),
+        ),
         backgroundColor: const Color.fromARGB(255, 29, 128, 214),
         flexibleSpace: Container(
           decoration: BoxDecoration(
@@ -933,8 +940,11 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
               verAttFotoNome = false;
               return Padding(
                 padding: const EdgeInsets.only(left: 8, bottom: 8),
-                child: CircleAvatar(
-                  backgroundImage: NetworkImage(dados!['foto']),
+                child: FittedBox(
+                  fit: BoxFit.contain,
+                  child: CircleAvatar(
+                    backgroundImage: NetworkImage(dados!['foto']),
+                  ),
                 ),
               );
             }
